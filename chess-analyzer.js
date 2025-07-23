@@ -111,9 +111,7 @@ $(document).ready(function() {
                     const mode = $('input[name="mode"]:checked').val();
                     const rawMove = pv.split(' ')[0];
                     
-                    if (mode === 'show') {
-                        highlightMove(rawMove);
-                    } else if (mode === 'make') {
+                    if (mode === 'make') {
                         makeEngineMove(rawMove);
                     }
 
@@ -126,6 +124,12 @@ $(document).ready(function() {
                         const progressValue = Math.max(1, Math.min(99, 50 + score * 5));
                         setAnalysisProgress(board.orientation() === 'white' ? progressValue : 100 - progressValue);
                     }
+                }
+                
+                // Highlight moves after each one is processed if in show mode
+                const mode = $('input[name="mode"]:checked').val();
+                if (mode === 'show') {
+                    setTimeout(() => highlightAllMoves(), 50);
                 }
             }
         }
@@ -152,10 +156,20 @@ $(document).ready(function() {
         }
     }
     
-    // Format move for display (e.g., "e2e4" -> "e2-e4")
+    // Format move for display with piece notation (e.g., "e2e4" -> "pe2e4" for pawn)
     function formatMove(move) {
         if (move.length >= 4) {
-            return move.slice(0, 2) + '-' + move.slice(2);
+            const fromSquare = move.slice(0, 2);
+            const toSquare = move.slice(2, 4);
+            const position = board.position();
+            const piece = position[fromSquare];
+            
+            if (piece) {
+                const pieceChar = piece.charAt(1).toLowerCase();
+                const pieceSymbol = pieceChar === 'p' ? 'p' : pieceChar.toUpperCase();
+                return pieceSymbol + fromSquare + toSquare;
+            }
+            return move.slice(0, 2) + move.slice(2);
         }
         return move;
     }
@@ -165,9 +179,9 @@ $(document).ready(function() {
         return pv.split(' ').map(move => formatMove(move)).join(' ');
     }
     
-    // Highlight the best move on the board
+    // Highlight moves on the board - now handles all three moves
     function highlightMove(move) {
-        removeHighlights();
+        // Don't remove highlights here - we want to show all three moves
         if (move && move.length >= 4) {
             const fromSquare = move.slice(0, 2);
             const toSquare = move.slice(2, 4);
@@ -177,9 +191,73 @@ $(document).ready(function() {
         }
     }
     
+    // Highlight all three best moves on the board
+    function highlightAllMoves() {
+        removeHighlights();
+        
+        // Get all three moves and highlight them
+        const move1 = $('#bestMove1').val();
+        const move2 = $('#bestMove2').val();
+        const move3 = $('#bestMove3').val();
+        
+        console.log('Highlighting moves:', { move1, move2, move3 });
+        
+        // Helper function to extract squares from formatted move
+        function extractSquares(formattedMove) {
+            if (!formattedMove) return null;
+            
+            // Remove piece letter at the beginning (like 'p', 'K', 'Q', etc.)
+            let moveStr = formattedMove;
+            if (moveStr.length > 4 && /^[a-zA-Z]/.test(moveStr)) {
+                moveStr = moveStr.slice(1); // Remove first character if it's a letter
+            }
+            
+            if (moveStr.length >= 4) {
+                return {
+                    from: moveStr.slice(0, 2),
+                    to: moveStr.slice(2, 4)
+                };
+            }
+            return null;
+        }
+        
+        // Highlight move 1 in green shades (best move)
+        if (move1) {
+            const squares1 = extractSquares(move1);
+            console.log('Move 1 extraction:', move1, '->', squares1);
+            if (squares1) {
+                console.log('Highlighting move 1:', squares1.from, '->', squares1.to);
+                $('.square-' + squares1.from).addClass('highlight-move1-from');
+                $('.square-' + squares1.to).addClass('highlight-move1-to');
+            }
+        }
+        
+        // Highlight move 2 in pink shades
+        if (move2) {
+            const squares2 = extractSquares(move2);
+            console.log('Move 2 extraction:', move2, '->', squares2);
+            if (squares2) {
+                console.log('Highlighting move 2:', squares2.from, '->', squares2.to);
+                $('.square-' + squares2.from).addClass('highlight-move2-from');
+                $('.square-' + squares2.to).addClass('highlight-move2-to');
+            }
+        }
+        
+        // Highlight move 3 in orange shades
+        if (move3) {
+            const squares3 = extractSquares(move3);
+            console.log('Move 3 extraction:', move3, '->', squares3);
+            if (squares3) {
+                console.log('Highlighting move 3:', squares3.from, '->', squares3.to);
+                $('.square-' + squares3.from).addClass('highlight-move3-from');
+                $('.square-' + squares3.to).addClass('highlight-move3-to');
+            }
+        }
+    }
+    
     // Remove move highlights
     function removeHighlights() {
-        $('#myBoard .square-55d63').removeClass('highlight-from highlight-to');
+        $('#myBoard .square-55d63').removeClass('highlight-from highlight-to highlight-move1-from highlight-move1-to highlight-move2-from highlight-move2-to highlight-move3-from highlight-move3-to');
     }
     
     // Make the engine's suggested move
@@ -330,93 +408,32 @@ $(document).ready(function() {
         removeHighlights();
     }
     
-    // Update move details with piece information and resulting position value
+    // Update move details - now just shows the evaluation, no verbose description
     function updateMoveDetails(move, evaluation, moveNumber) {
         if (!move || move.length < 4) {
             return;
         }
         
         try {
-            // Get current position
-            const currentFen = buildFenString();
-            const tempGame = new Chess(currentFen);
-            
-            // Get piece information before the move
-            const fromSquare = move.slice(0, 2);
-            const toSquare = move.slice(2, 4);
-            const position = board.position();
-            const piece = position[fromSquare];
-            const capturedPiece = position[toSquare];
-            const promotion = move.length === 5 ? move[4] : null;
-            
-            // Create move description
-            let description = '';
-            if (piece) {
-                const pieceType = getPieceTypeName(piece.charAt(1));
-                const pieceColor = piece.charAt(0) === 'w' ? 'White' : 'Black';
-                
-                if (capturedPiece) {
-                    const capturedType = getPieceTypeName(capturedPiece.charAt(1));
-                    description = `${pieceColor} ${pieceType} takes ${capturedType} on ${toSquare}`;
-                } else {
-                    description = `${pieceColor} ${pieceType} moves from ${fromSquare} to ${toSquare}`;
-                }
-                
-                if (promotion) {
-                    const promotionPiece = getPieceTypeName(promotion.toLowerCase());
-                    description += ` (promotes to ${promotionPiece})`;
-                }
-                
-                // Check for special moves
-                if (pieceType === 'King' && Math.abs(fromSquare.charCodeAt(0) - toSquare.charCodeAt(0)) === 2) {
-                    if (toSquare.charAt(0) === 'g') {
-                        description = `${pieceColor} castles kingside`;
-                    } else if (toSquare.charAt(0) === 'c') {
-                        description = `${pieceColor} castles queenside`;
-                    }
-                }
-            } else {
-                description = `Move ${fromSquare} to ${toSquare}`;
-            }
-            
-            // Try to make the move to get the resulting position value
-            let resultingValue = evaluation;
-            try {
-                const moveObj = tempGame.move(move, { sloppy: true });
-                if (moveObj) {
-                    // Check if the move results in check, checkmate, or stalemate
-                    if (tempGame.in_checkmate()) {
-                        description += ' - Checkmate!';
-                    } else if (tempGame.in_check()) {
-                        description += ' - Check';
-                    } else if (tempGame.in_stalemate()) {
-                        description += ' - Stalemate';
-                    }
-                }
-            } catch (error) {
-                // Move might be invalid for chess.js, just use basic description
-                console.warn('Could not validate move with chess.js:', error);
-            }
-            
-            // Update the UI
-            $(`#moveDescription${moveNumber}`).text(description);
+            // Clear the description as we don't want verbose text anymore
+            $(`#moveDescription${moveNumber}`).text('');
             
             // Update resulting value with appropriate styling
             const resultingElement = $(`#resultingValue${moveNumber}`);
-            resultingElement.text(`Board Value: ${resultingValue}`);
+            resultingElement.text(`${evaluation}`);
             
             // Apply styling based on evaluation
             resultingElement.removeClass('negative mate');
-            if (resultingValue.includes('M')) {
+            if (evaluation.includes('M')) {
                 resultingElement.addClass('mate');
-            } else if (resultingValue.startsWith('-')) {
+            } else if (evaluation.startsWith('-')) {
                 resultingElement.addClass('negative');
             }
             
         } catch (error) {
             console.error('Error updating move details:', error);
-            $(`#moveDescription${moveNumber}`).text(`Move: ${formatMove(move)}`);
-            $(`#resultingValue${moveNumber}`).text(`Board Value: ${evaluation}`);
+            $(`#moveDescription${moveNumber}`).text('');
+            $(`#resultingValue${moveNumber}`).text(`${evaluation}`);
         }
     }
     
@@ -762,6 +779,36 @@ style.textContent = `
     }
     .highlight-to {
         box-shadow: inset 0 0 3px 3px red !important;
+    }
+    
+    /* Move 1 highlighting - Gentle green shades (Best move) */
+    .highlight-move1-from {
+        box-shadow: inset 0 0 4px 4px #90EE90 !important;
+        border: 2px solid #7CB342 !important;
+    }
+    .highlight-move1-to {
+        box-shadow: inset 0 0 4px 4px #C8E6C9 !important;
+        border: 2px solid #90EE90 !important;
+    }
+    
+    /* Move 2 highlighting - Gentle pink shades */
+    .highlight-move2-from {
+        box-shadow: inset 0 0 4px 4px #F8BBD9 !important;
+        border: 2px solid #E1A0C4 !important;
+    }
+    .highlight-move2-to {
+        box-shadow: inset 0 0 4px 4px #FCE4EC !important;
+        border: 2px solid #F8BBD9 !important;
+    }
+    
+    /* Move 3 highlighting - Gentle orange shades */
+    .highlight-move3-from {
+        box-shadow: inset 0 0 4px 4px #FFCC80 !important;
+        border: 2px solid #FF9800 !important;
+    }
+    .highlight-move3-to {
+        box-shadow: inset 0 0 4px 4px #FFF3E0 !important;
+        border: 2px solid #FFCC80 !important;
     }
 `;
 document.head.appendChild(style);
