@@ -253,11 +253,139 @@ $(document).ready(function() {
                 $('.square-' + squares3.to).addClass('highlight-move3-to');
             }
         }
+        
+        // Add PV arrows for the best move
+        showPVArrows();
     }
     
     // Remove move highlights
     function removeHighlights() {
         $('#myBoard .square-55d63').removeClass('highlight-from highlight-to highlight-move1-from highlight-move1-to highlight-move2-from highlight-move2-to highlight-move3-from highlight-move3-to');
+        removePVArrows();
+    }
+    
+    // Show arrows for principal variation moves (first 4 moves of best line)
+    function showPVArrows() {
+        removePVArrows();
+        
+        const pv1 = $('#principalVariation1').val();
+        if (!pv1) return;
+        
+        console.log('PV1 for arrows:', pv1);
+        
+        // Parse the PV moves (they should be in format like "pe2e4 pb7b5 Ng1f3 Bc8b7")
+        const pvMoves = pv1.trim().split(' ').slice(0, 4); // Get first 4 moves
+        const arrowColors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']; // Green, Blue, Orange, Purple
+        
+        console.log('PV moves for arrows:', pvMoves);
+        
+        pvMoves.forEach((moveStr, index) => {
+            if (!moveStr) return;
+            
+            // Extract squares from the move
+            let cleanMove = moveStr;
+            if (cleanMove.length > 4 && /^[a-zA-Z]/.test(cleanMove)) {
+                cleanMove = cleanMove.slice(1); // Remove piece letter
+            }
+            
+            if (cleanMove.length >= 4) {
+                const fromSquare = cleanMove.slice(0, 2);
+                const toSquare = cleanMove.slice(2, 4);
+                
+                console.log(`Creating arrow ${index + 1}: ${fromSquare} -> ${toSquare}`);
+                createArrow(fromSquare, toSquare, arrowColors[index], index + 1);
+            }
+        });
+    }
+    
+    // Create an arrow between two squares
+    function createArrow(fromSquare, toSquare, color, number) {
+        const boardElement = $('#myBoard');
+        const fromElement = boardElement.find('.square-' + fromSquare);
+        const toElement = boardElement.find('.square-' + toSquare);
+        
+        if (fromElement.length === 0 || toElement.length === 0) {
+            console.log(`Arrow creation failed: from=${fromElement.length}, to=${toElement.length}`);
+            return;
+        }
+        
+        // Get positions relative to the board
+        const boardOffset = boardElement.offset();
+        const fromOffset = fromElement.offset();
+        const toOffset = toElement.offset();
+        
+        const fromX = fromOffset.left - boardOffset.left + fromElement.width() / 2;
+        const fromY = fromOffset.top - boardOffset.top + fromElement.height() / 2;
+        const toX = toOffset.left - boardOffset.left + toElement.width() / 2;
+        const toY = toOffset.top - boardOffset.top + toElement.height() / 2;
+        
+        // Calculate arrow properties
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+        const length = Math.sqrt(dx * dx + dy * dy);
+        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+        
+        // Shorten the arrow to not overlap with pieces
+        const shortenBy = 25;
+        const adjustedLength = Math.max(10, length - shortenBy);
+        
+        // Create arrow container
+        const arrow = $(`
+            <div class="pv-arrow" data-move="${number}" style="
+                position: absolute;
+                left: ${fromX + (dx / length) * 15}px;
+                top: ${fromY + (dy / length) * 15}px;
+                width: ${adjustedLength}px;
+                height: 12px;
+                background: ${color};
+                transform-origin: 0 50%;
+                transform: rotate(${angle}deg);
+                z-index: 1000;
+                pointer-events: none;
+                border-radius: 6px;
+                opacity: 0.7;
+            ">
+                <div style="
+                    position: absolute;
+                    right: -16px;
+                    top: -12px;
+                    width: 0;
+                    height: 0;
+                    border-left: 24px solid ${color};
+                    border-top: 18px solid transparent;
+                    border-bottom: 18px solid transparent;
+                    opacity: 0.7;
+                "></div>
+                <div class="move-number" style="
+                    position: absolute;
+                    left: 50%;
+                    top: -22px;
+                    transform: translateX(-50%);
+                    background: ${color};
+                    color: white;
+                    border-radius: 50%;
+                    width: 26px;
+                    height: 26px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: bold;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                    opacity: 0.9;
+                ">${number}</div>
+            </div>
+        `);
+        
+        boardElement.css('position', 'relative');
+        boardElement.append(arrow);
+        
+        console.log(`Arrow ${number} created successfully`);
+    }
+    
+    // Remove all PV arrows
+    function removePVArrows() {
+        $('.pv-arrow').remove();
     }
     
     // Make the engine's suggested move
