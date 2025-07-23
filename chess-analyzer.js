@@ -79,22 +79,26 @@ $(document).ready(function() {
                 const pvNumber = match[1];
                 const pv = match[2].trim();
                 const move = pv.split(' ')[0];
+                const evaluation = parseEvaluation(line);
 
                 switch(pvNumber) {
                     case '1':
                         $('#bestMove1').val(formatMove(move));
                         $('#principalVariation1').val(formatPrincipalVariation(pv));
-                        $('#evaluation1').val(parseEvaluation(line));
+                        $('#evaluation1').val(evaluation);
+                        updateMoveDetails(move, evaluation, 1);
                         break;
                     case '2':
                         $('#bestMove2').val(formatMove(move));
                         $('#principalVariation2').val(formatPrincipalVariation(pv));
-                        $('#evaluation2').val(parseEvaluation(line));
+                        $('#evaluation2').val(evaluation);
+                        updateMoveDetails(move, evaluation, 2);
                         break;
                     case '3':
                         $('#bestMove3').val(formatMove(move));
                         $('#principalVariation3').val(formatPrincipalVariation(pv));
-                        $('#evaluation3').val(parseEvaluation(line));
+                        $('#evaluation3').val(evaluation);
+                        updateMoveDetails(move, evaluation, 3);
                         break;
                 }
 
@@ -315,8 +319,113 @@ $(document).ready(function() {
         $('#bestMove1, #bestMove2, #bestMove3').val('');
         $('#evaluation1, #evaluation2, #evaluation3').val('');
         $('#principalVariation1, #principalVariation2, #principalVariation3').val('');
+        $('#moveDescription1, #moveDescription2, #moveDescription3').text('');
+        $('#resultingValue1, #resultingValue2, #resultingValue3').text('').removeClass('negative mate');
         $('#depth').val('');
         removeHighlights();
+    }
+    
+    // Update move details with piece information and resulting position value
+    function updateMoveDetails(move, evaluation, moveNumber) {
+        if (!move || move.length < 4) {
+            return;
+        }
+        
+        try {
+            // Get current position
+            const currentFen = buildFenString();
+            const tempGame = new Chess(currentFen);
+            
+            // Get piece information before the move
+            const fromSquare = move.slice(0, 2);
+            const toSquare = move.slice(2, 4);
+            const position = board.position();
+            const piece = position[fromSquare];
+            const capturedPiece = position[toSquare];
+            const promotion = move.length === 5 ? move[4] : null;
+            
+            // Create move description
+            let description = '';
+            if (piece) {
+                const pieceType = getPieceTypeName(piece.charAt(1));
+                const pieceColor = piece.charAt(0) === 'w' ? 'White' : 'Black';
+                
+                if (capturedPiece) {
+                    const capturedType = getPieceTypeName(capturedPiece.charAt(1));
+                    description = `${pieceColor} ${pieceType} takes ${capturedType} on ${toSquare}`;
+                } else {
+                    description = `${pieceColor} ${pieceType} moves from ${fromSquare} to ${toSquare}`;
+                }
+                
+                if (promotion) {
+                    const promotionPiece = getPieceTypeName(promotion.toLowerCase());
+                    description += ` (promotes to ${promotionPiece})`;
+                }
+                
+                // Check for special moves
+                if (pieceType === 'King' && Math.abs(fromSquare.charCodeAt(0) - toSquare.charCodeAt(0)) === 2) {
+                    if (toSquare.charAt(0) === 'g') {
+                        description = `${pieceColor} castles kingside`;
+                    } else if (toSquare.charAt(0) === 'c') {
+                        description = `${pieceColor} castles queenside`;
+                    }
+                }
+            } else {
+                description = `Move ${fromSquare} to ${toSquare}`;
+            }
+            
+            // Try to make the move to get the resulting position value
+            let resultingValue = evaluation;
+            try {
+                const moveObj = tempGame.move(move, { sloppy: true });
+                if (moveObj) {
+                    // Check if the move results in check, checkmate, or stalemate
+                    if (tempGame.in_checkmate()) {
+                        description += ' - Checkmate!';
+                    } else if (tempGame.in_check()) {
+                        description += ' - Check';
+                    } else if (tempGame.in_stalemate()) {
+                        description += ' - Stalemate';
+                    }
+                }
+            } catch (error) {
+                // Move might be invalid for chess.js, just use basic description
+                console.warn('Could not validate move with chess.js:', error);
+            }
+            
+            // Update the UI
+            $(`#moveDescription${moveNumber}`).text(description);
+            
+            // Update resulting value with appropriate styling
+            const resultingElement = $(`#resultingValue${moveNumber}`);
+            resultingElement.text(`Board Value: ${resultingValue}`);
+            
+            // Apply styling based on evaluation
+            resultingElement.removeClass('negative mate');
+            if (resultingValue.includes('M')) {
+                resultingElement.addClass('mate');
+            } else if (resultingValue.startsWith('-')) {
+                resultingElement.addClass('negative');
+            }
+            
+        } catch (error) {
+            console.error('Error updating move details:', error);
+            $(`#moveDescription${moveNumber}`).text(`Move: ${formatMove(move)}`);
+            $(`#resultingValue${moveNumber}`).text(`Board Value: ${evaluation}`);
+        }
+    }
+    
+    // Helper function to get piece type name
+    function getPieceTypeName(pieceChar) {
+        const pieceNames = {
+            'p': 'Pawn',
+            'r': 'Rook',
+            'n': 'Knight',
+            'b': 'Bishop',
+            'q': 'Queen',
+            'k': 'King'
+        };
+        return pieceNames[pieceChar.toLowerCase()] || 'Piece';
     }
     
     // Event handlers

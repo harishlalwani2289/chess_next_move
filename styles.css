@@ -53,7 +53,7 @@ header p {
 
 #main-content {
   display: grid;
-  grid-template-columns: 682px 400px 500px;
+  grid-template-columns: 562px 400px 500px;
   gap: 30px;
   align-items: start;
   max-width: 100%;
@@ -66,13 +66,13 @@ header p {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px;
+  padding: 0;
   background: white;
   border-radius: 15px;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  width: 682px;
-  height: 682px;
+  width: 562px;
+  height: 562px;
   box-sizing: border-box;
 }
 
@@ -380,4 +380,43 @@ h3 {
 /* Make sure all board elements are visible */
 .board-b72b1 {
   border-radius: 8px;
+}
+
+/* Enhanced move details styling */
+.move-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+}
+
+.move-description {
+  color: #475569;
+  font-weight: 500;
+  flex: 1;
+}
+
+.resulting-value {
+  color: #059669;
+  font-weight: 600;
+  background: rgba(5, 150, 105, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.resulting-value.negative {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.resulting-value.mate {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.1);
 }
