@@ -6,6 +6,10 @@ $(document).ready(function() {
     let engineThinking = false;
     let currentProgress = 50;
     
+    // Move history for navigation
+    let moveHistory = [];
+    let currentHistoryIndex = -1;
+    
     // Initialize progress bars
     $('#analysisProgress').progressbar({ value: 50 });
     $('#timeProgress').progressbar({ value: 0 });
@@ -242,6 +246,7 @@ $(document).ready(function() {
             updateGameState();
             updateFenDisplay();
             clearResults();
+            addToHistory(); // Add position to history after piece move
             saveGameState(); // Save state after piece move
         }, 50);
     }
@@ -428,6 +433,103 @@ $(document).ready(function() {
         return pieceNames[pieceChar.toLowerCase()] || 'Piece';
     }
     
+    // Add position to history
+    function addToHistory() {
+        const currentState = {
+            position: board.fen(),
+            turn: $('input[name="turn"]:checked').val(),
+            castling: {
+                whiteKingSide: $('#whiteKingSide').is(':checked'),
+                whiteQueenSide: $('#whiteQueenSide').is(':checked'),
+                blackKingSide: $('#blackKingSide').is(':checked'),
+                blackQueenSide: $('#blackQueenSide').is(':checked')
+            }
+        };
+        
+        // If we're not at the end of history, remove everything after current position
+        if (currentHistoryIndex < moveHistory.length - 1) {
+            moveHistory = moveHistory.slice(0, currentHistoryIndex + 1);
+        }
+        
+        // Add new state
+        moveHistory.push(currentState);
+        currentHistoryIndex = moveHistory.length - 1;
+        
+        // Update navigation buttons
+        updateNavigationButtons();
+    }
+    
+    // Navigate to previous position
+    function navigateToPrevious() {
+        if (currentHistoryIndex > 0) {
+            currentHistoryIndex--;
+            const state = moveHistory[currentHistoryIndex];
+            restoreState(state);
+            updateNavigationButtons();
+        }
+    }
+    
+    // Navigate to next position
+    function navigateToNext() {
+        if (currentHistoryIndex < moveHistory.length - 1) {
+            currentHistoryIndex++;
+            const state = moveHistory[currentHistoryIndex];
+            restoreState(state);
+            updateNavigationButtons();
+        }
+    }
+    
+    // Restore board state
+    function restoreState(state) {
+        // Restore board position
+        board.position(state.position);
+        
+        // Restore turn
+        if (state.turn === 'w') {
+            $('#whiteToMove').prop('checked', true);
+        } else {
+            $('#blackToMove').prop('checked', true);
+        }
+        
+        // Restore castling rights
+        $('#whiteKingSide').prop('checked', state.castling.whiteKingSide);
+        $('#whiteQueenSide').prop('checked', state.castling.whiteQueenSide);
+        $('#blackKingSide').prop('checked', state.castling.blackKingSide);
+        $('#blackQueenSide').prop('checked', state.castling.blackQueenSide);
+        
+        // Update game state and FEN display
+        updateGameState();
+        updateFenDisplay();
+        clearResults();
+    }
+    
+    // Update navigation button states
+    function updateNavigationButtons() {
+        const prevBtn = $('#prevBtn');
+        const nextBtn = $('#nextBtn');
+        
+        // Update Previous button
+        if (currentHistoryIndex <= 0) {
+            prevBtn.prop('disabled', true);
+        } else {
+            prevBtn.prop('disabled', false);
+        }
+        
+        // Update Next button
+        if (currentHistoryIndex >= moveHistory.length - 1) {
+            nextBtn.prop('disabled', true);
+        } else {
+            nextBtn.prop('disabled', false);
+        }
+    }
+    
+    // Clear move history
+    function clearHistory() {
+        moveHistory = [];
+        currentHistoryIndex = -1;
+        updateNavigationButtons();
+    }
+    
     // Event handlers
     $('#startBtn').click(function() {
         board.start();
@@ -437,6 +539,8 @@ $(document).ready(function() {
         updateFenDisplay();
         clearResults();
         setAnalysisProgress(50);
+        clearHistory();
+        addToHistory(); // Add starting position to history
     });
     
     $('#clearBtn').click(function() {
@@ -446,12 +550,23 @@ $(document).ready(function() {
         updateFenDisplay();
         clearResults();
         setAnalysisProgress(50);
+        clearHistory();
+        addToHistory(); // Add empty position to history
     });
     
     $('#flipBtn').click(function() {
         board.flip();
         clearResults();
         setAnalysisProgress(100 - currentProgress);
+    });
+    
+    // Navigation button handlers
+    $('#prevBtn').click(function() {
+        navigateToPrevious();
+    });
+    
+    $('#nextBtn').click(function() {
+        navigateToNext();
     });
     
     $('#setFenBtn').click(function() {

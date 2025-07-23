@@ -96,6 +96,31 @@ header p {
   margin-top: 10px;
 }
 
+#navigation-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  margin-top: 10px;
+}
+
+.btn:disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  background: #bbb !important;
+  color: #777 !important;
+}
+
+.btn:disabled:hover {
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn:disabled::before {
+  display: none !important;
+}
+
 #controls-section {
   background: white;
   padding: 25px;
