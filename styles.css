@@ -353,6 +353,21 @@ h3 {
     padding: 15px;
   }
   
+  /* Mobile board sizing */
+  #board-section {
+    width: 100%;
+    height: auto;
+    max-width: 400px;
+    aspect-ratio: 1;
+  }
+  
+  #myBoard {
+    width: 100%;
+    height: auto;
+    max-width: 400px;
+    aspect-ratio: 1;
+  }
+  
   .turn-control-row,
   .analysis-control-row {
     flex-direction: column;
@@ -376,6 +391,15 @@ h3 {
     font-size: 0.9rem;
   }
   
+  /* Smaller board for very small screens */
+  #board-section {
+    max-width: 350px;
+  }
+  
+  #myBoard {
+    max-width: 350px;
+  }
+  
   #board-controls,
   #navigation-controls {
     flex-direction: column;
@@ -394,6 +418,22 @@ h3 {
   
   .fen-input-container input {
     width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  #container {
+    margin: 5px;
+    padding: 10px;
+  }
+  
+  /* Even smaller board for tiny screens */
+  #board-section {
+    max-width: 300px;
+  }
+  
+  #myBoard {
+    max-width: 300px;
   }
 }
 
