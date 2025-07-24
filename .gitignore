@@ -42,3 +42,4 @@ build/
 # Backup files
 *.bak
 *.backup
+*.bk
