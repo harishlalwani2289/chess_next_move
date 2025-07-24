@@ -572,20 +572,116 @@ $(document).ready(function() {
             board = Chessground(boardElement, config);
             console.log('✅ Chessground board created:', board);
             
-            // Force resize on mobile devices
+            // Force resize on mobile devices with multiple attempts
             if (window.innerWidth <= 768) {
-                console.log('📱 Mobile detected, forcing board resize...');
+                console.log('📱 Mobile detected, forcing aggressive board setup...');
+                
+                // Force immediate redraw
                 setTimeout(() => {
-                    console.log('🔄 Forcing board redraw...');
+                    console.log('🔄 Attempt 1: Forcing board redraw...');
                     board.redrawAll();
                     
-                    // Check dimensions after redraw
+                    // Force container dimensions
+                    const container = boardElement.querySelector('cg-container');
+                    if (container) {
+                        container.style.width = '380px';
+                        container.style.height = '380px';
+                        console.log('📐 Container dimensions forced:', container.getBoundingClientRect());
+                    }
+                    
+                    const wrapper = boardElement.querySelector('.cg-wrap');
+                    if (wrapper) {
+                        wrapper.style.width = '380px';
+                        wrapper.style.height = '380px';
+                        console.log('📐 Wrapper dimensions forced:', wrapper.getBoundingClientRect());
+                    }
+                    
+                    const cgBoard = boardElement.querySelector('cg-board');
+                    if (cgBoard) {
+                        cgBoard.style.width = '380px';
+                        cgBoard.style.height = '380px';
+                        console.log('📐 Board dimensions forced:', cgBoard.getBoundingClientRect());
+                    }
+                    
+                    // Check final dimensions
                     const newRect = boardElement.getBoundingClientRect();
-                    console.log('📐 Board dimensions after redraw:', newRect);
-                }, 100);
+                    console.log('📐 Final board dimensions:', newRect);
+                }, 50);
+                
+                // Second attempt after 200ms
+                setTimeout(() => {
+                    console.log('🔄 Attempt 2: Secondary redraw and resize...');
+                    board.redrawAll();
+                    
+                    // Force re-render with new configuration
+                    board.set({
+                        ...config,
+                        viewOnly: false,
+                        resizable: true
+                    });
+                    
+                    console.log('📐 Board state after second attempt:', board.state);
+                }, 200);
+                
+                // Third attempt after 500ms
+                setTimeout(() => {
+                    console.log('🔄 Attempt 3: Final fallback attempt...');
+                    
+                    // Completely recreate if needed
+                    const currentRect = boardElement.getBoundingClientRect();
+                    console.log('📐 Current board rect before final attempt:', currentRect);
+                    
+                    if (currentRect.width < 300 || currentRect.height < 300) {
+                        console.log('⚠️ Board too small, applying emergency fixes...');
+                        
+                        // Apply emergency CSS directly
+                        boardElement.style.cssText = `
+                            width: 380px !important;
+                            height: 380px !important;
+                            min-width: 380px !important;
+                            min-height: 380px !important;
+                            display: block !important;
+                            position: relative !important;
+                            background: orange !important;
+                            border: 5px solid orange !important;
+                        `;
+                        
+                        // Force all child elements
+                        const allChildren = boardElement.querySelectorAll('*');
+                        allChildren.forEach(child => {
+                            if (child.tagName.toLowerCase().includes('cg-') || child.classList.contains('cg-')) {
+                                child.style.cssText = `
+                                    width: 100% !important;
+                                    height: 100% !important;
+                                    display: block !important;
+                                    position: relative !important;
+                                `;
+                            }
+                        });
+                        
+                        board.redrawAll();
+                        console.log('🚨 Emergency fixes applied');
+                    }
+                }, 500);
             }
         } catch (error) {
             console.error('❌ Failed to create Chessground board:', error);
+            
+            // Fallback: Try to create a basic HTML board structure
+            console.log('🔄 Attempting fallback board creation...');
+            try {
+                boardElement.innerHTML = `
+                    <div style="width: 380px; height: 380px; background: #f0d9b5; border: 2px solid #8b4513; display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);">
+                        ${Array.from({length: 64}, (_, i) => `
+                            <div style="background: ${(Math.floor(i/8) + i) % 2 ? '#b58863' : '#f0d9b5'}; border: 1px solid #999;"></div>
+                        `).join('')}
+                    </div>
+                    <p style="color: red; margin-top: 10px;">Fallback board - Chessground failed to load</p>
+                `;
+                console.log('🔄 Fallback board structure created');
+            } catch (fallbackError) {
+                console.error('❌ Even fallback failed:', fallbackError);
+            }
             return;
         }
         
