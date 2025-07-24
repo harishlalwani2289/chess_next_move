@@ -341,10 +341,57 @@ h3 {
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  #main-content {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 0 10px;
+  }
+  
+  #board-section {
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    margin: 0 auto;
+  }
+  
   #myBoard {
-    width: 360px;
-    height: 360px;
+    width: 100%;
+    max-width: 450px;
+    height: auto;
+    aspect-ratio: 1;
+  }
+  
+  #container {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  .turn-control-row,
+  .analysis-control-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .turn-buttons,
+  .mode-buttons {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  #board-section {
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+  }
+  
+  #myBoard {
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    aspect-ratio: 1;
   }
   
   h1 {
@@ -356,9 +403,24 @@ h3 {
     font-size: 0.9rem;
   }
   
-  #board-controls {
+  #board-controls,
+  #navigation-controls {
     flex-direction: column;
     align-items: center;
+    gap: 8px;
+  }
+  
+  .castling-buttons {
+    justify-content: center;
+  }
+  
+  .fen-input-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .fen-input-container input {
+    width: 100%;
   }
 }
 
