@@ -344,33 +344,48 @@ h3 {
 @media (max-width: 768px) {
   #main-content {
     grid-template-columns: 1fr !important;
-    gap: 15px;
-    padding: 0 10px;
+    gap: 20px;
+    padding: 0 5px;
   }
   
   #container {
-    margin: 10px !important;
-    padding: 15px !important;
+    margin: 5px !important;
+    padding: 10px !important;
   }
   
-  /* Clean mobile board sizing - let Chessground handle the rest */
+  /* Enhanced mobile board section with better centering and debug styling */
   #board-section {
     width: 100% !important;
-    max-width: 400px !important;
-    height: auto !important;
-    min-height: 350px !important;
+    max-width: 420px !important;
+    height: 420px !important;
+    min-height: 420px !important;
     margin: 0 auto !important;
-    padding: 15px !important;
+    padding: 20px !important;
     box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(255, 100, 100, 0.3) !important; /* Debug: red background */
+    border: 3px solid red !important; /* Debug: red border */
+    border-radius: 15px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
   }
   
   #myBoard {
-    width: 100% !important;
-    height: auto !important;
+    width: 380px !important;
+    height: 380px !important;
     max-width: 380px !important;
-    aspect-ratio: 1 / 1 !important; /* Keep board square */
-    margin: 0 auto !important;
+    min-width: 300px !important;
+    min-height: 380px !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0 !important;
     box-sizing: border-box !important;
+    border-radius: 12px !important;
+    overflow: visible !important;
+    flex-shrink: 0 !important;
+    background: rgba(0, 100, 255, 0.3) !important; /* Debug: blue background */
+    border: 3px solid blue !important; /* Debug: blue border */
   }
   
   .turn-control-row,
