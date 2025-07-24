@@ -43,3 +43,7 @@ build/
 *.bak
 *.backup
 *.bk
+
+# Downloaded libraries and zip files
+*.zip
+chessground-master/

@@ -73,13 +73,19 @@ $(document).ready(function() {
 
     // Handle messages from Stockfish engine
     function handleEngineMessage(event) {
-        const line = event.data || event;
+        const line = typeof event === 'string' ? event : (event.data || event);
+        if (typeof line !== 'string') {
+            console.log('Stockfish (non-string):', line);
+            return;
+        }
         console.log('Stockfish:', line);
         
         // Parse multi pv (best moves)
         if (line.includes('multipv')) {
-            const match = line.match(/multipv (\d+) .*?pv ([\s\S]*?)(?=\n|$)/);
+            // More flexible regex to capture PV moves
+            const match = line.match(/multipv (\d+).*?pv\s+(.+)/);
             if (match) {
+                console.log('Raw PV match:', match[2]);
                 const pvNumber = match[1];
                 const pv = match[2].trim();
                 const move = pv.split(' ')[0];
@@ -122,14 +128,22 @@ $(document).ready(function() {
                     } else {
                         const score = parseFloat(evaluation);
                         const progressValue = Math.max(1, Math.min(99, 50 + score * 5));
-                        setAnalysisProgress(board.orientation() === 'white' ? progressValue : 100 - progressValue);
+                        setAnalysisProgress(board.state.orientation === 'white' ? progressValue : 100 - progressValue);
                     }
                 }
                 
-                // Highlight moves after each one is processed if in show mode
+                // Always highlight moves in show mode, regardless of which PV this is
                 const mode = $('input[name="mode"]:checked').val();
+                console.log('Current mode:', mode, 'PV Number:', pvNumber);
                 if (mode === 'show') {
-                    setTimeout(() => highlightAllMoves(), 50);
+                    // Only highlight after we have the first move to avoid multiple calls
+                    if (pvNumber === '1') {
+                        console.log('Scheduling highlighting in 100ms');
+                        setTimeout(() => {
+                            console.log('Now calling highlightAllMoves');
+                            highlightAllMoves();
+                        }, 100);
+                    }
                 }
             }
         }
@@ -161,11 +175,25 @@ $(document).ready(function() {
         if (move.length >= 4) {
             const fromSquare = move.slice(0, 2);
             const toSquare = move.slice(2, 4);
-            const position = board.position();
-            const piece = position[fromSquare];
+            
+            // Get position from chess.js since it maintains the board state
+            const position = game.board();
+            
+            // Find the piece at the source square
+            let piece = null;
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const square = String.fromCharCode(97 + col) + (8 - row);
+                    if (square === fromSquare && position[row][col]) {
+                        piece = position[row][col];
+                        break;
+                    }
+                }
+                if (piece) break;
+            }
             
             if (piece) {
-                const pieceChar = piece.charAt(1).toLowerCase();
+                const pieceChar = piece.type.toLowerCase();
                 const pieceSymbol = pieceChar === 'p' ? 'p' : pieceChar.toUpperCase();
                 return pieceSymbol + fromSquare + toSquare;
             }
@@ -191,7 +219,7 @@ $(document).ready(function() {
         }
     }
     
-    // Highlight all three best moves on the board
+    // Highlight all three best moves on the board using Chessground's native highlighting
     function highlightAllMoves() {
         removeHighlights();
         
@@ -221,38 +249,79 @@ $(document).ready(function() {
             return null;
         }
         
-        // Highlight move 1 in green shades (best move)
+        // Collect all squares to highlight using Chessground's built-in highlighting
+        const highlightMap = new Map();
+        
+        // Add move 1 (best move) with green highlighting
         if (move1) {
             const squares1 = extractSquares(move1);
             console.log('Move 1 extraction:', move1, '->', squares1);
             if (squares1) {
-                console.log('Highlighting move 1:', squares1.from, '->', squares1.to);
-                $('.square-' + squares1.from).addClass('highlight-move1-from');
-                $('.square-' + squares1.to).addClass('highlight-move1-to');
+                console.log('Adding move 1 highlighting:', squares1.from, '->', squares1.to);
+                highlightMap.set(squares1.from, 'move1-from');
+                highlightMap.set(squares1.to, 'move1-to');
             }
         }
         
-        // Highlight move 2 in pink shades
+        // Add move 2 with pink highlighting
         if (move2) {
             const squares2 = extractSquares(move2);
             console.log('Move 2 extraction:', move2, '->', squares2);
             if (squares2) {
-                console.log('Highlighting move 2:', squares2.from, '->', squares2.to);
-                $('.square-' + squares2.from).addClass('highlight-move2-from');
-                $('.square-' + squares2.to).addClass('highlight-move2-to');
+                console.log('Adding move 2 highlighting:', squares2.from, '->', squares2.to);
+                // If square already highlighted by move 1, keep move 1 (best move) priority
+                if (!highlightMap.has(squares2.from)) {
+                    highlightMap.set(squares2.from, 'move2-from');
+                }
+                if (!highlightMap.has(squares2.to)) {
+                    highlightMap.set(squares2.to, 'move2-to');
+                }
             }
         }
         
-        // Highlight move 3 in orange shades
+        // Add move 3 with orange highlighting
         if (move3) {
             const squares3 = extractSquares(move3);
             console.log('Move 3 extraction:', move3, '->', squares3);
             if (squares3) {
-                console.log('Highlighting move 3:', squares3.from, '->', squares3.to);
-                $('.square-' + squares3.from).addClass('highlight-move3-from');
-                $('.square-' + squares3.to).addClass('highlight-move3-to');
+                console.log('Adding move 3 highlighting:', squares3.from, '->', squares3.to);
+                // If square already highlighted by move 1 or 2, keep higher priority
+                if (!highlightMap.has(squares3.from)) {
+                    highlightMap.set(squares3.from, 'move3-from');
+                }
+                if (!highlightMap.has(squares3.to)) {
+                    highlightMap.set(squares3.to, 'move3-to');
+                }
             }
         }
+        
+        // Apply all highlights using Chessground's shapes API
+        console.log('Applying highlights to Chessground:', Array.from(highlightMap.entries()));
+        
+        // Convert highlights to shapes with custom colors and styles
+        const shapes = [];
+        highlightMap.forEach((cssClass, square) => {
+            let brush = 'green';
+            
+            if (cssClass.includes('move1')) {
+                // Best move - green with different shades for from/to
+                brush = cssClass.includes('-from') ? 'paleGreen' : 'green';
+            } else if (cssClass.includes('move2')) {
+                // Second move - blue/purple
+                brush = cssClass.includes('-from') ? 'paleBlue' : 'blue';
+            } else if (cssClass.includes('move3')) {
+                // Third move - orange/yellow
+                brush = cssClass.includes('-from') ? 'paleRed' : 'red';
+            }
+            
+            shapes.push({
+                orig: square,
+                brush: brush
+            });
+        });
+        
+        console.log('Setting shapes:', shapes);
+        board.setShapes(shapes);
         
         // Add PV arrows for the best move
         showPVArrows();
@@ -260,132 +329,160 @@ $(document).ready(function() {
     
     // Remove move highlights
     function removeHighlights() {
-        $('#myBoard .square-55d63').removeClass('highlight-from highlight-to highlight-move1-from highlight-move1-to highlight-move2-from highlight-move2-to highlight-move3-from highlight-move3-to');
+        console.log('Removing highlights');
+        // Clear Chessground's shapes and highlighting
+        board.setShapes([]);
+        board.set({
+            highlight: {
+                lastMove: true, // Re-enable last move highlighting
+                check: true,
+                custom: new Map() // Clear custom highlights
+            }
+        });
         removePVArrows();
     }
     
     // Show arrows for principal variation moves (first 4 moves of best line)
     function showPVArrows() {
-        removePVArrows();
-        
         const pv1 = $('#principalVariation1').val();
         if (!pv1) return;
         
         console.log('PV1 for arrows:', pv1);
         
-        // Parse the PV moves (they should be in format like "pe2e4 pb7b5 Ng1f3 Bc8b7")
-        const pvMoves = pv1.trim().split(' ').slice(0, 4); // Get first 4 moves
-        const arrowColors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']; // Green, Blue, Orange, Purple
+        // Parse the PV moves - extract clean moves without piece notation
+        const allTokens = pv1.trim().split(' ');
+        const cleanMoves = [];
         
-        console.log('PV moves for arrows:', pvMoves);
+        // Process each token to extract clean moves
+        for (const token of allTokens) {
+            let cleanMove = token;
+            
+            // Remove piece notation if present (e.g., "pe2e4" -> "e2e4")
+            if (cleanMove.length > 4 && /^[a-zA-Z]/.test(cleanMove)) {
+                cleanMove = cleanMove.slice(1);
+            }
+            
+            // Validate it's a proper move format
+            if (cleanMove.length >= 4 && cleanMove.length <= 5 && /^[a-h][1-8][a-h][1-8][qrnb]?$/.test(cleanMove)) {
+                cleanMoves.push(cleanMove);
+            }
+        }
+        
+        // Take first 4 moves for arrows
+        const pvMoves = cleanMoves.slice(0, 4);
+        console.log('Clean PV moves for arrows:', pvMoves);
+        
+        // Get current shapes (highlights) and add arrows to them
+        const currentShapes = board.state.drawable.shapes || [];
+        
+        // Remove any existing PV arrows (they would have specific identifiers)
+        const nonArrowShapes = currentShapes.filter(shape => !shape.dest); // Arrows have dest, highlights don't
+        
+        const arrowShapes = [];
+        
+        // Define arrow colors for sequence: 1=green, 2=blue, 3=orange, 4=purple
+        const arrowColors = ['green', 'blue', 'yellow', 'red'];
         
         pvMoves.forEach((moveStr, index) => {
             if (!moveStr) return;
             
-            // Extract squares from the move
-            let cleanMove = moveStr;
-            if (cleanMove.length > 4 && /^[a-zA-Z]/.test(cleanMove)) {
-                cleanMove = cleanMove.slice(1); // Remove piece letter
-            }
+            const fromSquare = moveStr.slice(0, 2);
+            const toSquare = moveStr.slice(2, 4);
             
-            if (cleanMove.length >= 4) {
-                const fromSquare = cleanMove.slice(0, 2);
-                const toSquare = cleanMove.slice(2, 4);
+            // Validate square names
+            if (/^[a-h][1-8]$/.test(fromSquare) && /^[a-h][1-8]$/.test(toSquare)) {
+                console.log(`Creating PV arrow ${index + 1}: ${fromSquare} -> ${toSquare}`);
                 
-                console.log(`Creating arrow ${index + 1}: ${fromSquare} -> ${toSquare}`);
-                createArrow(fromSquare, toSquare, arrowColors[index], index + 1);
+                arrowShapes.push({
+                    orig: fromSquare,
+                    dest: toSquare,
+                    brush: arrowColors[index] || 'green'
+                });
+            } else {
+                console.log(`Invalid squares for PV arrow: ${fromSquare} -> ${toSquare}`);
             }
         });
+        
+        // Combine highlight shapes with new arrows
+        const allShapes = [...nonArrowShapes, ...arrowShapes];
+        console.log('Setting shapes with PV arrows:', allShapes);
+        board.setShapes(allShapes);
+        
+        // Add numbered labels on top of the arrows using DOM overlay
+        addArrowNumbers(pvMoves);
     }
     
-    // Create an arrow between two squares
-    function createArrow(fromSquare, toSquare, color, number) {
+    // Add numbered labels on arrows using DOM overlay
+    function addArrowNumbers(pvMoves) {
+        // Remove any existing arrow numbers
+        $('.pv-arrow-number').remove();
+        
+        if (!pvMoves || pvMoves.length === 0) return;
+        
         const boardElement = $('#myBoard');
-        const fromElement = boardElement.find('.square-' + fromSquare);
-        const toElement = boardElement.find('.square-' + toSquare);
+        const boardRect = boardElement[0].getBoundingClientRect();
+        const squareSize = boardRect.width / 8;
         
-        if (fromElement.length === 0 || toElement.length === 0) {
-            console.log(`Arrow creation failed: from=${fromElement.length}, to=${toElement.length}`);
-            return;
-        }
-        
-        // Get positions relative to the board
-        const boardOffset = boardElement.offset();
-        const fromOffset = fromElement.offset();
-        const toOffset = toElement.offset();
-        
-        const fromX = fromOffset.left - boardOffset.left + fromElement.width() / 2;
-        const fromY = fromOffset.top - boardOffset.top + fromElement.height() / 2;
-        const toX = toOffset.left - boardOffset.left + toElement.width() / 2;
-        const toY = toOffset.top - boardOffset.top + toElement.height() / 2;
-        
-        // Calculate arrow properties
-        const dx = toX - fromX;
-        const dy = toY - fromY;
-        const length = Math.sqrt(dx * dx + dy * dy);
-        const angle = Math.atan2(dy, dx) * 180 / Math.PI;
-        
-        // Shorten the arrow to not overlap with pieces
-        const shortenBy = 25;
-        const adjustedLength = Math.max(10, length - shortenBy);
-        
-        // Create arrow container
-        const arrow = $(`
-            <div class="pv-arrow" data-move="${number}" style="
-                position: absolute;
-                left: ${fromX + (dx / length) * 15}px;
-                top: ${fromY + (dy / length) * 15}px;
-                width: ${adjustedLength}px;
-                height: 12px;
-                background: ${color};
-                transform-origin: 0 50%;
-                transform: rotate(${angle}deg);
-                z-index: 1000;
-                pointer-events: none;
-                border-radius: 6px;
-                opacity: 0.7;
-            ">
-                <div style="
+        pvMoves.forEach((moveStr, index) => {
+            if (!moveStr) return;
+            
+            const fromSquare = moveStr.slice(0, 2);
+            const toSquare = moveStr.slice(2, 4);
+            
+            // Convert square notation to coordinates
+            const fromFile = fromSquare.charCodeAt(0) - 97; // a=0, b=1, etc.
+            const fromRank = parseInt(fromSquare[1]) - 1;   // 1=0, 2=1, etc.
+            const toFile = toSquare.charCodeAt(0) - 97;
+            const toRank = parseInt(toSquare[1]) - 1;
+            
+            // Check board orientation
+            const isFlipped = board.state.orientation === 'black';
+            
+            // Calculate pixel positions (adjust for flipped board)
+            const fromX = isFlipped ? (7 - fromFile) * squareSize : fromFile * squareSize;
+            const fromY = isFlipped ? fromRank * squareSize : (7 - fromRank) * squareSize;
+            const toX = isFlipped ? (7 - toFile) * squareSize : toFile * squareSize;
+            const toY = isFlipped ? toRank * squareSize : (7 - toRank) * squareSize;
+            
+            // Calculate arrow midpoint for number placement
+            const midX = (fromX + toX) / 2 + squareSize / 2;
+            const midY = (fromY + toY) / 2 + squareSize / 2;
+            
+            // Define colors to match arrows
+            const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']; // Green, Blue, Orange, Purple
+            
+            // Create numbered circle
+            const numberElement = $(`
+                <div class="pv-arrow-number" style="
                     position: absolute;
-                    right: -16px;
-                    top: -12px;
-                    width: 0;
-                    height: 0;
-                    border-left: 24px solid ${color};
-                    border-top: 18px solid transparent;
-                    border-bottom: 18px solid transparent;
-                    opacity: 0.7;
-                "></div>
-                <div class="move-number" style="
-                    position: absolute;
-                    left: 50%;
-                    top: -22px;
-                    transform: translateX(-50%);
-                    background: ${color};
+                    left: ${midX - 12}px;
+                    top: ${midY - 12}px;
+                    width: 24px;
+                    height: 24px;
+                    background: ${colors[index] || '#4CAF50'};
                     color: white;
                     border-radius: 50%;
-                    width: 26px;
-                    height: 26px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     font-size: 14px;
                     font-weight: bold;
+                    z-index: 1001;
+                    pointer-events: none;
                     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-                    opacity: 0.9;
-                ">${number}</div>
-            </div>
-        `);
-        
-        boardElement.css('position', 'relative');
-        boardElement.append(arrow);
-        
-        console.log(`Arrow ${number} created successfully`);
+                    border: 2px solid white;
+                ">${index + 1}</div>
+            `);
+            
+            boardElement.css('position', 'relative').append(numberElement);
+        });
     }
     
-    // Remove all PV arrows
+    // Remove all PV arrows - now handled by Chessground shapes
     function removePVArrows() {
-        $('.pv-arrow').remove();
+        // Remove DOM-based arrow numbers
+        $('.pv-arrow-number').remove();
+        // PV arrows are now part of the shapes system, so they're cleared with removeHighlights()
     }
     
     // Make the engine's suggested move
@@ -393,7 +490,8 @@ $(document).ready(function() {
         try {
             const moveObj = game.move(move, { sloppy: true });
             if (moveObj) {
-                board.position(game.fen());
+                board.set({ fen: game.fen() });
+                updateValidMoves();
                 updateGameState();
                 updateFenDisplay();
             }
@@ -413,19 +511,39 @@ $(document).ready(function() {
         $(selector).progressbar('value', value);
     }
     
-    // Initialize chess board
+    // Initialize chess board with Chessground
     function initBoard() {
         const config = {
-            draggable: true,
-            position: 'start',
-            dropOffBoard: 'trash',
-            sparePieces: true,
-            onDrop: onDrop,
-            onDragStart: onDragStart,
-            onMoveEnd: onMoveEnd
+            fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+            movable: {
+                free: false,
+                color: 'white', // Start with white to move
+                dests: getValidMoves(),
+                events: {
+                    after: onMove
+                }
+            },
+            draggable: {
+                enabled: true,
+                showGhost: true
+            },
+            highlight: {
+                lastMove: true,
+                check: true
+            },
+            coordinates: true,
+            resizable: false,
+            events: {
+                move: onMove
+            }
         };
         
-        board = Chessboard('myBoard', config);
+        board = Chessground(document.getElementById('myBoard'), config);
+        
+        // Update valid moves for initial position
+        updateValidMoves();
+        
+        console.log('Chessground initialized successfully');
         
         // Store instances globally for button access
         window.chessAnalyzer.board = board;
@@ -436,37 +554,108 @@ $(document).ready(function() {
         window.chessAnalyzer.saveGameState = saveGameState;
         window.chessAnalyzer.updateGameState = updateGameState;
         window.chessAnalyzer.updateFenDisplay = updateFenDisplay;
+        window.chessAnalyzer.updateValidMoves = updateValidMoves;
+        window.chessAnalyzer.clearResults = clearResults;
+        window.chessAnalyzer.removeHighlights = removeHighlights;
+        window.chessAnalyzer.updateTurnButtons = updateTurnButtons;
         
         updateFenDisplay();
         addToHistory(); // Add starting position to history
     }
     
-    // Handle piece drops
-    function onDrop(source, target, piece, newPos, oldPos, orientation) {
-        // Handle castling moves
-        handleCastlingRights(piece, source);
+    // Get valid moves for current position
+    function getValidMoves() {
+        const dests = new Map();
+        const moves = game.moves({ verbose: true });
         
-        // Update turn
-        const pieceColor = piece.charAt(0);
-        if (target !== 'offboard') {
-            if (pieceColor === 'w') {
-                $('#blackToMove').prop('checked', true);
+        moves.forEach(move => {
+            const from = move.from;
+            const to = move.to;
+            
+            if (dests.has(from)) {
+                dests.get(from).push(to);
             } else {
-                $('#whiteToMove').prop('checked', true);
+                dests.set(from, [to]);
             }
+        });
+        
+        return dests;
+    }
+    
+    // Update valid moves on the board
+    function updateValidMoves() {
+        const currentTurn = game.turn() === 'w' ? 'white' : 'black';
+        const validMoves = getValidMoves();
+        
+        console.log('Updating valid moves for:', currentTurn, 'Valid moves:', validMoves.size);
+        
+        board.set({
+            movable: {
+                free: false,
+                color: currentTurn,
+                dests: validMoves
+            },
+            turnColor: currentTurn
+        });
+    }
+    
+    // Handle moves with Chessground
+    function onMove(orig, dest, metadata) {
+        console.log('Chessground move:', orig, '->', dest, 'metadata:', metadata);
+        
+        try {
+            // Check for promotion
+            let promotion = 'q'; // Default to queen
+            if (metadata && metadata.promotion) {
+                promotion = metadata.promotion;
+            }
+            
+            // Try to make the move in chess.js
+            const moveObj = game.move({
+                from: orig,
+                to: dest,
+                promotion: promotion
+            });
+            
+            if (moveObj) {
+                console.log('Move successful:', moveObj);
+                
+                // Update turn radio buttons based on the current turn AFTER the move
+                if (game.turn() === 'w') {
+                    $('#whiteToMove').prop('checked', true);
+                    $('#blackToMove').prop('checked', false);
+                } else {
+                    $('#blackToMove').prop('checked', true);
+                    $('#whiteToMove').prop('checked', false);
+                }
+                
+                // Update valid moves for the new position
+                updateValidMoves();
+                
+                // Update display and save state
+                setTimeout(() => {
+                    updateFenDisplay();
+                    updateTurnButtons(); // Sync visual turn buttons
+                    clearResults();
+                    addToHistory();
+                    saveGameState();
+                }, 50);
+                
+                return true; // Indicate successful move
+            } else {
+                console.error('Invalid move attempted:', orig, '->', dest);
+                // Revert the board to the previous position
+                board.set({ fen: game.fen() });
+                updateValidMoves();
+                return false;
+            }
+        } catch (error) {
+            console.error('Move error:', error);
+            // Revert the board to the previous position
+            board.set({ fen: game.fen() });
+            updateValidMoves();
+            return false;
         }
-        
-        // Handle pawn promotion
-        handlePawnPromotion(piece, target, newPos);
-        
-        // Update game state
-        setTimeout(() => {
-            updateGameState();
-            updateFenDisplay();
-            clearResults();
-            addToHistory(); // Add position to history after piece move
-            saveGameState(); // Save state after piece move
-        }, 50);
     }
     
     // Handle castling rights updates
@@ -488,10 +677,10 @@ $(document).ready(function() {
     function handlePawnPromotion(piece, target, newPos) {
         if (piece === 'wP' && target.charAt(1) === '8') {
             newPos[target] = 'wQ';
-            board.position(newPos);
+            board.set({ pieces: newPos });
         } else if (piece === 'bP' && target.charAt(1) === '1') {
             newPos[target] = 'bQ';
-            board.position(newPos);
+            board.set({ pieces: newPos });
         }
     }
     
@@ -518,7 +707,6 @@ $(document).ready(function() {
     
     // Build complete FEN string from current position and settings
     function buildFenString() {
-        const position = board.fen();
         const turn = $('input[name="turn"]:checked').val();
         
         let castling = '';
@@ -528,7 +716,15 @@ $(document).ready(function() {
         if ($('#blackQueenSide').is(':checked')) castling += 'q';
         if (castling === '') castling = '-';
         
-        return `${position} ${turn} ${castling} - 0 1`;
+        // Use the current game's position but replace turn and castling
+        try {
+            const currentFen = game.fen().split(' ');
+            return `${currentFen[0]} ${turn} ${castling} - 0 1`;
+        } catch (error) {
+            console.error('Error building FEN string:', error);
+            // Fallback to starting position
+            return `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR ${turn} ${castling} - 0 1`;
+        }
     }
     
     // Update FEN display
@@ -614,7 +810,8 @@ $(document).ready(function() {
             const moveObj = game.move(rawMove, { sloppy: true });
             if (moveObj) {
                 // Update the board position
-                board.position(game.fen());
+                board.set({ fen: game.fen() });
+                updateValidMoves();
                 
                 // Update game state and FEN
                 updateGameState();
@@ -657,7 +854,7 @@ $(document).ready(function() {
     // Add position to history
     function addToHistory() {
         const currentState = {
-            position: board.fen(),
+            position: game.fen(),
             turn: $('input[name="turn"]:checked').val(),
             castling: {
                 whiteKingSide: $('#whiteKingSide').is(':checked'),
@@ -703,7 +900,10 @@ $(document).ready(function() {
     // Restore board state
     function restoreState(state) {
         // Restore board position
-        board.position(state.position);
+        // Load into chess.js first to sync state
+        game.load(state.position);
+        // Then update board display
+        board.set({ fen: state.position });
         
         // Restore turn
         if (state.turn === 'w') {
@@ -721,6 +921,7 @@ $(document).ready(function() {
         // Update game state and FEN display
         updateGameState();
         updateFenDisplay();
+        updateValidMoves();
         clearResults();
     }
     
@@ -753,7 +954,10 @@ $(document).ready(function() {
     
     // Event handlers
     $('#startBtn').click(function() {
-        board.start();
+        // Reset to starting position using Chessground API
+        board.set({
+            fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+        });
         game.reset();
         $('#whiteToMove').prop('checked', true);
         $('#whiteKingSide, #whiteQueenSide, #blackKingSide, #blackQueenSide').prop('checked', true);
@@ -765,7 +969,10 @@ $(document).ready(function() {
     });
     
     $('#clearBtn').click(function() {
-        board.clear();
+        // Clear board using Chessground API
+        board.set({
+            fen: '8/8/8/8/8/8/8/8'
+        });
         game.clear();
         $('#whiteKingSide, #whiteQueenSide, #blackKingSide, #blackQueenSide').prop('checked', false);
         updateFenDisplay();
@@ -776,7 +983,8 @@ $(document).ready(function() {
     });
     
     $('#flipBtn').click(function() {
-        board.flip();
+        // Flip board using Chessground API
+        board.toggleOrientation();
         clearResults();
         setAnalysisProgress(100 - currentProgress);
     });
@@ -795,7 +1003,10 @@ $(document).ready(function() {
         if (fen) {
             try {
                 const fenParts = fen.split(' ');
-                board.position(fenParts[0]);
+                // Load the full FEN into chess.js first
+                game.load(fen);
+                // Then update the board display
+                board.set({ fen: fen });
                 
                 if (fenParts.length > 1) {
                     const turn = fenParts[1];
@@ -816,6 +1027,7 @@ $(document).ready(function() {
                 
                 updateGameState();
                 updateFenDisplay(); // This will sync all button states
+                updateValidMoves();
                 clearResults();
             } catch (error) {
                 alert('Invalid FEN string');
@@ -933,7 +1145,7 @@ stockfish.postMessage('setoption name MultiPV value 3');
     // Save current state to sessionStorage (per-tab)
     function saveGameState() {
         const currentState = {
-            position: board.fen(),
+            position: game.fen(),
             turn: $('input[name="turn"]:checked').val(),
             castling: {
                 whiteKingSide: $('#whiteKingSide').is(':checked'),
@@ -941,7 +1153,7 @@ stockfish.postMessage('setoption name MultiPV value 3');
                 blackKingSide: $('#blackKingSide').is(':checked'),
                 blackQueenSide: $('#blackQueenSide').is(':checked')
             },
-            orientation: board.orientation(),
+            orientation: board.state.orientation,
             thinkTime: $('#thinkTime').val(),
             mode: $('input[name="mode"]:checked').val(),
             timestamp: Date.now()
@@ -972,7 +1184,10 @@ stockfish.postMessage('setoption name MultiPV value 3');
             
             // Restore board position
             if (state.position) {
-                board.position(state.position);
+                // Load into chess.js first
+                game.load(state.position);
+                // Then update board display
+                board.set({ fen: state.position });
             }
             
             // Restore turn
@@ -991,8 +1206,8 @@ stockfish.postMessage('setoption name MultiPV value 3');
             }
             
             // Restore board orientation
-            if (state.orientation && state.orientation !== board.orientation()) {
-                board.flip();
+            if (state.orientation && state.orientation !== board.state.orientation) {
+                board.toggleOrientation();
             }
             
             // Restore think time
@@ -1010,6 +1225,7 @@ stockfish.postMessage('setoption name MultiPV value 3');
             // Update game state and FEN display
             updateGameState();
             updateFenDisplay();
+            updateValidMoves();
             
             // Ensure visual button states are synchronized
             updateTurnButtons();
@@ -1076,9 +1292,12 @@ window.makeSelectedMove = function(moveNumber) {
         const saveGameState = window.chessAnalyzer.saveGameState;
         const updateGameState = window.chessAnalyzer.updateGameState;
         const updateFenDisplay = window.chessAnalyzer.updateFenDisplay;
+        const updateValidMoves = window.chessAnalyzer.updateValidMoves;
+        const removeHighlights = window.chessAnalyzer.removeHighlights;
+        const clearResults = window.chessAnalyzer.clearResults;
         
-        if (!board || !game || !addToHistory || !saveGameState) {
-            console.error('Board, game, or history functions not available');
+        if (!board || !game || !addToHistory || !saveGameState || !updateValidMoves || !clearResults) {
+            console.error('Board, game, or required functions not available');
             return;
         }
         
@@ -1086,20 +1305,43 @@ window.makeSelectedMove = function(moveNumber) {
         const moveObj = game.move(rawMove, { sloppy: true });
         if (moveObj) {
             // Update the board position
-            board.position(game.fen());
+            board.set({ fen: game.fen() });
+            
+            // Update turn radio buttons based on the current turn AFTER the move
+            // game.turn() returns whose turn it is NOW (after the move was made)
+            if (game.turn() === 'w') {
+                $('#whiteToMove').prop('checked', true);
+                $('#blackToMove').prop('checked', false);
+            } else {
+                $('#blackToMove').prop('checked', true);
+                $('#whiteToMove').prop('checked', false);
+            }
+            
+            updateValidMoves();
             
             // Update game state and FEN display using the stored functions
             updateGameState();
             updateFenDisplay();
             
+            // Sync visual turn buttons to match the radio buttons
+            const updateTurnButtons = window.chessAnalyzer.updateTurnButtons;
+            if (updateTurnButtons) {
+                updateTurnButtons();
+            }
+            
+            console.log('Turn after move:', game.turn() === 'w' ? 'White' : 'Black');
+            
             // Add the new position to history - this will enable Previous/Next buttons
             addToHistory();
             saveGameState();
             
-            // Don't clear results - keep the analysis visible!
-            // Just remove highlights since the position has changed
-            $('#myBoard .square-55d63').removeClass('highlight-from highlight-to highlight-move1-from highlight-move1-to highlight-move2-from highlight-move2-to highlight-move3-from highlight-move3-to');
-            $('.pv-arrow').remove();
+            // Clear results since position has changed after making a move
+            clearResults();
+            
+            // Remove highlights since the position has changed
+            if (removeHighlights) {
+                removeHighlights();
+            }
             
             console.log('Move made successfully:', moveObj);
             console.log('New FEN:', game.fen());
@@ -1123,7 +1365,35 @@ style.textContent = `
         box-shadow: inset 0 0 3px 3px red !important;
     }
     
-    /* Move 1 highlighting - Gentle green shades (Best move) */
+    /* Chessground custom highlighting for move analysis */
+    cg-board square.move1-from {
+        background-color: rgba(144, 238, 144, 0.7) !important;
+        box-shadow: inset 0 0 0 3px #7CB342 !important;
+    }
+    cg-board square.move1-to {
+        background-color: rgba(200, 230, 201, 0.7) !important;
+        box-shadow: inset 0 0 0 3px #90EE90 !important;
+    }
+    
+    cg-board square.move2-from {
+        background-color: rgba(248, 187, 217, 0.7) !important;
+        box-shadow: inset 0 0 0 3px #E1A0C4 !important;
+    }
+    cg-board square.move2-to {
+        background-color: rgba(252, 228, 236, 0.7) !important;
+        box-shadow: inset 0 0 0 3px #F8BBD9 !important;
+    }
+    
+    cg-board square.move3-from {
+        background-color: rgba(255, 204, 128, 0.7) !important;
+        box-shadow: inset 0 0 0 3px #FF9800 !important;
+    }
+    cg-board square.move3-to {
+        background-color: rgba(255, 243, 224, 0.7) !important;
+        box-shadow: inset 0 0 0 3px #FFCC80 !important;
+    }
+    
+    /* Legacy highlighting classes - kept for compatibility */
     .highlight-move1-from {
         box-shadow: inset 0 0 4px 4px #90EE90 !important;
         border: 2px solid #7CB342 !important;
@@ -1133,7 +1403,6 @@ style.textContent = `
         border: 2px solid #90EE90 !important;
     }
     
-    /* Move 2 highlighting - Gentle pink shades */
     .highlight-move2-from {
         box-shadow: inset 0 0 4px 4px #F8BBD9 !important;
         border: 2px solid #E1A0C4 !important;
@@ -1143,7 +1412,6 @@ style.textContent = `
         border: 2px solid #F8BBD9 !important;
     }
     
-    /* Move 3 highlighting - Gentle orange shades */
     .highlight-move3-from {
         box-shadow: inset 0 0 4px 4px #FFCC80 !important;
         border: 2px solid #FF9800 !important;
