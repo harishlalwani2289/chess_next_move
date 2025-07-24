@@ -184,13 +184,13 @@ header p {
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #9bb0f0 0%, #a693c2 100%);
+  background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%);
   color: white;
 }
 
 .btn-secondary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(155, 176, 240, 0.3);
+  box-shadow: 0 4px 15px rgba(143, 189, 223, 0.4);
 }
 
 .btn-primary {
@@ -223,8 +223,8 @@ input[type="text"], input[type="number"], textarea {
 
 input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
   outline: none;
-  border-color: #9bb0f0;
-  box-shadow: 0 0 0 3px rgba(155, 176, 240, 0.08);
+  border-color: #8fbddf;
+  box-shadow: 0 0 0 3px rgba(143, 189, 223, 0.12);
 }
 
 input[readonly] {
@@ -264,7 +264,7 @@ input[type="radio"], input[type="checkbox"] {
 }
 
 .ui-progressbar-value {
-  background: linear-gradient(135deg, #9bb0f0 0%, #a693c2 100%) !important;
+  background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%) !important;
   border: none !important;
   border-radius: 4px !important;
 }

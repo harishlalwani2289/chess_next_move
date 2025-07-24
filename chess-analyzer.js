@@ -426,7 +426,19 @@ $(document).ready(function() {
         };
         
         board = Chessboard('myBoard', config);
+        
+        // Store instances globally for button access
+        window.chessAnalyzer.board = board;
+        window.chessAnalyzer.game = game;
+        
+        // Store functions globally for button access
+        window.chessAnalyzer.addToHistory = addToHistory;
+        window.chessAnalyzer.saveGameState = saveGameState;
+        window.chessAnalyzer.updateGameState = updateGameState;
+        window.chessAnalyzer.updateFenDisplay = updateFenDisplay;
+        
         updateFenDisplay();
+        addToHistory(); // Add starting position to history
     }
     
     // Handle piece drops
@@ -531,14 +543,16 @@ $(document).ready(function() {
         $('#evaluation1, #evaluation2, #evaluation3').val('');
         $('#principalVariation1, #principalVariation2, #principalVariation3').val('');
         $('#moveDescription1, #moveDescription2, #moveDescription3').text('');
-        $('#resultingValue1, #resultingValue2, #resultingValue3').text('').removeClass('negative mate');
+        $('#makeMoveBtn1, #makeMoveBtn2, #makeMoveBtn3').hide();
         $('#depth').val('');
         removeHighlights();
     }
     
-    // Update move details - now just shows the evaluation, no verbose description
+    // Update move details - now shows/hides the Make Move button
     function updateMoveDetails(move, evaluation, moveNumber) {
         if (!move || move.length < 4) {
+            // Hide the button if no valid move
+            $(`#makeMoveBtn${moveNumber}`).hide();
             return;
         }
         
@@ -546,22 +560,61 @@ $(document).ready(function() {
             // Clear the description as we don't want verbose text anymore
             $(`#moveDescription${moveNumber}`).text('');
             
-            // Update resulting value with appropriate styling
-            const resultingElement = $(`#resultingValue${moveNumber}`);
-            resultingElement.text(`${evaluation}`);
-            
-            // Apply styling based on evaluation
-            resultingElement.removeClass('negative mate');
-            if (evaluation.includes('M')) {
-                resultingElement.addClass('mate');
-            } else if (evaluation.startsWith('-')) {
-                resultingElement.addClass('negative');
-            }
+            // Show the Make Move button
+            $(`#makeMoveBtn${moveNumber}`).show();
             
         } catch (error) {
             console.error('Error updating move details:', error);
             $(`#moveDescription${moveNumber}`).text('');
-            $(`#resultingValue${moveNumber}`).text(`${evaluation}`);
+            $(`#makeMoveBtn${moveNumber}`).hide();
+        }
+    }
+    
+    // Function to make a selected move from the best moves list
+    function makeSelectedMove(moveNumber) {
+        const moveValue = $(`#bestMove${moveNumber}`).val();
+        if (!moveValue) {
+            console.error('No move available for move number:', moveNumber);
+            return;
+        }
+        
+        try {
+            // Extract the raw move (remove piece notation)
+            let rawMove = moveValue;
+            if (rawMove.length > 4 && /^[a-zA-Z]/.test(rawMove)) {
+                rawMove = rawMove.slice(1); // Remove piece letter
+            }
+            
+            console.log('Making selected move:', moveValue, '->', rawMove);
+            
+            // Make the move using the existing game logic
+            const moveObj = game.move(rawMove, { sloppy: true });
+            if (moveObj) {
+                // Update the board position
+                board.position(game.fen());
+                
+                // Update game state and FEN
+                updateGameState();
+                updateFenDisplay();
+                
+                // Add to history and save state
+                addToHistory();
+                saveGameState();
+                
+                // Clear results since position has changed
+                clearResults();
+                
+                // Remove highlights
+                removeHighlights();
+                
+                console.log('Move made successfully:', moveObj);
+            } else {
+                console.error('Failed to make move:', rawMove);
+                alert('Invalid move: ' + rawMove);
+            }
+        } catch (error) {
+            console.error('Error making selected move:', error);
+            alert('Error making move: ' + error.message);
         }
     }
     
@@ -889,6 +942,7 @@ stockfish.postMessage('setoption name MultiPV value 3');
         }
     }
     
+    
     // Initialize everything
     initBoard();
     initStockfish();
@@ -898,6 +952,73 @@ stockfish.postMessage('setoption name MultiPV value 3');
         loadGameState();
     }, 100);
 });
+
+// Store board and game instances globally so they can be accessed from button clicks
+window.chessAnalyzer = {
+    board: null,
+    game: null
+};
+
+// Make this function global so it can be called from HTML onclick
+window.makeSelectedMove = function(moveNumber) {
+    const moveValue = $(`#bestMove${moveNumber}`).val();
+    if (!moveValue) {
+        console.error('No move available for move number:', moveNumber);
+        return;
+    }
+    
+    try {
+        // Extract the raw move (remove piece notation)
+        let rawMove = moveValue;
+        if (rawMove.length > 4 && /^[a-zA-Z]/.test(rawMove)) {
+            rawMove = rawMove.slice(1); // Remove piece letter
+        }
+        
+        console.log('Making selected move:', moveValue, '->', rawMove);
+        
+        // Use the global instances and functions
+        const board = window.chessAnalyzer.board;
+        const game = window.chessAnalyzer.game;
+        const addToHistory = window.chessAnalyzer.addToHistory;
+        const saveGameState = window.chessAnalyzer.saveGameState;
+        const updateGameState = window.chessAnalyzer.updateGameState;
+        const updateFenDisplay = window.chessAnalyzer.updateFenDisplay;
+        
+        if (!board || !game || !addToHistory || !saveGameState) {
+            console.error('Board, game, or history functions not available');
+            return;
+        }
+        
+        // Make the move using the existing game instance
+        const moveObj = game.move(rawMove, { sloppy: true });
+        if (moveObj) {
+            // Update the board position
+            board.position(game.fen());
+            
+            // Update game state and FEN display using the stored functions
+            updateGameState();
+            updateFenDisplay();
+            
+            // Add the new position to history - this will enable Previous/Next buttons
+            addToHistory();
+            saveGameState();
+            
+            // Don't clear results - keep the analysis visible!
+            // Just remove highlights since the position has changed
+            $('#myBoard .square-55d63').removeClass('highlight-from highlight-to highlight-move1-from highlight-move1-to highlight-move2-from highlight-move2-to highlight-move3-from highlight-move3-to');
+            $('.pv-arrow').remove();
+            
+            console.log('Move made successfully:', moveObj);
+            console.log('New FEN:', game.fen());
+        } else {
+            console.error('Failed to make move:', rawMove);
+            alert('Invalid move: ' + rawMove);
+        }
+    } catch (error) {
+        console.error('Error making selected move:', error);
+        alert('Error making move: ' + error.message);
+    }
+};
 
 // Add CSS for move highlighting
 const style = document.createElement('style');
@@ -937,6 +1058,48 @@ style.textContent = `
     .highlight-move3-to {
         box-shadow: inset 0 0 4px 4px #FFF3E0 !important;
         border: 2px solid #FFCC80 !important;
+    }
+    
+    /* Make Move button styling */
+    .make-move-btn {
+        background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        display: none; /* Hidden by default until moves are available */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .make-move-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .make-move-btn:hover::before {
+        left: 100%;
+    }
+    
+    .make-move-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(143, 189, 223, 0.3);
+    }
+    
+    .make-move-btn:active {
+        transform: translateY(0px);
+        box-shadow: 0 2px 6px rgba(143, 189, 223, 0.2);
     }
 `;
 document.head.appendChild(style);
