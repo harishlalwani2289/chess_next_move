@@ -161,11 +161,25 @@ $(document).ready(function() {
         if (move.length >= 4) {
             const fromSquare = move.slice(0, 2);
             const toSquare = move.slice(2, 4);
-            const position = board.position();
-            const piece = position[fromSquare];
+            
+            // Get position from chess.js since it maintains the board state
+            const position = game.board();
+            
+            // Find the piece at the source square
+            let piece = null;
+            for (let row = 0; row < 8; row++) {
+                for (let col = 0; col < 8; col++) {
+                    const square = String.fromCharCode(97 + col) + (8 - row);
+                    if (square === fromSquare && position[row][col]) {
+                        piece = position[row][col];
+                        break;
+                    }
+                }
+                if (piece) break;
+            }
             
             if (piece) {
-                const pieceChar = piece.charAt(1).toLowerCase();
+                const pieceChar = piece.type.toLowerCase();
                 const pieceSymbol = pieceChar === 'p' ? 'p' : pieceChar.toUpperCase();
                 return pieceSymbol + fromSquare + toSquare;
             }
@@ -413,19 +427,28 @@ $(document).ready(function() {
         $(selector).progressbar('value', value);
     }
     
-    // Initialize chess board
+    // Initialize chess board with Chessground
     function initBoard() {
         const config = {
-            draggable: true,
-            position: 'start',
-            dropOffBoard: 'trash',
-            sparePieces: true,
-            onDrop: onDrop,
-            onDragStart: onDragStart,
-            onMoveEnd: onMoveEnd
+            fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR',
+            movable: {
+                free: false,
+                color: 'both',
+                events: {
+                    after: onMove
+                }
+            },
+            draggable: {
+                enabled: true
+            },
+            coordinates: true,
+            resizable: false
         };
         
-        board = Chessboard('myBoard', config);
+        board = Chessground(document.getElementById('myBoard'), config);
+        
+        // Chessground handles mobile touch natively - no additional prevention needed
+        console.log('Chessground initialized - mobile touch handled natively');
         
         // Store instances globally for button access
         window.chessAnalyzer.board = board;
@@ -441,32 +464,42 @@ $(document).ready(function() {
         addToHistory(); // Add starting position to history
     }
     
-    // Handle piece drops
-    function onDrop(source, target, piece, newPos, oldPos, orientation) {
-        // Handle castling moves
-        handleCastlingRights(piece, source);
+    // Handle moves with Chessground
+    function onMove(orig, dest, metadata) {
+        console.log('Chessground move:', orig, '->', dest);
         
-        // Update turn
-        const pieceColor = piece.charAt(0);
-        if (target !== 'offboard') {
-            if (pieceColor === 'w') {
-                $('#blackToMove').prop('checked', true);
+        try {
+            // Make the move in chess.js
+            const moveObj = game.move({
+                from: orig,
+                to: dest,
+                promotion: 'q' // Default to queen promotion
+            });
+            
+            if (moveObj) {
+                // Update turn based on the move
+                if (game.turn() === 'w') {
+                    $('#whiteToMove').prop('checked', true);
+                } else {
+                    $('#blackToMove').prop('checked', true);
+                }
+                
+                // Update game state and display
+                setTimeout(() => {
+                    updateFenDisplay();
+                    clearResults();
+                    addToHistory();
+                    saveGameState();
+                }, 50);
             } else {
-                $('#whiteToMove').prop('checked', true);
+                // Invalid move - revert board to previous position
+                board.set({ fen: game.fen() });
             }
+        } catch (error) {
+            console.error('Move error:', error);
+            // Revert board to previous position
+            board.set({ fen: game.fen() });
         }
-        
-        // Handle pawn promotion
-        handlePawnPromotion(piece, target, newPos);
-        
-        // Update game state
-        setTimeout(() => {
-            updateGameState();
-            updateFenDisplay();
-            clearResults();
-            addToHistory(); // Add position to history after piece move
-            saveGameState(); // Save state after piece move
-        }, 50);
     }
     
     // Handle castling rights updates
