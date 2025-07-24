@@ -353,118 +353,24 @@ h3 {
     padding: 15px !important;
   }
   
-  /* Aggressive mobile board sizing - multiple selector approaches */
-  #board-section,
-  body #board-section,
-  html body #board-section {
+  /* Clean mobile board sizing - let Chessground handle the rest */
+  #board-section {
     width: 100% !important;
-    height: 400px !important;
     max-width: 400px !important;
-    min-width: 300px !important;
-    min-height: 400px !important;
+    height: auto !important;
+    min-height: 350px !important;
     margin: 0 auto !important;
-    padding: 10px !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: rgba(255, 0, 0, 0.3) !important; /* Debug: should see red background */
-    border: 3px solid red !important;
+    padding: 15px !important;
     box-sizing: border-box !important;
-    overflow: visible !important;
-    position: relative !important;
   }
   
-  #myBoard,
-  body #myBoard,
-  html body #myBoard {
-    width: 380px !important;
-    height: 380px !important;
+  #myBoard {
+    width: 100% !important;
+    height: auto !important;
     max-width: 380px !important;
-    min-width: 300px !important;
-    min-height: 380px !important;
+    aspect-ratio: 1 / 1 !important; /* Keep board square */
     margin: 0 auto !important;
-    padding: 0 !important;
-    background: rgba(0, 0, 255, 0.3) !important; /* Debug: should see blue background */
-    border: 3px solid blue !important;
     box-sizing: border-box !important;
-    display: block !important;
-    position: relative !important;
-    overflow: visible !important;
-    -webkit-transform: translateZ(0) !important;
-    transform: translateZ(0) !important;
-  }
-  
-  /* Force all Chessground containers to be visible with multiple selectors */
-  #myBoard cg-container,
-  body #myBoard cg-container,
-  html body #myBoard cg-container,
-  #myBoard > cg-container {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 380px !important;
-    min-height: 380px !important;
-    display: block !important;
-    position: relative !important;
-    overflow: visible !important;
-    background: rgba(0, 255, 0, 0.3) !important; /* Debug: should see green background */
-    border: 2px solid green !important;
-  }
-  
-  /* Force Chessground wrapper and board elements */
-  #myBoard .cg-wrap,
-  body #myBoard .cg-wrap,
-  html body #myBoard .cg-wrap,
-  #myBoard cg-container .cg-wrap {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 380px !important;
-    max-width: 380px !important;
-    display: block !important;
-    position: relative !important;
-    overflow: visible !important;
-    background: rgba(255, 255, 0, 0.3) !important; /* Debug: should see yellow background */
-    border: 2px solid yellow !important;
-  }
-  
-  /* Force the actual chess board element */
-  #myBoard cg-board,
-  body #myBoard cg-board,
-  html body #myBoard cg-board,
-  #myBoard .cg-wrap cg-board {
-    width: 100% !important;
-    height: 100% !important;
-    min-height: 380px !important;
-    max-width: 380px !important;
-    display: block !important;
-    position: relative !important;
-    overflow: visible !important;
-    background: rgba(255, 0, 255, 0.3) !important; /* Debug: should see magenta background */
-    border: 2px solid magenta !important;
-  }
-  
-  /* Force all squares to be visible */
-  #myBoard square,
-  body #myBoard square,
-  #myBoard cg-board square {
-    display: block !important;
-    position: absolute !important;
-    width: 12.5% !important;
-    height: 12.5% !important;
-    box-sizing: border-box !important;
-  }
-  
-  /* Ensure pieces are visible */
-  #myBoard piece,
-  body #myBoard piece,
-  #myBoard square piece {
-    display: block !important;
-    width: 100% !important;
-    height: 100% !important;
-    position: absolute !important;
-    background-size: contain !important;
-    background-repeat: no-repeat !important;
-    background-position: center !important;
   }
   
   .turn-control-row,
