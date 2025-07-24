@@ -535,6 +535,29 @@ $(document).ready(function() {
     function updateFenDisplay() {
         const fen = buildFenString();
         $('#fenInput').val(fen);
+        updateTurnButtons();
+        updateCastlingButtons();
+    }
+    
+    // Update turn button states based on current turn
+    function updateTurnButtons() {
+        const currentTurn = $('input[name="turn"]:checked').val();
+        $('.turn-btn').removeClass('active');
+        
+        if (currentTurn === 'w') {
+            $('#whiteToMoveBtn').addClass('active');
+        } else {
+            $('#blackToMoveBtn').addClass('active');
+        }
+    }
+    
+    // Update castling button states based on current castling rights
+    function updateCastlingButtons() {
+        // Update visual states to match hidden checkboxes
+        $('#whiteKingSideBtn').toggleClass('active', $('#whiteKingSide').is(':checked'));
+        $('#whiteQueenSideBtn').toggleClass('active', $('#whiteQueenSide').is(':checked'));
+        $('#blackKingSideBtn').toggleClass('active', $('#blackKingSide').is(':checked'));
+        $('#blackQueenSideBtn').toggleClass('active', $('#blackQueenSide').is(':checked'));
     }
     
     // Clear analysis results
@@ -792,6 +815,7 @@ $(document).ready(function() {
                 }
                 
                 updateGameState();
+                updateFenDisplay(); // This will sync all button states
                 clearResults();
             } catch (error) {
                 alert('Invalid FEN string');
@@ -838,6 +862,71 @@ stockfish.postMessage('setoption name MultiPV value 3');
     
     // Save state when other controls change
     $('#thinkTime, input[name="mode"]').change(function() {
+        saveGameState();
+    });
+    
+    // Turn button handlers
+    $('.turn-btn').click(function() {
+        const clickedTurn = $(this).data('turn');
+        
+        // Update button states
+        $('.turn-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        // Update hidden radio buttons for compatibility
+        if (clickedTurn === 'w') {
+            $('#whiteToMove').prop('checked', true);
+            $('#blackToMove').prop('checked', false);
+        } else {
+            $('#blackToMove').prop('checked', true);
+            $('#whiteToMove').prop('checked', false);
+        }
+        
+        // Update FEN and game state
+        updateFenDisplay();
+        updateGameState();
+        saveGameState();
+    });
+    
+    // Castling button handlers
+    $('.castling-btn').click(function() {
+        const castlingType = $(this).data('castling');
+        const isActive = $(this).hasClass('active');
+        
+        // Toggle button state
+        if (isActive) {
+            $(this).removeClass('active');
+        } else {
+            $(this).addClass('active');
+        }
+        
+        // Update hidden checkbox for compatibility
+        $('#' + castlingType).prop('checked', !isActive);
+        
+        // Update FEN and game state
+        updateFenDisplay();
+        updateGameState();
+        saveGameState();
+    });
+    
+    // Mode button handlers
+    $('.mode-btn').click(function() {
+        const clickedMode = $(this).data('mode');
+        
+        // Update button states
+        $('.mode-btn').removeClass('active');
+        $(this).addClass('active');
+        
+        // Update hidden radio buttons for compatibility
+        if (clickedMode === 'show') {
+            $('#showMove').prop('checked', true);
+            $('#makeMove').prop('checked', false);
+        } else {
+            $('#makeMove').prop('checked', true);
+            $('#showMove').prop('checked', false);
+        }
+        
+        // Save state
         saveGameState();
     });
     
@@ -921,6 +1010,10 @@ stockfish.postMessage('setoption name MultiPV value 3');
             // Update game state and FEN display
             updateGameState();
             updateFenDisplay();
+            
+            // Ensure visual button states are synchronized
+            updateTurnButtons();
+            updateCastlingButtons();
             
             console.log('Game state restored from sessionStorage for this tab');
             return true;

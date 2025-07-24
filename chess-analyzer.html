@@ -66,48 +66,69 @@
                 
                 <!-- FEN Input -->
                 <div class="control-group">
-                    <label for="fenInput">FEN Position:</label>
-                    <input type="text" id="fenInput" placeholder="Enter FEN position">
-                    <button id="setFenBtn" class="btn btn-secondary">Set Position</button>
+                    <label for="fenInput">FEN:</label>
+                    <div class="fen-input-container">
+                        <input type="text" id="fenInput" placeholder="Enter FEN position">
+                        <button id="setFenBtn" class="btn btn-secondary">Set FEN</button>
+                    </div>
                 </div>
 
                 <!-- Game State Controls -->
-                <div class="control-group">
-                    <div class="radio-group">
-                        <label>Turn:</label>
-                        <input type="radio" id="whiteToMove" name="turn" value="w" checked>
-                        <label for="whiteToMove">White</label>
-                        <input type="radio" id="blackToMove" name="turn" value="b">
-                        <label for="blackToMove">Black</label>
+                <div class="control-group turn-control-row">
+                    <label>Turn:</label>
+                    <div class="turn-buttons">
+                        <button type="button" id="whiteToMoveBtn" class="turn-btn white-btn active" data-turn="w" title="White to move">
+                            <span class="turn-circle">♔</span>
+                        </button>
+                        <button type="button" id="blackToMoveBtn" class="turn-btn black-btn" data-turn="b" title="Black to move">
+                            <span class="turn-circle">♚</span>
+                        </button>
                     </div>
+                    <!-- Hidden radio buttons for form compatibility -->
+                    <input type="radio" id="whiteToMove" name="turn" value="w" checked style="display: none;">
+                    <input type="radio" id="blackToMove" name="turn" value="b" style="display: none;">
                 </div>
 
                 <!-- Castling Rights -->
                 <div class="control-group">
                     <label>Castling Rights:</label>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="whiteKingSide" checked>
-                        <label for="whiteKingSide">White O-O</label>
-                        <input type="checkbox" id="whiteQueenSide" checked>
-                        <label for="whiteQueenSide">White O-O-O</label>
-                        <input type="checkbox" id="blackKingSide" checked>  
-                        <label for="blackKingSide">Black O-O</label>
-                        <input type="checkbox" id="blackQueenSide" checked>
-                        <label for="blackQueenSide">Black O-O-O</label>
+                    <div class="castling-buttons">
+                        <button type="button" id="whiteKingSideBtn" class="castling-btn active" data-castling="whiteKingSide" title="White kingside castling">
+                            ♔O-O
+                        </button>
+                        <button type="button" id="whiteQueenSideBtn" class="castling-btn active" data-castling="whiteQueenSide" title="White queenside castling">
+                            ♔O-O-O
+                        </button>
+                        <button type="button" id="blackKingSideBtn" class="castling-btn active" data-castling="blackKingSide" title="Black kingside castling">
+                            ♚O-O
+                        </button>
+                        <button type="button" id="blackQueenSideBtn" class="castling-btn active" data-castling="blackQueenSide" title="Black queenside castling">
+                            ♚O-O-O
+                        </button>
                     </div>
+                    <!-- Hidden checkboxes for form compatibility -->
+                    <input type="checkbox" id="whiteKingSide" checked style="display: none;">
+                    <input type="checkbox" id="whiteQueenSide" checked style="display: none;">
+                    <input type="checkbox" id="blackKingSide" checked style="display: none;">
+                    <input type="checkbox" id="blackQueenSide" checked style="display: none;">
                 </div>
 
                 <!-- Analysis Controls -->
-                <div class="control-group">
+                <div class="control-group analysis-control-row">
                     <label for="thinkTime">Think Time (seconds):</label>
-                    <input type="number" id="thinkTime" value="3" min="1" max="30">
+                    <input type="number" id="thinkTime" value="3" min="1" max="999" class="compact-number">
                     
-                    <div class="radio-group">
-                        <input type="radio" id="showMove" name="mode" value="show" checked>
-                        <label for="showMove">Show Move</label>
-                        <input type="radio" id="makeMove" name="mode" value="make">
-                        <label for="makeMove">Make Move</label>
+                    <div class="mode-buttons">
+                        <button type="button" id="showMoveBtn" class="mode-btn active" data-mode="show" title="Show best moves on board">
+                            Show
+                        </button>
+                        <button type="button" id="makeMoveBtn" class="mode-btn" data-mode="make" title="Automatically make the best move">
+                            Make
+                        </button>
                     </div>
+                    <!-- Hidden radio buttons for form compatibility -->
+                    <input type="radio" id="showMove" name="mode" value="show" checked style="display: none;">
+                    <input type="radio" id="makeMove" name="mode" value="make" style="display: none;">
                 </div>
 
                 <!-- Calculate Button -->
