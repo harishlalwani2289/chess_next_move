@@ -512,8 +512,20 @@ $(document).ready(function() {
     }
     
     // Initialize chess board with Chessground
-    function initBoard() {
-        console.log('🔧 Starting board initialization...');
+    function initBoard(initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
+        console.log('🔧 Starting board initialization with FEN:', initialFen);
+        
+        // Load the initial position into chess.js first if it's not the starting position
+        if (initialFen !== 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
+            try {
+                game.load(initialFen);
+                console.log('🔄 Loaded initial position into chess.js');
+            } catch (error) {
+                console.error('Error loading initial FEN:', error);
+                initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+                game.reset();
+            }
+        }
         
         // Comprehensive mobile debugging
         console.log('📱 User Agent:', navigator.userAgent);
@@ -527,6 +539,14 @@ $(document).ready(function() {
         console.log('📋 Board element found:', boardElement);
         console.log('📋 Board element dimensions:', boardElement ? boardElement.getBoundingClientRect() : 'N/A');
         
+        // Set initial theme classes on board element
+        if (boardElement) {
+            // Remove any existing classes and add default theme classes: brown board + cburnett pieces
+            boardElement.className = '';
+            boardElement.classList.add('brown', 'cburnett');
+            console.log('🎨 Applied default theme classes:', boardElement.className);
+        }
+        
         // Check parent elements
         if (boardElement) {
             console.log('📋 Parent element (#board-section):', boardElement.parentElement);
@@ -538,7 +558,7 @@ $(document).ready(function() {
         console.log('♟️ Chessground available:', typeof Chessground);
         
         const config = {
-            fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+            fen: initialFen,
             movable: {
                 free: false,
                 color: 'white', // Start with white to move
@@ -571,6 +591,73 @@ $(document).ready(function() {
         try {
             board = Chessground(boardElement, config);
             console.log('✅ Chessground board created:', board);
+            console.log('📋 Board state after creation:', board.state);
+            
+            // Ensure pieces are visible after creation with multiple checks
+            const ensurePieces = () => {
+                console.log('🔍 Checking board state:', board.state.pieces);
+                // Handle both Map and Object piece storage
+                let pieceCount = 0;
+                if (board.state.pieces) {
+                    if (board.state.pieces instanceof Map) {
+                        pieceCount = board.state.pieces.size;
+                    } else {
+                        pieceCount = Object.keys(board.state.pieces).length;
+                    }
+                }
+                console.log('📊 Piece count:', pieceCount);
+                
+                // Check if pieces are actually visible in DOM
+                const visiblePieces = document.querySelectorAll('#myBoard piece');
+                console.log('👁️ Visible pieces in DOM:', visiblePieces.length);
+                
+                if (pieceCount < 32 || visiblePieces.length === 0) {
+                    if (visiblePieces.length === 0) {
+                        console.log('🚨 No pieces visible in DOM! Force redrawing...');
+                    } else {
+                        console.log('⚠️ Missing pieces detected! Restoring starting position...');
+                    }
+                    
+                    // Force a complete redraw
+                    board.redrawAll();
+                    
+                    // If still no pieces, try setting the position again
+                    setTimeout(() => {
+                        const stillVisiblePieces = document.querySelectorAll('#myBoard piece');
+                        console.log('🔄 After redraw, visible pieces:', stillVisiblePieces.length);
+                        
+                        if (stillVisiblePieces.length === 0) {
+                            console.log('🔧 Still no visible pieces, forcing position reset...');
+                            board.set({
+                                fen: initialFen,
+                                animation: { enabled: false }
+                            });
+                            
+                            // Final check
+                            setTimeout(() => {
+                                const finalVisiblePieces = document.querySelectorAll('#myBoard piece');
+                                console.log('🎯 Final check - visible pieces:', finalVisiblePieces.length);
+                                if (finalVisiblePieces.length === 0) {
+                                    console.error('❌ Unable to make pieces visible!');
+                                } else {
+                                    console.log('✅ Pieces are now visible!');
+                                }
+                            }, 100);
+                        } else {
+                            console.log('✅ Pieces successfully restored!');
+                        }
+                    }, 100);
+                } else {
+                    console.log('✅ All pieces present and accounted for!');
+                    // Even if pieces are "present", force a redraw to ensure visibility
+                    board.redrawAll();
+                }
+            };
+            
+            // Check pieces multiple times to catch any vanishing
+            setTimeout(ensurePieces, 100);
+            setTimeout(ensurePieces, 300);
+            setTimeout(ensurePieces, 500);
             
             // Simple mobile resize trigger - let Chessground handle the details
             if (window.innerWidth <= 768) {
@@ -584,7 +671,7 @@ $(document).ready(function() {
                     // Log final dimensions
                     const finalRect = boardElement.getBoundingClientRect();
                     console.log('📐 Board dimensions after redraw:', finalRect);
-                }, 100);
+                }, 200);
             }
         } catch (error) {
             console.error('❌ Failed to create Chessground board:', error);
@@ -610,8 +697,11 @@ $(document).ready(function() {
         window.chessAnalyzer.removeHighlights = removeHighlights;
         window.chessAnalyzer.updateTurnButtons = updateTurnButtons;
         
-        updateFenDisplay();
-        addToHistory(); // Add starting position to history
+        // Delay these calls to prevent them from interfering with piece display
+        setTimeout(() => {
+            updateFenDisplay();
+            addToHistory(); // Add starting position to history
+        }, 150);
     }
     
     // Get valid moves for current position
@@ -750,40 +840,65 @@ $(document).ready(function() {
     function updateGameState() {
         try {
             const fen = buildFenString();
+            console.log('🔄 Updating game state with FEN:', fen);
             game.load(fen);
         } catch (error) {
             console.error('Failed to update game state:', error);
+            console.log('📋 Current board state when error occurred:', board ? board.state : 'no board');
         }
     }
     
     // Build complete FEN string from current position and settings
     function buildFenString() {
-        const turn = $('input[name="turn"]:checked').val();
-        
-        let castling = '';
-        if ($('#whiteKingSide').is(':checked')) castling += 'K';
-        if ($('#whiteQueenSide').is(':checked')) castling += 'Q';
-        if ($('#blackKingSide').is(':checked')) castling += 'k';
-        if ($('#blackQueenSide').is(':checked')) castling += 'q';
-        if (castling === '') castling = '-';
-        
-        // Use the current game's position but replace turn and castling
+        // Since castling rights are now synced from chess.js game state,
+        // we can simply use the chess.js FEN which has the correct values
         try {
-            const currentFen = game.fen().split(' ');
-            return `${currentFen[0]} ${turn} ${castling} - 0 1`;
+            return game.fen();
         } catch (error) {
-            console.error('Error building FEN string:', error);
-            // Fallback to starting position
+            console.error('Error getting FEN from game:', error);
+            // Fallback: build manually if chess.js fails
+            const turn = $('input[name="turn"]:checked').val();
+            
+            let castling = '';
+            if ($('#whiteKingSide').is(':checked')) castling += 'K';
+            if ($('#whiteQueenSide').is(':checked')) castling += 'Q';
+            if ($('#blackKingSide').is(':checked')) castling += 'k';
+            if ($('#blackQueenSide').is(':checked')) castling += 'q';
+            if (castling === '') castling = '-';
+            
             return `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR ${turn} ${castling} - 0 1`;
         }
     }
     
     // Update FEN display
     function updateFenDisplay() {
-        const fen = buildFenString();
+        // First sync castling rights from chess.js game state
+        syncCastlingRightsFromGame();
+        
+        // Get the actual FEN from chess.js (which has correct castling rights)
+        const fen = game.fen();
         $('#fenInput').val(fen);
         updateTurnButtons();
         updateCastlingButtons();
+    }
+    
+    // Sync castling rights checkboxes with chess.js game state
+    function syncCastlingRightsFromGame() {
+        try {
+            const fen = game.fen();
+            const fenParts = fen.split(' ');
+            const castlingRights = fenParts[1] ? fenParts[2] : 'KQkq'; // Default if no castling part
+            
+            // Update hidden checkboxes to match chess.js game state
+            $('#whiteKingSide').prop('checked', castlingRights.includes('K'));
+            $('#whiteQueenSide').prop('checked', castlingRights.includes('Q'));
+            $('#blackKingSide').prop('checked', castlingRights.includes('k'));
+            $('#blackQueenSide').prop('checked', castlingRights.includes('q'));
+            
+            console.log('Synced castling rights from game:', castlingRights);
+        } catch (error) {
+            console.error('Error syncing castling rights:', error);
+        }
     }
     
     // Update turn button states based on current turn
@@ -1086,6 +1201,7 @@ $(document).ready(function() {
         }
     });
     
+    
     $('#calculateBtn').click(function() {
         if (engineThinking || !stockfish) {
             return;
@@ -1233,12 +1349,36 @@ stockfish.postMessage('setoption name MultiPV value 3');
                 return false;
             }
             
-            // Restore board position
-            if (state.position) {
+            console.log('📁 Loading saved state:', state);
+            
+            // Only restore non-starting positions to avoid overriding the default setup
+            const isStartingPosition = state.position === 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+            
+            if (state.position && !isStartingPosition) {
+                console.log('🔄 Restoring saved position:', state.position);
                 // Load into chess.js first
                 game.load(state.position);
-                // Then update board display
-                board.set({ fen: state.position });
+                // Then update board display - but ensure pieces stay visible
+                setTimeout(() => {
+                    board.set({ fen: state.position });
+                    // Double-check pieces are still there
+                    setTimeout(() => {
+                        let pieceCount = 0;
+                        if (board.state.pieces) {
+                            if (board.state.pieces instanceof Map) {
+                                pieceCount = board.state.pieces.size;
+                            } else {
+                                pieceCount = Object.keys(board.state.pieces).length;
+                            }
+                        }
+                        if (pieceCount === 0) {
+                            console.log('⚠️ Pieces vanished during state restore! Restoring...');
+                            board.set({ fen: state.position });
+                        }
+                    }, 50);
+                }, 50);
+            } else {
+                console.log('📋 Keeping starting position, only restoring settings');
             }
             
             // Restore turn
@@ -1273,16 +1413,20 @@ stockfish.postMessage('setoption name MultiPV value 3');
                 $('#makeMove').prop('checked', true);
             }
             
-            // Update game state and FEN display
-            updateGameState();
-            updateFenDisplay();
-            updateValidMoves();
+            // Update game state and FEN display - but delay to avoid conflicts
+            setTimeout(() => {
+                if (!isStartingPosition) {
+                    updateGameState();
+                }
+                updateFenDisplay();
+                updateValidMoves();
+                
+                // Ensure visual button states are synchronized
+                updateTurnButtons();
+                updateCastlingButtons();
+            }, 100);
             
-            // Ensure visual button states are synchronized
-            updateTurnButtons();
-            updateCastlingButtons();
-            
-            console.log('Game state restored from sessionStorage for this tab');
+            console.log('✅ Game state restored from sessionStorage for this tab');
             return true;
             
         } catch (error) {
@@ -1303,14 +1447,324 @@ stockfish.postMessage('setoption name MultiPV value 3');
     }
     
     
-    // Initialize everything
-    initBoard();
-    initStockfish();
+    // PGN handling functionality
+    let pgnGame = null;
+    let pgnMoves = [];
+    let currentPgnMoveIndex = -1;
     
-    // Try to load saved state after board is initialized
+    function initPgnHandlers() {
+        // Main Load PGN button - opens modal
+        $('#loadPgnBtn').click(function() {
+            $('#pgnModal').show();
+        });
+        
+        // Modal Load PGN button
+        $('#loadPgnModalBtn').click(function() {
+            const pgnText = $('#pgnInput').val().trim();
+            if (!pgnText) {
+                alert('Please enter a PGN game first.');
+                return;
+            }
+            
+            try {
+                loadPgnGame(pgnText);
+                // Close modal after successful load
+                $('#pgnModal').hide();
+            } catch (error) {
+                alert('Error loading PGN: ' + error.message);
+                console.error('PGN load error:', error);
+            }
+        });
+        
+        // Close modal button
+        $('#closePgnModal').click(function() {
+            $('#pgnModal').hide();
+        });
+        
+        // Close modal when clicking outside
+        $('#pgnModal').click(function(e) {
+            if (e.target === this) {
+                $('#pgnModal').hide();
+            }
+        });
+        
+        // Close modal with Escape key
+        $(document).keydown(function(e) {
+            if (e.key === 'Escape' && $('#pgnModal').is(':visible')) {
+                $('#pgnModal').hide();
+            }
+        });
+        
+        // Clear PGN button
+        $('#clearPgnBtn').click(function() {
+            clearPgnGame();
+        });
+        
+        // Load sample PGN button
+        $('#samplePgnBtn').click(function() {
+            const samplePgn = `[Event "Immortal Game"]
+[Site "London"]
+[Date "1851.06.21"]
+[Round "?"]
+[White "Adolf Anderssen"]
+[Black "Lionel Kieseritzky"]
+[Result "1-0"]
+
+1. e4 e5 2. f4 exf4 3. Bc4 Qh4+ 4. Kf1 b5 5. Bxb5 Nf6 6. Nf3 Qh6 7. d3 Nh5 8. Nh4 Qg5 9. Nf5 c6 10. g3 Nf6 11. Rg1 cxb5 12. h4 Qg6 13. h5 Qg5 14. Qf3 Ng8 15. Bxf4 Qf6 16. Nc3 Bc5 17. Nd5 Qxb2 18. Bd6 Bxg1 19. e5 Qxa1+ 20. Ke2 Na6 21. Nxg7+ Kd8 22. Qf6+ Nxf6 23. Be7# 1-0`;
+            
+            $('#pgnInput').val(samplePgn);
+        });
+        
+        // PGN navigation buttons
+        $('#startPosBtn').click(function() {
+            if (pgnGame) {
+                goToMove(-1);
+            }
+        });
+        
+        $('#prevMoveBtn').click(function() {
+            if (pgnGame && currentPgnMoveIndex > 0) {
+                goToMove(currentPgnMoveIndex - 1);
+            }
+        });
+        
+        $('#nextMoveBtn').click(function() {
+            if (pgnGame && currentPgnMoveIndex < pgnMoves.length - 1) {
+                goToMove(currentPgnMoveIndex + 1);
+            }
+        });
+        
+        $('#endPosBtn').click(function() {
+            if (pgnGame) {
+                goToMove(pgnMoves.length - 1);
+            }
+        });
+    }
+    
+    function loadPgnGame(pgnText) {
+        // Create a new chess instance for PGN parsing
+        const tempGame = new Chess();
+        
+        // Load the PGN
+        if (!tempGame.load_pgn(pgnText)) {
+            throw new Error('Invalid PGN format');
+        }
+        
+        // Store the game and moves
+        pgnGame = tempGame;
+        pgnMoves = pgnGame.history({ verbose: true });
+        currentPgnMoveIndex = -1;
+        
+        // Extract game information from headers
+        const headers = pgnGame.header();
+        displayGameInfo(headers);
+        
+        // Show PGN sections
+        $('#pgn-info-section').show();
+        $('#pgn-navigation-section').show();
+        
+        // Reset to starting position
+        game.reset();
+        board.set({ fen: game.fen() });
+        
+        // Update display
+        updateFenDisplay();
+        updateValidMoves();
+        updatePgnNavigation();
+        
+        console.log('PGN loaded successfully:', pgnMoves.length, 'moves');
+    }
+    
+    function displayGameInfo(headers) {
+        $('#gameWhite').text(headers.White || 'Unknown');
+        $('#gameBlack').text(headers.Black || 'Unknown');
+        $('#gameEvent').text(headers.Event || '');
+        $('#gameDate').text(headers.Date || '');
+        $('#gameResult').text(headers.Result || '');
+    }
+    
+    function goToMove(moveIndex) {
+        if (!pgnGame || moveIndex < -1 || moveIndex >= pgnMoves.length) {
+            return;
+        }
+        
+        // Reset game to starting position
+        game.reset();
+        
+        // Play moves up to the specified index (skip if starting position)
+        if (moveIndex >= 0) {
+            for (let i = 0; i <= moveIndex; i++) {
+                const move = pgnMoves[i];
+                game.move(move);
+            }
+        }
+        
+        // Update the board
+        board.set({ fen: game.fen() });
+        
+        // Update game state
+        updateGameState();
+        updateFenDisplay();
+        updateValidMoves();
+        
+        // Update current move index
+        currentPgnMoveIndex = moveIndex;
+        
+        // Update navigation display
+        updatePgnNavigation();
+        
+        // Clear analysis results since we're in a different position
+        clearResults();
+    }
+    
+    function updatePgnNavigation() {
+        if (!pgnGame) {
+            return;
+        }
+        
+        const totalMoves = pgnMoves.length;
+        const currentMove = currentPgnMoveIndex + 1;
+        
+        // Update move counter
+        if (currentPgnMoveIndex === -1) {
+            $('#moveCounter').text('Start');
+            $('#currentMoveDisplay').text('');
+        } else {
+            $('#moveCounter').text(`${currentMove}/${totalMoves}`);
+            
+            // Show current move
+            const move = pgnMoves[currentPgnMoveIndex];
+            const moveNumber = Math.ceil((currentPgnMoveIndex + 1) / 2);
+            const isWhite = (currentPgnMoveIndex % 2) === 0;
+            const moveDisplay = isWhite ? `${moveNumber}. ${move.san}` : `${moveNumber}...${move.san}`;
+            $('#currentMoveDisplay').text(moveDisplay);
+        }
+        
+        // Update navigation button states
+        $('#startPosBtn').prop('disabled', currentPgnMoveIndex === -1);
+        $('#prevMoveBtn').prop('disabled', currentPgnMoveIndex <= -1);
+        $('#nextMoveBtn').prop('disabled', currentPgnMoveIndex >= totalMoves - 1);
+        $('#endPosBtn').prop('disabled', currentPgnMoveIndex >= totalMoves - 1);
+    }
+    
+    function clearPgnGame() {
+        pgnGame = null;
+        pgnMoves = [];
+        currentPgnMoveIndex = -1;
+        
+        // Clear input
+        $('#pgnInput').val('');
+        
+        // Hide PGN sections
+        $('#pgn-info-section').hide();
+        $('#pgn-navigation-section').hide();
+        
+        // Reset to starting position
+        game.reset();
+        board.set({ fen: game.fen() });
+        
+        // Update display
+        updateFenDisplay();
+        updateValidMoves();
+        clearResults();
+        
+        console.log('PGN game cleared');
+    }
+    
+    // Theme switching functionality
+    function applyTheme(boardTheme, pieceSet) {
+        const boardElement = document.getElementById('myBoard');
+        if (boardElement) {
+            // Update the CSS classes on the board element
+            boardElement.className = `${boardTheme} ${pieceSet}`;
+            console.log('🎨 Applied theme:', boardElement.className);
+            
+            // Save theme preference
+            try {
+                localStorage.setItem('chessAnalyzerTheme', JSON.stringify({
+                    boardTheme: boardTheme,
+                    pieceSet: pieceSet
+                }));
+            } catch (error) {
+                console.warn('Could not save theme preference:', error);
+            }
+        }
+    }
+    
+    // Load saved theme preference
+    function loadSavedTheme() {
+        try {
+            const savedTheme = localStorage.getItem('chessAnalyzerTheme');
+            if (savedTheme) {
+                const theme = JSON.parse(savedTheme);
+                $('#boardThemeSelect').val(theme.boardTheme);
+                $('#pieceSetSelect').val(theme.pieceSet);
+                applyTheme(theme.boardTheme, theme.pieceSet);
+                console.log('🎨 Loaded saved theme:', theme);
+            }
+        } catch (error) {
+            console.warn('Could not load saved theme:', error);
+        }
+    }
+    
+    // Theme selector event handlers
+    $('#boardThemeSelect').on('change', function() {
+        const boardTheme = $(this).val();
+        const pieceSet = $('#pieceSetSelect').val();
+        applyTheme(boardTheme, pieceSet);
+    });
+    
+    $('#pieceSetSelect').on('change', function() {
+        const boardTheme = $('#boardThemeSelect').val();
+        const pieceSet = $(this).val();
+        applyTheme(boardTheme, pieceSet);
+    });
+    
+    // Initialize everything
+    initStockfish();
+    initPgnHandlers();
+    
+    // Initialize board after checking for saved state to prevent flickering
     setTimeout(() => {
-        loadGameState();
-    }, 100);
+        console.log('🔧 Checking for saved game state before board initialization...');
+        const savedState = sessionStorage.getItem('chessAnalyzerState');
+        let initialFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+        
+        if (savedState) {
+            try {
+                const state = JSON.parse(savedState);
+                const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+                if (state.position && Date.now() - state.timestamp <= maxAge) {
+                    const isStartingPosition = state.position === 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+                    if (!isStartingPosition) {
+                        initialFen = state.position;
+                        console.log('🔄 Will initialize board with saved position:', initialFen);
+                    }
+                }
+            } catch (error) {
+                console.warn('Error parsing saved state:', error);
+            }
+        }
+        
+        // Initialize board with the correct starting position
+        initBoard(initialFen);
+        
+        // Load saved theme after board is initialized
+        setTimeout(() => {
+            loadSavedTheme();
+        }, 100);
+        
+        // Load full saved state after board is ready
+        setTimeout(() => {
+            console.log('🔧 Loading complete saved game state...');
+            const stateLoaded = loadGameState();
+            if (stateLoaded) {
+                console.log('✅ Saved game state loaded successfully');
+            } else {
+                console.log('📋 No saved state found, using default chess position');
+            }
+        }, 200);
+    }, 50);
 });
 
 // Store board and game instances globally so they can be accessed from button clicks

@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chessground@8/assets/chessground.base.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chessground@8/assets/chessground.brown.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chessground@8/assets/chessground.cburnett.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/chessground@8/dist/chessground.min.js"></script>
     
     <!-- Chess.js for game logic -->
@@ -43,9 +44,50 @@
         </header>
 
         <div id="main-content">
-            <!-- Chess Board Section -->
-            <div id="board-section">
-                <div id="myBoard"></div>
+            <!-- Board Column - contains board and PGN sections -->
+            <div class="board-column">
+                <!-- Chess Board Section -->
+                <div id="board-section">
+                    <div id="myBoard"></div>
+                </div>
+                
+                <!-- PGN Game Info (below board section) -->
+                <div class="control-group" id="pgn-info-section" style="display: none;">
+                    <label>Game Information:</label>
+                    <div class="pgn-info">
+                        <div class="game-header">
+                            <span id="gameWhite">White</span> vs <span id="gameBlack">Black</span>
+                        </div>
+                        <div class="game-details">
+                            <span id="gameEvent"></span>
+                            <span id="gameDate"></span>
+                            <span id="gameResult"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PGN Navigation (below board section) -->
+                <div class="control-group" id="pgn-navigation-section" style="display: none;">
+                    <label>Game Navigation:</label>
+                    <div class="pgn-navigation">
+                        <button id="startPosBtn" class="btn btn-secondary" title="Go to start position">
+                            <i class="fas fa-fast-backward"></i>
+                        </button>
+                        <button id="prevMoveBtn" class="btn btn-secondary" title="Previous move">
+                            <i class="fas fa-step-backward"></i>
+                        </button>
+                        <span id="moveCounter">Start</span>
+                        <button id="nextMoveBtn" class="btn btn-secondary" title="Next move">
+                            <i class="fas fa-step-forward"></i>
+                        </button>
+                        <button id="endPosBtn" class="btn btn-secondary" title="Go to end position">
+                            <i class="fas fa-fast-forward"></i>
+                        </button>
+                    </div>
+                    <div class="current-move-info">
+                        <span id="currentMoveDisplay"></span>
+                    </div>
+                </div>
             </div>
 
             <!-- Controls Section -->
@@ -57,6 +99,28 @@
                         <button id="startBtn" class="btn btn-secondary">Start Position</button>
                         <button id="clearBtn" class="btn btn-secondary">Clear Board</button>
                         <button id="flipBtn" class="btn btn-secondary">Flip Board</button>
+                    </div>
+                </div>
+                
+                <!-- Theme Selection -->
+                <div class="control-group">
+                    <label>Board Theme:</label>
+                    <div class="theme-selectors">
+                        <select id="boardThemeSelect" class="theme-select">
+                            <option value="brown" selected>Brown (Classic)</option>
+                            <option value="blue">Blue Ocean</option>
+                            <option value="green">Forest Green</option>
+                            <option value="purple">Royal Purple</option>
+                            <option value="wood">Wooden</option>
+                        </select>
+                        
+                        <select id="pieceSetSelect" class="theme-select">
+                            <option value="cburnett" selected>CBurnett (Classic)</option>
+                            <option value="merida">Merida</option>
+                            <option value="alpha">Alpha</option>
+                            <option value="leipzig">Leipzig</option>
+                            <option value="pirouetti">Pirouetti</option>
+                        </select>
                     </div>
                 </div>
                 
@@ -78,6 +142,7 @@
                     <div class="fen-input-container">
                         <input type="text" id="fenInput" placeholder="Enter FEN position">
                         <button id="setFenBtn" class="btn btn-secondary">Set FEN</button>
+                        <button id="loadPgnBtn" class="btn btn-secondary">Load PGN</button>
                     </div>
                 </div>
 
@@ -201,6 +266,30 @@
                 <div class="result-item">
                     <label>Principal Variation #3:</label>
                     <textarea id="principalVariation3" readonly rows="2"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PGN Import Modal -->
+    <div id="pgnModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>PGN Import</h3>
+                <button class="close-btn" id="closePgnModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- PGN Import Section -->
+                <div class="control-group">
+                    <label>PGN Import:</label>
+                    <div class="pgn-import-container">
+                        <textarea id="pgnInput" placeholder="Paste PGN game here..." rows="8"></textarea>
+                        <div class="pgn-controls">
+                            <button id="loadPgnModalBtn" class="btn btn-primary">Load PGN</button>
+                            <button id="clearPgnBtn" class="btn btn-secondary">Clear</button>
+                            <button id="samplePgnBtn" class="btn btn-secondary">Load Sample</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
