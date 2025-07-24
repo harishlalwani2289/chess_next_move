@@ -513,9 +513,6 @@ $(document).ready(function() {
     
     // Initialize chess board with Chessground
     function initBoard() {
-        // Check if we're on a mobile device
-        const isMobile = window.innerWidth <= 768;
-        
         const config = {
             fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
             movable: {
@@ -528,15 +525,14 @@ $(document).ready(function() {
             },
             draggable: {
                 enabled: true,
-                showGhost: true,
-                distance: isMobile ? 0 : 3 // Reduce drag distance on mobile
+                showGhost: true
             },
             highlight: {
                 lastMove: true,
                 check: true
             },
-            coordinates: !isMobile, // Hide coordinates on mobile to save space
-            resizable: true, // Allow resizing for mobile
+            coordinates: true,
+            resizable: true, // Chessground handles responsive resizing
             events: {
                 move: onMove
             },
