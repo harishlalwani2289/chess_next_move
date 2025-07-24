@@ -353,7 +353,7 @@ h3 {
     padding: 10px !important;
   }
   
-  /* Enhanced mobile board section with better centering and debug styling */
+  /* Clean mobile board section with proper centering */
   #board-section {
     width: 100% !important;
     max-width: 420px !important;
@@ -366,8 +366,7 @@ h3 {
     flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    background: rgba(255, 100, 100, 0.3) !important; /* Debug: red background */
-    border: 3px solid red !important; /* Debug: red border */
+    background: white !important;
     border-radius: 15px !important;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
   }
@@ -384,8 +383,7 @@ h3 {
     border-radius: 12px !important;
     overflow: visible !important;
     flex-shrink: 0 !important;
-    background: rgba(0, 100, 255, 0.3) !important; /* Debug: blue background */
-    border: 3px solid blue !important; /* Debug: blue border */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
   }
   
   .turn-control-row,
