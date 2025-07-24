@@ -513,6 +513,16 @@ $(document).ready(function() {
     
     // Initialize chess board with Chessground
     function initBoard() {
+        console.log('🔧 Starting board initialization...');
+        
+        // Check if the board element exists
+        const boardElement = document.getElementById('myBoard');
+        console.log('📋 Board element found:', boardElement);
+        console.log('📋 Board element dimensions:', boardElement ? boardElement.getBoundingClientRect() : 'N/A');
+        
+        // Check if Chessground is available
+        console.log('♟️ Chessground available:', typeof Chessground);
+        
         const config = {
             fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
             movable: {
@@ -542,7 +552,15 @@ $(document).ready(function() {
             }
         };
         
-        board = Chessground(document.getElementById('myBoard'), config);
+        console.log('⚙️ Board config:', config);
+        
+        try {
+            board = Chessground(boardElement, config);
+            console.log('✅ Chessground board created:', board);
+        } catch (error) {
+            console.error('❌ Failed to create Chessground board:', error);
+            return;
+        }
         
         // Update valid moves for initial position
         updateValidMoves();

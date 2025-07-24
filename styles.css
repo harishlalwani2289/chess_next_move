@@ -353,19 +353,29 @@ h3 {
     padding: 15px;
   }
   
-  /* Mobile board sizing */
+  /* Mobile board sizing - force visibility */
   #board-section {
     width: 100%;
-    height: auto;
+    height: 400px !important; /* Force height on mobile */
     max-width: 400px;
-    aspect-ratio: 1;
+    min-height: 300px; /* Ensure minimum height */
+    background: red !important; /* Debug: should see red background */
   }
   
   #myBoard {
-    width: 100%;
-    height: auto;
+    width: 100% !important;
+    height: 400px !important; /* Force height on mobile */
     max-width: 400px;
-    aspect-ratio: 1;
+    min-height: 300px; /* Ensure minimum height */
+    background: blue !important; /* Debug: should see blue background */
+  }
+  
+  /* Force Chessground wrapper to be visible */
+  #myBoard .cg-wrap {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 300px !important;
+    background: green !important; /* Debug: should see green background */
   }
   
   .turn-control-row,
