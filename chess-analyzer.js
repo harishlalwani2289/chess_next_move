@@ -515,10 +515,24 @@ $(document).ready(function() {
     function initBoard() {
         console.log('🔧 Starting board initialization...');
         
+        // Comprehensive mobile debugging
+        console.log('📱 User Agent:', navigator.userAgent);
+        console.log('📱 Screen dimensions:', window.screen.width, 'x', window.screen.height);
+        console.log('📱 Viewport dimensions:', window.innerWidth, 'x', window.innerHeight);
+        console.log('📱 Device pixel ratio:', window.devicePixelRatio);
+        console.log('📱 Touch support:', 'ontouchstart' in window);
+        
         // Check if the board element exists
         const boardElement = document.getElementById('myBoard');
         console.log('📋 Board element found:', boardElement);
         console.log('📋 Board element dimensions:', boardElement ? boardElement.getBoundingClientRect() : 'N/A');
+        
+        // Check parent elements
+        if (boardElement) {
+            console.log('📋 Parent element (#board-section):', boardElement.parentElement);
+            console.log('📋 Parent dimensions:', boardElement.parentElement ? boardElement.parentElement.getBoundingClientRect() : 'N/A');
+            console.log('📋 Board element styles:', window.getComputedStyle(boardElement));
+        }
         
         // Check if Chessground is available
         console.log('♟️ Chessground available:', typeof Chessground);
