@@ -557,6 +557,19 @@ $(document).ready(function() {
         try {
             board = Chessground(boardElement, config);
             console.log('✅ Chessground board created:', board);
+            
+            // Force resize on mobile devices
+            if (window.innerWidth <= 768) {
+                console.log('📱 Mobile detected, forcing board resize...');
+                setTimeout(() => {
+                    console.log('🔄 Forcing board redraw...');
+                    board.redrawAll();
+                    
+                    // Check dimensions after redraw
+                    const newRect = boardElement.getBoundingClientRect();
+                    console.log('📐 Board dimensions after redraw:', newRect);
+                }, 100);
+            }
         } catch (error) {
             console.error('❌ Failed to create Chessground board:', error);
             return;
