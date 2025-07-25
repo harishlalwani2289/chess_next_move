@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AI Settings - Chess Analyzer</title>
+    <style>
+        .ai-settings-modal {
+            display: block;
+            position: relative;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            min-height: 100vh;
+            background-color: #f5f5f5;
+            padding: 20px 0;
+        }
+        
+        .ai-settings-content {
+            background-color: #fefefe;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .ai-settings-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+        }
+        
+        .ai-settings-header h2 {
+            margin: 0;
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .close-settings {
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-left: auto;
+        }
+        
+        .close-settings:hover {
+            color: #000;
+        }
+        
+        .api-service {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        
+        .api-service h3 {
+            margin: 0 0 10px 0;
+            color: #555;
+            font-size: 18px;
+        }
+        
+        .api-service p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .api-key-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        
+        .api-status {
+            margin-top: 8px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-connected {
+            color: #28a745;
+        }
+        
+        .status-disconnected {
+            color: #dc3545;
+        }
+        
+        .save-settings-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        .save-settings-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+        
+        .instruction-text {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .instruction-text h4 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+        
+        .api-link {
+            color: #2196f3;
+            text-decoration: none;
+        }
+        
+        .api-link:hover {
+            text-decoration: underline;
+        }
+        
+        .free-badge {
+            background: #28a745;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .paid-badge {
+            background: #ffc107;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- AI Settings Modal -->
+    <div id="aiSettingsModal" class="ai-settings-modal">
+        <div class="ai-settings-content">
+            <div class="ai-settings-header">
+                <h2>🤖 AI API Settings</h2>
+                <span class="close-settings" id="closeAiSettings">&times;</span>
+            </div>
+            
+            <div class="instruction-text">
+                <h4>📝 Instructions</h4>
+                <p>Add your API keys below to enable real AI explanations. The system will try each service in order until one works. Leave blank for services you don't want to use.</p>
+                <p><strong>Your API keys are stored locally in your browser and never sent to our servers.</strong></p>
+            </div>
+            
+            <!-- Google Gemini -->
+            <div class="api-service">
+                <h3>🟡 Google Gemini <span class="free-badge">FREE</span></h3>
+                <p>Get a free API key from <a href="https://makersuite.google.com/app/apikey" target="_blank" class="api-link">Google AI Studio</a></p>
+                <input type="password" id="geminiApiKey" class="api-key-input" placeholder="Enter your Gemini API key...">
+                <div id="geminiStatus" class="api-status status-disconnected">Not configured</div>
+            </div>
+            
+            <!-- OpenAI GPT -->
+            <div class="api-service">
+                <h3>🟢 OpenAI GPT <span class="paid-badge">PAID</span></h3>
+                <p>Get an API key from <a href="https://platform.openai.com/api-keys" target="_blank" class="api-link">OpenAI Platform</a></p>
+                <input type="password" id="openaiApiKey" class="api-key-input" placeholder="Enter your OpenAI API key...">
+                <div id="openaiStatus" class="api-status status-disconnected">Not configured</div>
+            </div>
+            
+            <!-- Anthropic Claude -->
+            <div class="api-service">
+                <h3>🟠 Anthropic Claude <span class="paid-badge">PAID</span></h3>
+                <p>Get an API key from <a href="https://console.anthropic.com/" target="_blank" class="api-link">Anthropic Console</a></p>
+                <input type="password" id="claudeApiKey" class="api-key-input" placeholder="Enter your Claude API key...">
+                <div id="claudeStatus" class="api-status status-disconnected">Not configured</div>
+            </div>
+            
+            <!-- Groq -->
+            <div class="api-service">
+                <h3>🔵 Groq <span class="free-badge">FREE</span></h3>
+                <p>Get a free API key from <a href="https://console.groq.com/keys" target="_blank" class="api-link">Groq Console</a></p>
+                <input type="password" id="groqApiKey" class="api-key-input" placeholder="Enter your Groq API key...">
+                <div id="groqStatus" class="api-status status-disconnected">Not configured</div>
+            </div>
+            
+            <!-- Hugging Face -->
+            <div class="api-service">
+                <h3>🤗 Hugging Face <span class="free-badge">FREE</span></h3>
+                <p>Get a free API key from <a href="https://huggingface.co/settings/tokens" target="_blank" class="api-link">Hugging Face Settings</a> (optional, works without key too)</p>
+                <input type="password" id="huggingfaceApiKey" class="api-key-input" placeholder="Enter your Hugging Face API key (optional)...">
+                <div id="huggingfaceStatus" class="api-status status-disconnected">Not configured</div>
+            </div>
+            
+            <button class="save-settings-btn" id="saveAiSettings">💾 Save Settings</button>
+        </div>
+    </div>
+
+    <script>
+        // Load existing API keys on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadApiKeys();
+        });
+
+        // Load saved API keys from localStorage
+        function loadApiKeys() {
+            const services = ['gemini', 'openai', 'claude', 'groq', 'huggingface'];
+            
+            services.forEach(service => {
+                const key = localStorage.getItem(`${service}ApiKey`);
+                const input = document.getElementById(`${service}ApiKey`);
+                const status = document.getElementById(`${service}Status`);
+                
+                if (key && key.trim()) {
+                    input.value = key;
+                    status.textContent = 'Configured ✓';
+                    status.className = 'api-status status-connected';
+                } else {
+                    status.textContent = 'Not configured';
+                    status.className = 'api-status status-disconnected';
+                }
+            });
+        }
+
+        // Save API keys to localStorage
+        document.getElementById('saveAiSettings').addEventListener('click', function() {
+            const services = ['gemini', 'openai', 'claude', 'groq', 'huggingface'];
+            let saved = 0;
+            
+            services.forEach(service => {
+                const input = document.getElementById(`${service}ApiKey`);
+                const status = document.getElementById(`${service}Status`);
+                const key = input.value.trim();
+                
+                if (key) {
+                    localStorage.setItem(`${service}ApiKey`, key);
+                    status.textContent = 'Configured ✓';
+                    status.className = 'api-status status-connected';
+                    saved++;
+                } else {
+                    localStorage.removeItem(`${service}ApiKey`);
+                    status.textContent = 'Not configured';
+                    status.className = 'api-status status-disconnected';
+                }
+            });
+            
+            alert(`Settings saved! ${saved} API key(s) configured.`);
+        });
+
+        // Close button functionality (you can remove this section if not needed)
+        document.getElementById('closeAiSettings').addEventListener('click', function() {
+            // Could redirect back to main page or close window
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.close();
+            }
+        });
+
+        // Show the settings immediately when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('aiSettingsModal').style.display = 'block';
+            loadApiKeys();
+        });
+    </script>
+</body>
+</html>

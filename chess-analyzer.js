@@ -944,6 +944,19 @@ $(document).ready(function() {
         $('#makeMoveBtn1, #makeMoveBtn2, #makeMoveBtn3').hide();
         $('#depth').val('');
         removeHighlights();
+        
+        // Clear AI explanation cache when moves are recalculated
+        if (window.chessAnalyzer && window.chessAnalyzer.explanationCache) {
+            window.chessAnalyzer.explanationCache.clear();
+            console.log('AI explanation cache cleared');
+        }
+        
+        // Reset tooltip content to default state
+        for (let i = 1; i <= 3; i++) {
+            $(`#aiText${i}`).text('Hover to get AI explanation');
+            $(`#aiContent${i}`).show();
+            $(`#aiLoading${i}`).hide();
+        }
     }
     
     // Update move details - now shows/hides the Make Move button
@@ -1800,6 +1813,150 @@ stockfish.postMessage('setoption name MultiPV value 3');
         applyTheme(boardTheme, pieceSet);
     });
     
+    // AI Explanation Feature
+    // Toggle AI explanations visibility
+    $('#aiExplanationsToggle').on('change', function() {
+        const isEnabled = $(this).is(':checked');
+        console.log('AI explanations toggled:', isEnabled);
+        
+        // Show/hide all AI explanation containers
+        if (isEnabled) {
+            $('.ai-explanation').show();
+        } else {
+            $('.ai-explanation').hide();
+        }
+        
+        // Save preference to localStorage
+        localStorage.setItem('aiExplanationsEnabled', isEnabled);
+    });
+    
+    // Load saved AI explanations preference
+    const savedAIPreference = localStorage.getItem('aiExplanationsEnabled');
+    if (savedAIPreference === 'true') {
+        $('#aiExplanationsToggle').prop('checked', true);
+        $('.ai-explanation').show();
+    }
+    
+    // Initialize tooltip functionality for AI explanations
+    initAITooltips();
+    
+    // Function to initialize AI tooltips
+    function initAITooltips() {
+        // Cache for explanations to avoid repeated API calls
+        const explanationCache = new Map();
+        
+        // Store cache globally so it can be cleared when moves are recalculated
+        window.chessAnalyzer.explanationCache = explanationCache;
+        
+        // Tooltip hover handlers for each move
+        for (let i = 1; i <= 3; i++) {
+            const $icon = $(`#infoIcon${i}`);
+            const $tooltip = $(`#aiTooltip${i}`);
+            const $aiText = $(`#aiText${i}`);
+            const $aiLoading = $(`#aiLoading${i}`);
+            const $aiContent = $(`#aiContent${i}`);
+            
+            let hoverTimeout;
+            let isLoading = false;
+            
+            $icon.on('mouseenter', function() {
+                // Clear any existing timeout
+                clearTimeout(hoverTimeout);
+                
+                // Show tooltip immediately
+                $tooltip.addClass('visible');
+                
+                // Check if we already have an explanation cached
+                const move = $(`#bestMove${i}`).val();
+                const cacheKey = `${move}_${$(`#evaluation${i}`).val()}`;
+                
+                if (explanationCache.has(cacheKey)) {
+                    // Use cached explanation
+                    $aiText.text(explanationCache.get(cacheKey));
+                    $aiContent.show();
+                    $aiLoading.hide();
+                    return;
+                }
+                
+                // Only fetch explanation if we don't have it and AI explanations are enabled
+                if (!$('#aiExplanationsToggle').is(':checked')) {
+                    $aiText.text('Enable AI explanations to get move analysis');
+                    $aiContent.show();
+                    $aiLoading.hide();
+                    return;
+                }
+                
+                if (!move) {
+                    $aiText.text('No move available to explain');
+                    $aiContent.show();
+                    $aiLoading.hide();
+                    return;
+                }
+                
+                if (isLoading) {
+                    return; // Already loading
+                }
+                
+                // Start loading explanation immediately (no delay)
+                isLoading = true;
+                $aiLoading.show();
+                $aiContent.hide();
+                
+                // Get current position FEN
+                const currentFen = window.chessAnalyzer.game ? window.chessAnalyzer.game.fen() : $('#fenInput').val();
+                const evaluation = $(`#evaluation${i}`).val();
+                const principalVariation = $(`#principalVariation${i}`).val();
+                
+                // Prepare the prompt for AI explanation
+                const prompt = generateExplanationPrompt(move, evaluation, principalVariation, currentFen, i);
+                
+                // Call AI service
+                getAIExplanationFromService(prompt, i)
+                    .then(explanation => {
+                        if ($tooltip.hasClass('visible')) { // Only show if tooltip is still visible
+                            // Cache the explanation
+                            explanationCache.set(cacheKey, explanation);
+                            $aiText.text(explanation);
+                            $aiContent.show();
+                        }
+                    })
+                    .catch(error => {
+                        if ($tooltip.hasClass('visible')) {
+                            console.error('AI explanation error:', error);
+                            $aiText.text('Unable to generate explanation at this time');
+                            $aiContent.show();
+                        }
+                    })
+                    .finally(() => {
+                        isLoading = false;
+                        $aiLoading.hide();
+                    });
+            });
+            
+            $icon.on('mouseleave', function() {
+                // Clear timeout to prevent loading if user moves away quickly
+                clearTimeout(hoverTimeout);
+                
+                // Hide tooltip after a short delay
+                setTimeout(() => {
+                    if (!$tooltip.is(':hover')) {
+                        $tooltip.removeClass('visible');
+                    }
+                }, 100);
+            });
+            
+            // Keep tooltip visible when hovering over it
+            $tooltip.on('mouseenter', function() {
+                clearTimeout(hoverTimeout);
+                $tooltip.addClass('visible');
+            });
+            
+            $tooltip.on('mouseleave', function() {
+                $tooltip.removeClass('visible');
+            });
+        }
+    }
+    
     // Initialize everything
     initStockfish();
     initPgnHandlers();
@@ -2006,6 +2163,93 @@ style.textContent = `
         border: 2px solid #FFCC80 !important;
     }
     
+    /* AI Info Icon and Tooltip Styling */
+    .ai-info-icon {
+        color: #4a90e2;
+        font-size: 16px;
+        cursor: pointer;
+        margin-left: 8px;
+        transition: color 0.3s ease;
+        position: relative;
+    }
+    
+    .ai-info-icon:hover {
+        color: #2171b5;
+    }
+    
+    .ai-explanation {
+        position: relative;
+        display: inline-block;
+    }
+    
+    .ai-tooltip {
+        position: absolute;
+        top: -10px;
+        left: 25px;
+        background: #2c3e50 !important;
+        color: white !important;
+        padding: 12px 16px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 250px;
+        max-width: 400px;
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+        font-size: 14px;
+        line-height: 1.4;
+        pointer-events: none;
+    }
+    
+    .ai-tooltip.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+    
+    .ai-tooltip::before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: -8px;
+        width: 0;
+        height: 0;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-right: 8px solid #2c3e50;
+    }
+    
+    .ai-tooltip .ai-loading {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-style: italic;
+        color: #bdc3c7;
+    }
+    
+    .ai-tooltip .ai-loading i {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .ai-tooltip .ai-text {
+        color: white !important;
+        font-weight: normal;
+        background: transparent !important;
+    }
+    
+    .ai-tooltip .ai-content {
+        color: white !important;
+        background: transparent !important;
+    }
+    
     /* Make Move button styling */
     .make-move-btn {
         background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%);
@@ -2049,3 +2293,535 @@ style.textContent = `
     }
 `;
 document.head.appendChild(style);
+
+// Global function for AI explanations - triggered by tooltip hover
+window.getAIExplanation = function(moveNumber) {
+    console.log('AI explanation requested for move', moveNumber);
+    
+    // Check if AI explanations are enabled
+    if (!$('#aiExplanationsToggle').is(':checked')) {
+        return 'Please enable AI explanations first using the toggle switch.';
+    }
+    
+    // Get the move and evaluation
+    const move = $(`#bestMove${moveNumber}`).val();
+    const evaluation = $(`#evaluation${moveNumber}`).val();
+    const principalVariation = $(`#principalVariation${moveNumber}`).val();
+    
+    if (!move) {
+        return 'No move available to explain.';
+    }
+    
+    // Get current position FEN
+    const currentFen = window.chessAnalyzer.game ? window.chessAnalyzer.game.fen() : $('#fenInput').val();
+    
+    // Show loading state
+    $(`#aiLoading${moveNumber}`).show();
+    $(`#aiContent${moveNumber}`).hide();
+    
+    // Prepare the prompt for AI explanation
+    const prompt = generateExplanationPrompt(move, evaluation, principalVariation, currentFen, moveNumber);
+    
+    // Call AI service (using a free AI API)
+    getAIExplanationFromService(prompt, moveNumber)
+        .then(explanation => {
+            // Show the explanation
+            displayAIExplanation(explanation, moveNumber);
+        })
+        .catch(error => {
+            console.error('AI explanation error:', error);
+            displayAIError(error.message, moveNumber);
+        })
+        .finally(() => {
+            // Reset loading state
+            $(`#aiLoading${moveNumber}`).hide();
+        });
+};
+
+// Generate a detailed prompt for the AI explanation
+function generateExplanationPrompt(move, evaluation, principalVariation, currentFen, moveNumber) {
+    const moveRank = moveNumber === 1 ? 'best' : moveNumber === 2 ? 'second-best' : 'third-best';
+    
+    return `You are a chess expert providing comprehensive move explanations. Please analyze this chess move in detail.I am learning chess.
+
+Current Position (FEN): ${currentFen}
+Move: ${move}
+Evaluation: ${evaluation}
+Rank: ${moveRank} move
+Principal Variation: ${principalVariation}
+
+Please provide a detailed explanation covering:
+1. What this move accomplishes tactically or strategically
+2. Why it's strong in this position
+3. What happens if we DON'T make this move - what are the consequences?
+4. What can happen in the next 3-4 moves if we DO make this move?
+5. Any key threats, plans, or patterns this move creates or prevents
+6. Do mention what piece are you talking about , example when you say Ra8a7, also specify Rook in bracket like Ra8a7(Rook).
+
+Structure your response in 3-4 sentences that are educational and accessible for intermediate players. Focus on concrete consequences and future possibilities rather than just general principles.`;
+}
+
+// Call AI service for explanation
+async function getAIExplanationFromService(prompt, moveNumber) {
+    // Try multiple AI services in order of preference
+    const aiServices = [
+        {
+            name: 'Google Gemini',
+            call: () => callGeminiAPI(prompt)
+        },
+        {
+            name: 'OpenAI GPT',
+            call: () => callOpenAIAPI(prompt)
+        },
+        {
+            name: 'Anthropic Claude',
+            call: () => callClaudeAPI(prompt)
+        },
+        {
+            name: 'Groq (Free)',
+            call: () => callGroqAPI(prompt)
+        },
+        {
+            name: 'Hugging Face',
+            call: () => callHuggingFaceAPI(prompt)
+        }
+    ];
+    
+    // Try each service in order
+    for (const service of aiServices) {
+        try {
+            console.log(`Trying ${service.name} for AI explanation...`);
+            const result = await service.call();
+            if (result && result.trim()) {
+                console.log(`✅ ${service.name} provided explanation`);
+                return result.trim();
+            }
+        } catch (error) {
+            console.log(`❌ ${service.name} failed:`, error.message);
+            continue;
+        }
+    }
+    
+    // If all services fail, use fallback
+    console.log('All AI services failed, using enhanced fallback');
+    return generateFallbackExplanation(prompt, moveNumber);
+}
+
+// Google Gemini API call
+async function callGeminiAPI(prompt) {
+    const GEMINI_API_KEY = localStorage.getItem('geminiApiKey');
+    if (!GEMINI_API_KEY) {
+        throw new Error('Gemini API key not found. Please add it in settings.');
+    }
+    
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-goog-api-key': GEMINI_API_KEY
+        },
+        body: JSON.stringify({
+            contents: [{
+                parts: [{
+                    text: prompt + "\n\nPlease provide a conversational, friendly explanation as if you're a chess coach talking to a student. Keep it engaging and easy to understand."
+                }]
+            }],
+            generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 300
+            }
+        })
+    });
+    
+    if (!response.ok) {
+        const errorData = await response.text();
+        console.error('Gemini API error response:', errorData);
+        throw new Error(`Gemini API error: ${response.status} - ${errorData}`);
+    }
+    
+    const data = await response.json();
+    console.log('Gemini API response:', data);
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
+// OpenAI GPT API call
+async function callOpenAIAPI(prompt) {
+    const OPENAI_API_KEY = localStorage.getItem('openaiApiKey');
+    if (!OPENAI_API_KEY) {
+        throw new Error('OpenAI API key not found. Please add it in settings.');
+    }
+    
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: 'gpt-3.5-turbo',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a friendly chess coach explaining moves in a conversational, encouraging way. Avoid technical jargon and make it engaging.'
+                },
+                {
+                    role: 'user',
+                    content: prompt
+                }
+            ],
+            max_tokens: 300,
+            temperature: 0.7
+        })
+    });
+    
+    if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || '';
+}
+
+// Anthropic Claude API call
+async function callClaudeAPI(prompt) {
+    const CLAUDE_API_KEY = localStorage.getItem('claudeApiKey');
+    if (!CLAUDE_API_KEY) {
+        throw new Error('Claude API key not found. Please add it in settings.');
+    }
+    
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': CLAUDE_API_KEY,
+            'anthropic-version': '2023-06-01'
+        },
+        body: JSON.stringify({
+            model: 'claude-3-haiku-20240307',
+            max_tokens: 300,
+            temperature: 0.7,
+            messages: [
+                {
+                    role: 'user',
+                    content: prompt + "\n\nPlease explain this like a friendly chess coach would - conversational, encouraging, and easy to understand."
+                }
+            ]
+        })
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Claude API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.content?.[0]?.text || '';
+}
+
+// Groq API call (free tier available)
+async function callGroqAPI(prompt) {
+    const GROQ_API_KEY = localStorage.getItem('groqApiKey');
+    if (!GROQ_API_KEY) {
+        throw new Error('Groq API key not found. Please add it in settings.');
+    }
+    
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: 'mixtral-8x7b-32768',
+            messages: [
+                {
+                    role: 'system',
+                    content: 'You are a friendly chess coach. Explain moves conversationally, like talking to a friend. Be encouraging and avoid technical jargon.'
+                },
+                {
+                    role: 'user',
+                    content: prompt
+                }
+            ],
+            max_tokens: 300,
+            temperature: 0.7
+        })
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Groq API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content || '';
+}
+
+// Hugging Face API call (backup)
+async function callHuggingFaceAPI(prompt) {
+    const HF_API_KEY = localStorage.getItem('huggingfaceApiKey');
+    
+    const response = await fetch('https://api-inference.huggingface.co/models/microsoft/DialoGPT-large', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(HF_API_KEY && { 'Authorization': `Bearer ${HF_API_KEY}` })
+        },
+        body: JSON.stringify({
+            inputs: prompt + "\n\nExplain this chess move in a friendly, conversational way:",
+            parameters: {
+                max_length: 300,
+                temperature: 0.7,
+                return_full_text: false
+            }
+        })
+    });
+    
+    if (!response.ok) {
+        throw new Error(`Hugging Face API error: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data?.[0]?.generated_text || '';
+}
+
+// Generate a fallback explanation when AI service is unavailable
+function generateFallbackExplanation(prompt, moveNumber) {
+    const move = $(`#bestMove${moveNumber}`).val();
+    const evaluation = $(`#evaluation${moveNumber}`).val();
+    const principalVariation = $(`#principalVariation${moveNumber}`).val();
+    const moveRank = moveNumber === 1 ? 'best' : moveNumber === 2 ? 'second-best' : 'third-best';
+    
+    // Get current position for more context
+    const currentFen = window.chessAnalyzer.game ? window.chessAnalyzer.game.fen() : $('#fenInput').val();
+    const turn = currentFen.split(' ')[1]; // w or b
+    const playerColor = turn === 'w' ? 'White' : 'Black';
+    
+    // Parse the move to get detailed information
+    let piece = 'piece';
+    let moveType = 'move';
+    let fromSquare = '';
+    let toSquare = '';
+    let isCapture = false;
+    let isCheck = false;
+    
+    // Enhanced move parsing
+    if (move.includes('O-O-O')) {
+        moveType = 'queenside castling';
+        piece = 'king';
+    } else if (move.includes('O-O')) {
+        moveType = 'kingside castling';
+        piece = 'king';
+    } else {
+        // Extract squares from the move
+        let cleanMove = move;
+        if (cleanMove.length > 4 && /^[a-zA-Z]/.test(cleanMove)) {
+            cleanMove = cleanMove.slice(1); // Remove piece letter
+        }
+        
+        if (cleanMove.length >= 4) {
+            fromSquare = cleanMove.slice(0, 2);
+            toSquare = cleanMove.slice(2, 4);
+        }
+        
+        // Determine piece type
+        if (move.startsWith('K')) {
+            piece = 'king';
+        } else if (move.startsWith('Q')) {
+            piece = 'queen';
+        } else if (move.startsWith('R')) {
+            piece = 'rook';
+        } else if (move.startsWith('B')) {
+            piece = 'bishop';
+        } else if (move.startsWith('N')) {
+            piece = 'knight';
+        } else if (move.startsWith('p') || /^[a-h]/.test(move)) {
+            piece = 'pawn';
+        }
+        
+        // Check for capture (simplified heuristic)
+        isCapture = move.includes('x') || 
+                   (piece === 'pawn' && fromSquare[0] !== toSquare[0]);
+        
+        // Check for check notation
+        isCheck = move.includes('+') || move.includes('#');
+    }
+    
+    // Generate comprehensive explanation
+    let explanation = generateDetailedExplanation({
+        move,
+        piece,
+        moveType,
+        fromSquare,
+        toSquare,
+        isCapture,
+        isCheck,
+        evaluation,
+        principalVariation,
+        moveRank,
+        moveNumber,
+        playerColor,
+        turn
+    });
+    
+    return explanation;
+}
+
+// Generate detailed explanation based on move analysis
+function generateDetailedExplanation(moveData) {
+    const {
+        move, piece, moveType, fromSquare, toSquare, isCapture, isCheck,
+        evaluation, principalVariation, moveRank, moveNumber, playerColor, turn
+    } = moveData;
+    
+    const evalNum = parseFloat(evaluation) || 0;
+    const isGoodForYou = evalNum > 0;
+    const isBadForYou = evalNum < -0.5;
+    const isEqual = Math.abs(evalNum) <= 0.5;
+    
+    // Start with conversational openings
+    const openings = [
+        "I really like this move because",
+        "This is a smart choice since",
+        "Great idea here -",
+        "This move works well because",
+        "I'd recommend this because",
+        "Perfect timing for this move since",
+        "This is exactly what you want to do here because"
+    ];
+    
+    const opening = openings[Math.floor(Math.random() * openings.length)];
+    let explanation = opening + " ";
+    
+    // Main explanation - more conversational
+    if (moveType.includes('castling')) {
+        const castlingSide = moveType.includes('queenside') ? 'queenside' : 'kingside';
+        explanation += `you're getting your king to safety on the ${castlingSide}. `;
+        explanation += "Your king was getting a bit exposed in the center, and now it's tucked away nicely while your rook joins the party. ";
+    } else if (isCapture) {
+        explanation += `you're winning material here! Taking that piece gives you a nice advantage. `;
+        explanation += "Plus, you're clearing away one of their defenders, which opens up new possibilities. ";
+    } else if (isCheck) {
+        explanation += `you're putting immediate pressure on their king! `;
+        explanation += "They have to deal with this threat right now, which means they can't execute whatever plan they had in mind. ";
+    } else {
+        // Conversational piece-specific advice
+        if (piece === 'pawn') {
+            if (toSquare[1] === '7' || toSquare[1] === '2') {
+                explanation += `this pawn is marching toward promotion! `;
+                explanation += "Your opponent will have to start worrying about you getting a new queen soon. ";
+            } else if (toSquare[0] === 'd' || toSquare[0] === 'e') {
+                explanation += `you're controlling the center of the board with this pawn. `;
+                explanation += "The center is like the highway of chess - control it, and you control the game. ";
+            } else {
+                explanation += `you're improving your pawn structure and creating some space for your pieces. `;
+                explanation += "Sometimes these quiet pawn moves are exactly what you need. ";
+            }
+        } else if (piece === 'knight') {
+            explanation += `knights love to jump to active squares, and this one found a great spot! `;
+            explanation += "From here, your knight can influence multiple areas of the board. ";
+        } else if (piece === 'bishop') {
+            explanation += `this bishop is finding a much better diagonal to work from. `;
+            explanation += "Bishops are long-range snipers - they need clear lines of sight to be effective. ";
+        } else if (piece === 'rook') {
+            explanation += `your rook is getting more active and putting pressure on key areas. `;
+            explanation += "Rooks love open files and ranks - they're like bulldozers that need space to operate. ";
+        } else if (piece === 'queen') {
+            explanation += `your queen is moving to a more influential square where she can cause real problems. `;
+            explanation += "The queen is your most powerful piece, so finding the right square for her is crucial. ";
+        } else if (piece === 'king') {
+            explanation += `your king is stepping up to help out, which is often the key in endgames. `;
+            explanation += "Don't forget - the king is a fighting piece too, especially when there are fewer pieces on the board. ";
+        }
+    }
+    
+    // Evaluation-based encouragement/advice
+    if (evaluation.includes('M')) {
+        if (evaluation.startsWith('+')) {
+            if (moveRank === 'best') {
+                explanation += "And the best part? This leads to checkmate! Your opponent won't be able to escape this time. ";
+            } else {
+                explanation += "This also leads to mate, though there might be a faster way. Still, a win is a win! ";
+            }
+        } else {
+            explanation += "I won't lie to you - the position is tough, but this gives you the best fighting chance. ";
+            explanation += "Sometimes you have to make them work for their victory! ";
+        }
+    } else {
+        if (moveRank === 'best') {
+            if (isGoodForYou) {
+                explanation += "This keeps you in the driver's seat and maintains your advantage nicely. ";
+            } else if (isEqual) {
+                explanation += "This keeps things balanced, which is exactly what you want in this position. ";
+            } else {
+                explanation += "This gives you the best practical chances to create some complications and fight back. ";
+            }
+        } else {
+            explanation += "This is a solid alternative, though there might be something slightly better available. ";
+        }
+    }
+    
+    // Conversational consequences
+    if (principalVariation && principalVariation.trim()) {
+        const pvMoves = principalVariation.trim().split(' ').slice(0, 3);
+        if (pvMoves.length >= 2) {
+            explanation += `If you play this, the game will likely continue with natural moves, and you'll be in `;
+            explanation += isGoodForYou ? "great shape moving forward." : isEqual ? "a balanced, interesting fight." : "a position where you can still create problems.";
+        }
+    } else {
+        // Give strategic advice
+        if (moveRank === 'best') {
+            if (isCapture) {
+                explanation += "Don't let them off the hook - take their pieces when you can! ";
+            } else if (piece === 'pawn') {
+                explanation += "Sometimes the best moves are the simple ones that improve your position step by step. ";
+            } else {
+                explanation += "Trust the process - good moves add up to good positions. ";
+            }
+        }
+    }
+    
+    return explanation;
+}
+
+// Generate consequence analysis when PV is not available
+function generateConsequenceAnalysis(moveData) {
+    const { piece, moveType, evaluation, moveRank, isCapture, isCheck } = moveData;
+    
+    let consequences = '';
+    
+    // What happens if we don't make this move
+    if (moveRank === 'best') {
+        if (isCheck) {
+            consequences += "Skipping this move allows your opponent to consolidate their position without immediate pressure. ";
+        } else if (isCapture) {
+            consequences += "Not capturing here lets your opponent maintain material balance and potentially improve their pieces. ";
+        } else if (moveType.includes('castling')) {
+            consequences += "Delaying castling leaves your king vulnerable to potential attacks in the center. ";
+        } else {
+            consequences += "Alternative moves would allow your opponent more freedom to execute their plans. ";
+        }
+    }
+    
+    // What happens if we do make this move
+    const evalNum = parseFloat(evaluation);
+    if (evalNum > 0.5) {
+        consequences += "Making this move puts pressure on your opponent and forces them to find precise defensive moves.";
+    } else if (evalNum > -0.5) {
+        consequences += "This move maintains the balance and keeps all options open for both sides.";
+    } else {
+        consequences += "While the position remains difficult, this move gives you the best practical chances to create complications.";
+    }
+    
+    return consequences;
+}
+
+// Display the AI explanation
+function displayAIExplanation(explanation, moveNumber) {
+    $(`#aiText${moveNumber}`).text(explanation);
+    $(`#aiContent${moveNumber}`).show();
+}
+
+// Display AI error
+function displayAIError(errorMessage, moveNumber) {
+    $(`#aiText${moveNumber}`).html(`<em style="color: #dc2626;">Unable to generate explanation: ${errorMessage}</em>`);
+    $(`#aiContent${moveNumber}`).show();
+}

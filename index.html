@@ -204,6 +204,18 @@
                     <input type="radio" id="makeMove" name="mode" value="make" style="display: none;">
                 </div>
 
+                <!-- AI Explanations Toggle -->
+                <div class="control-group">
+                    <label>AI Move Explanations:</label>
+                    <div class="ai-toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="aiExplanationsToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label">Enable AI explanations (free tier)</span>
+                    </div>
+                </div>
+
                 <!-- Calculate Button -->
                 <button id="calculateBtn" class="btn btn-primary">Calculate Best Move</button>
 
@@ -226,6 +238,17 @@
                         <span class="move-description" id="moveDescription1"></span>
                         <button class="make-move-btn" id="makeMoveBtn1" onclick="makeSelectedMove(1)">Make Move</button>
                     </div>
+                    <div class="ai-explanation" id="aiExplanation1" style="display: none;">
+                        <i class="fas fa-info-circle ai-info-icon" id="infoIcon1" title="Hover for AI explanation"></i>
+                        <div class="ai-tooltip" id="aiTooltip1">
+                            <div class="ai-loading" id="aiLoading1" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </div>
+                            <div class="ai-content" id="aiContent1">
+                                <div class="ai-text" id="aiText1">Hover to get AI explanation</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="result-item">
@@ -236,6 +259,17 @@
                         <span class="move-description" id="moveDescription2"></span>
                         <button class="make-move-btn" id="makeMoveBtn2" onclick="makeSelectedMove(2)">Make Move</button>
                     </div>
+                    <div class="ai-explanation" id="aiExplanation2" style="display: none;">
+                        <i class="fas fa-info-circle ai-info-icon" id="infoIcon2" title="Hover for AI explanation"></i>
+                        <div class="ai-tooltip" id="aiTooltip2">
+                            <div class="ai-loading" id="aiLoading2" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </div>
+                            <div class="ai-content" id="aiContent2">
+                                <div class="ai-text" id="aiText2">Hover to get AI explanation</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="result-item">
@@ -245,6 +279,17 @@
                     <div class="move-details">
                         <span class="move-description" id="moveDescription3"></span>
                         <button class="make-move-btn" id="makeMoveBtn3" onclick="makeSelectedMove(3)">Make Move</button>
+                    </div>
+                    <div class="ai-explanation" id="aiExplanation3" style="display: none;">
+                        <i class="fas fa-info-circle ai-info-icon" id="infoIcon3" title="Hover for AI explanation"></i>
+                        <div class="ai-tooltip" id="aiTooltip3">
+                            <div class="ai-loading" id="aiLoading3" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Loading...
+                            </div>
+                            <div class="ai-content" id="aiContent3">
+                                <div class="ai-text" id="aiText3">Hover to get AI explanation</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
