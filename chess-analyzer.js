@@ -1224,6 +1224,10 @@ $(document).ready(function() {
         }
         
         const fen = buildFenString();
+        console.log('🚀 CALCULATE BUTTON CLICKED - FEN being sent to Stockfish:', fen);
+        console.log('🚀 Current chess.js game FEN:', game.fen());
+        console.log('🚀 FEN input field value:', $('#fenInput').val());
+        
         const thinkTime = parseInt($('#thinkTime').val()) * 1000;
         
         // Clear previous results
@@ -1240,6 +1244,7 @@ $(document).ready(function() {
         $('#results-section').css('opacity', '0.5');
         
         // Start analysis
+        console.log('🚀 Sending to Stockfish: position fen ' + fen);
         stockfish.postMessage('position fen ' + fen);
 stockfish.postMessage('setoption name MultiPV value 3');
         stockfish.postMessage('go movetime ' + thinkTime);
