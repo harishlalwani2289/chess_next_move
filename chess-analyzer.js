@@ -1651,10 +1651,10 @@ stockfish.postMessage('setoption name MultiPV value 3');
         // 3. Clean up extra whitespace
         cleanedPgn = cleanedPgn.replace(/\s+/g, ' ');
         
-        console.log('Original PGN:', pgnText.substring(0, 200) + '...');
+        console.log('Original PGN:', JSON.stringify(pgnText).substring(0, 200) + '...'); // Log to debug formatting issues
         console.log('Cleaned PGN:', cleanedPgn.substring(0, 200) + '...');
         
-        // Try to load the PGN with detailed error handling
+        console.log('Attempting to load PGN...', JSON.stringify(cleanedPgn).substring(0, 200)); // Debug cleaned PGN format
         try {
             const loadResult = tempGame.load_pgn(cleanedPgn);
             if (!loadResult) {
@@ -1662,8 +1662,36 @@ stockfish.postMessage('setoption name MultiPV value 3');
                 console.warn('Standard PGN loading failed, trying with aggressive cleaning...');
                 
                 // More aggressive cleaning - extract just the moves
-                const movePattern = /\d+\.\s*[a-h1-8NBRQK+#=-Ox]+(?:\s+[a-h1-8NBRQK+#=-Ox]+)?/g;
+                // Updated pattern to handle castling and more move types
+                const movePattern = /\d+\.\s*(?:O-O-O|O-O|[a-h][1-8]?[a-h][1-8](?:=[QRNB])?[+#]?|[NBRQK][a-h]?[1-8]?[x]?[a-h][1-8][+#]?)/g;
                 const moves = cleanedPgn.match(movePattern);
+                
+                console.log('Extracted moves using regex:', moves ? moves.slice(0, 10) : 'none');
+                
+                // If the move pattern doesn't work, try an even simpler approach
+                if (!moves || moves.length === 0) {
+                    console.log('Move pattern failed, trying line-by-line extraction...');
+                    
+                    // Split by lines and extract just the move portion
+                    const lines = cleanedPgn.split('\n');
+                    const moveLines = lines.filter(line => /\d+\./.test(line) && !line.startsWith('['));
+                    
+                    if (moveLines.length > 0) {
+                        const movesOnly = moveLines.join(' ');
+                        console.log('Extracted move lines:', movesOnly);
+                        
+                        const simplePgn = movesOnly.replace(/\*/g, '').trim(); // Remove result markers
+                        console.log('Trying simple moves PGN:', simplePgn);
+                        
+                        const finalTryGame = new Chess();
+                        if (!finalTryGame.load_pgn(simplePgn)) {
+                            throw new Error('Could not parse PGN moves after multiple attempts.');
+                        }
+                        tempGame.load_pgn(simplePgn);
+                    } else {
+                        throw new Error('No move lines found in PGN.');
+                    }
+                } else {
                 
                 if (moves && moves.length > 0) {
                     // Create a minimal PGN with just the moves
