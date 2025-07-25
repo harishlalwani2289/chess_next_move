@@ -204,17 +204,6 @@
                     <input type="radio" id="makeMove" name="mode" value="make" style="display: none;">
                 </div>
 
-                <!-- AI Explanations Toggle -->
-                <div class="control-group">
-                    <label>AI Move Explanations:</label>
-                    <div class="ai-toggle-container">
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="aiExplanationsToggle">
-                            <span class="toggle-slider"></span>
-                        </label>
-                        <span class="toggle-label">Enable AI explanations (free tier)</span>
-                    </div>
-                </div>
 
                 <!-- Calculate Button -->
                 <button id="calculateBtn" class="btn btn-primary">Calculate Best Move</button>
@@ -228,7 +217,16 @@
 
             <!-- Results Section -->
             <div id="results-section">
-                <h3>Analysis Results</h3>
+                <div class="results-header">
+                    <h3>Analysis Results</h3>
+                    <div class="ai-toggle-container">
+                        <span class="ai-toggle-label">AI Explanations</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="aiExplanationsToggle">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
                 
                 <div class="result-item">
                     <label>Best Move #1:</label>
