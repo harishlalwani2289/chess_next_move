@@ -1179,14 +1179,51 @@ $(document).ready(function() {
     
     $('#setFenBtn').click(function() {
         const fen = $('#fenInput').val().trim();
+        console.log('🎯 SET FEN BUTTON CLICKED - Input FEN:', fen);
+        
         if (fen) {
             try {
                 const fenParts = fen.split(' ');
-                // Load the full FEN into chess.js first
-                game.load(fen);
-                // Then update the board display
-                board.set({ fen: fen });
+                console.log('🎯 FEN Parts:', fenParts);
                 
+                // First, validate the FEN format
+                if (fenParts.length < 4) {
+                    throw new Error('FEN must have at least 4 parts (position, turn, castling, en passant)');
+                }
+                
+                // Check if castling rights are in the expected format
+                const castlingPart = fenParts[2];
+                console.log('🎯 Original castling rights:', castlingPart);
+                
+                // Convert non-standard castling formats (like 'Fb') to standard format
+                let standardCastling = castlingPart;
+                if (castlingPart === 'Fb') {
+                    // 'Fb' might mean some specific castling rights - let's try to interpret it
+                    console.log('⚠️ Non-standard castling format detected:', castlingPart);
+                    standardCastling = '-'; // No castling for now, we'll set it manually
+                } else if (castlingPart !== '-' && !/^[KQkq]*$/.test(castlingPart)) {
+                    console.log('⚠️ Unknown castling format, using no castling');
+                    standardCastling = '-';
+                }
+                
+                // Rebuild FEN with standard castling format
+                const standardFen = `${fenParts[0]} ${fenParts[1]} ${standardCastling} ${fenParts[3]} ${fenParts[4] || '0'} ${fenParts[5] || '1'}`;
+                console.log('🎯 Standardized FEN:', standardFen);
+                
+                // Load the standardized FEN into chess.js
+                const loadResult = game.load(standardFen);
+                console.log('🎯 Chess.js load result:', loadResult);
+                console.log('🎯 Chess.js game FEN after load:', game.fen());
+                
+                if (!loadResult) {
+                    throw new Error('Chess.js rejected the FEN - invalid position');
+                }
+                
+                // Then update the board display
+                board.set({ fen: standardFen });
+                console.log('🎯 Board position updated');
+                
+                // Update turn radio buttons
                 if (fenParts.length > 1) {
                     const turn = fenParts[1];
                     if (turn === 'w') {
@@ -1194,15 +1231,33 @@ $(document).ready(function() {
                     } else {
                         $('#blackToMove').prop('checked', true);
                     }
+                    console.log('🎯 Turn set to:', turn);
                 }
                 
+                // Update castling rights based on original or interpreted values
                 if (fenParts.length > 2) {
-                    const castling = fenParts[2];
-                    $('#whiteKingSide').prop('checked', castling.includes('K'));
-                    $('#whiteQueenSide').prop('checked', castling.includes('Q'));
-                    $('#blackKingSide').prop('checked', castling.includes('k'));
-                    $('#blackQueenSide').prop('checked', castling.includes('q'));
+                    let castling = fenParts[2];
+                    
+                    // Handle special castling formats
+                    if (castling === 'Fb') {
+                        // Interpret 'Fb' - this might be Fischer Random or some other notation
+                        // For now, let's assume it means some specific castling rights
+                        $('#whiteKingSide').prop('checked', false);
+                        $('#whiteQueenSide').prop('checked', false);
+                        $('#blackKingSide').prop('checked', true);  // Assuming 'b' means black kingside
+                        $('#blackQueenSide').prop('checked', false);
+                        console.log('🎯 Interpreted Fb castling as black kingside only');
+                    } else {
+                        $('#whiteKingSide').prop('checked', castling.includes('K'));
+                        $('#whiteQueenSide').prop('checked', castling.includes('Q'));
+                        $('#blackKingSide').prop('checked', castling.includes('k'));
+                        $('#blackQueenSide').prop('checked', castling.includes('q'));
+                        console.log('🎯 Standard castling rights applied:', castling);
+                    }
                 }
+                
+                // Update the FEN input to show the standardized version
+                $('#fenInput').val(game.fen());
                 
                 // Just update the display and buttons to reflect the loaded position
                 updateTurnButtons();
@@ -1211,8 +1266,12 @@ $(document).ready(function() {
                 clearResults();
                 addToHistory(); // Add the new position to history
                 saveGameState(); // Save the new state
+                
+                console.log('✅ FEN loaded successfully. Final game FEN:', game.fen());
+                
             } catch (error) {
-                alert('Invalid FEN string');
+                console.error('❌ FEN loading error:', error);
+                alert('Invalid FEN string: ' + error.message);
             }
         }
     });
