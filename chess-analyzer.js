@@ -1191,10 +1191,13 @@ $(document).ready(function() {
                     $('#blackQueenSide').prop('checked', castling.includes('q'));
                 }
                 
-                updateGameState();
-                updateFenDisplay(); // This will sync all button states
+                // Just update the display and buttons to reflect the loaded position
+                updateTurnButtons();
+                updateCastlingButtons();
                 updateValidMoves();
                 clearResults();
+                addToHistory(); // Add the new position to history
+                saveGameState(); // Save the new state
             } catch (error) {
                 alert('Invalid FEN string');
             }
