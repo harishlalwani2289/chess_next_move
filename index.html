@@ -225,6 +225,9 @@
                             <input type="checkbox" id="aiExplanationsToggle">
                             <span class="toggle-slider"></span>
                         </label>
+                        <button id="aiSettingsBtn" class="btn btn-small" title="Configure AI API Keys">
+                            <i class="fas fa-cog"></i>
+                        </button>
                     </div>
                 </div>
                 
@@ -325,6 +328,74 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Settings Modal -->
+    <div id="aiSettingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>AI Settings</h3>
+                <button class="close-btn" id="closeAiSettingsModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="settings-info">
+                    <p>Configure API keys for AI-powered move explanations. You only need one API key to enable AI explanations.</p>
+                    <p><strong>Note:</strong> API keys are stored locally in your browser and never sent to our servers.</p>
+                </div>
+                
+                <div class="control-group">
+                    <label for="geminiApiKey">Google Gemini API Key:</label>
+                    <div class="api-key-input">
+                        <input type="password" id="geminiApiKey" placeholder="Enter your Gemini API key">
+                        <button type="button" class="toggle-visibility" data-target="geminiApiKey">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small>Get your free API key at <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></small>
+                </div>
+                
+                <div class="control-group">
+                    <label for="openaiApiKey">OpenAI API Key:</label>
+                    <div class="api-key-input">
+                        <input type="password" id="openaiApiKey" placeholder="Enter your OpenAI API key">
+                        <button type="button" class="toggle-visibility" data-target="openaiApiKey">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small>Get your API key at <a href="https://platform.openai.com/api-keys" target="_blank">OpenAI Platform</a></small>
+                </div>
+                
+                <div class="control-group">
+                    <label for="claudeApiKey">Anthropic Claude API Key:</label>
+                    <div class="api-key-input">
+                        <input type="password" id="claudeApiKey" placeholder="Enter your Claude API key">
+                        <button type="button" class="toggle-visibility" data-target="claudeApiKey">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small>Get your API key at <a href="https://console.anthropic.com/" target="_blank">Anthropic Console</a></small>
+                </div>
+                
+                <div class="control-group">
+                    <label for="groqApiKey">Groq API Key (Free Tier Available):</label>
+                    <div class="api-key-input">
+                        <input type="password" id="groqApiKey" placeholder="Enter your Groq API key">
+                        <button type="button" class="toggle-visibility" data-target="groqApiKey">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <small>Get your free API key at <a href="https://console.groq.com/keys" target="_blank">Groq Console</a></small>
+                </div>
+                
+                <div class="modal-actions">
+                    <button id="saveApiKeys" class="btn btn-primary">Save Settings</button>
+                    <button id="clearApiKeys" class="btn btn-secondary">Clear All Keys</button>
+                    <button id="testApiKeys" class="btn btn-secondary">Test Connection</button>
+                </div>
+                
+                <div id="apiTestResult" class="test-result" style="display: none;"></div>
             </div>
         </div>
     </div>

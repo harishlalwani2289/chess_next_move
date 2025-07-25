@@ -2007,6 +2007,9 @@ stockfish.postMessage('setoption name MultiPV value 3');
     // Initialize tooltip functionality for AI explanations
     initAITooltips();
     
+    // Initialize AI settings modal
+    initAISettingsModal();
+    
     // Function to position tooltip near the icon
     function positionTooltip($tooltip, $icon) {
         // Get icon position relative to viewport using getBoundingClientRect
@@ -2173,6 +2176,135 @@ stockfish.postMessage('setoption name MultiPV value 3');
             $tooltip.on('mouseleave', function() {
                 $tooltip.removeClass('visible');
             });
+        }
+    }
+    
+    // Function to initialize AI settings modal
+    function initAISettingsModal() {
+        // AI Settings button - opens modal
+        $('#aiSettingsBtn').click(function() {
+            $('#aiSettingsModal').show();
+            loadApiKeysIntoForm();
+        });
+        
+        // Close AI Settings modal
+        $('#closeAiSettingsModal').click(function() {
+            $('#aiSettingsModal').hide();
+        });
+        
+        // Close modal when clicking outside
+        $('#aiSettingsModal').click(function(e) {
+            if (e.target === this) {
+                $('#aiSettingsModal').hide();
+            }
+        });
+        
+        // Close modal with Escape key
+        $(document).keydown(function(e) {
+            if (e.key === 'Escape' && $('#aiSettingsModal').is(':visible')) {
+                $('#aiSettingsModal').hide();
+            }
+        });
+        
+        // Toggle password visibility
+        $('.toggle-visibility').click(function() {
+            const targetId = $(this).data('target');
+            const $input = $('#' + targetId);
+            const $icon = $(this).find('i');
+            
+            if ($input.attr('type') === 'password') {
+                $input.attr('type', 'text');
+                $icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                $input.attr('type', 'password');
+                $icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+        
+        // Save API keys
+        $('#saveApiKeys').click(function() {
+            const keys = {
+                geminiApiKey: $('#geminiApiKey').val().trim(),
+                openaiApiKey: $('#openaiApiKey').val().trim(),
+                claudeApiKey: $('#claudeApiKey').val().trim(),
+                groqApiKey: $('#groqApiKey').val().trim()
+            };
+            
+            // Save to localStorage
+            Object.keys(keys).forEach(key => {
+                if (keys[key]) {
+                    localStorage.setItem(key, keys[key]);
+                } else {
+                    localStorage.removeItem(key);
+                }
+            });
+            
+            // Show confirmation
+            showApiTestResult('Settings saved successfully!', 'success');
+            
+            // Close modal after short delay
+            setTimeout(() => {
+                $('#aiSettingsModal').hide();
+            }, 1500);
+        });
+        
+        // Clear all API keys
+        $('#clearApiKeys').click(function() {
+            if (confirm('Are you sure you want to clear all API keys?')) {
+                ['geminiApiKey', 'openaiApiKey', 'claudeApiKey', 'groqApiKey'].forEach(key => {
+                    localStorage.removeItem(key);
+                });
+                
+                // Clear form inputs
+                $('#geminiApiKey, #openaiApiKey, #claudeApiKey, #groqApiKey').val('');
+                
+                showApiTestResult('All API keys cleared!', 'success');
+            }
+        });
+        
+        // Test API connection
+        $('#testApiKeys').click(async function() {
+            const $button = $(this);
+            $button.prop('disabled', true).text('Testing...');
+            
+            showApiTestResult('Testing API connections...', 'info');
+            
+            try {
+                const testPrompt = 'Test chess explanation: e2e4 is a good opening move because it controls the center.';
+                const result = await getAIExplanationFromService(testPrompt, 1);
+                
+                if (result && result.trim()) {
+                    showApiTestResult('✅ AI connection successful! API key is working.', 'success');
+                } else {
+                    showApiTestResult('⚠️ API responded but with empty result. Please check your API keys.', 'warning');
+                }
+            } catch (error) {
+                showApiTestResult(`❌ Test failed: ${error.message}`, 'error');
+            } finally {
+                $button.prop('disabled', false).text('Test Connection');
+            }
+        });
+    }
+    
+    function loadApiKeysIntoForm() {
+        $('#geminiApiKey').val(localStorage.getItem('geminiApiKey') || '');
+        $('#openaiApiKey').val(localStorage.getItem('openaiApiKey') || '');
+        $('#claudeApiKey').val(localStorage.getItem('claudeApiKey') || '');
+        $('#groqApiKey').val(localStorage.getItem('groqApiKey') || '');
+    }
+    
+    function showApiTestResult(message, type) {
+        const $result = $('#apiTestResult');
+        $result.removeClass('success warning error info')
+               .addClass(type)
+               .html(message)
+               .show();
+        
+        // Auto-hide after 5 seconds unless it's an error
+        if (type !== 'error') {
+            setTimeout(() => {
+                $result.fadeOut();
+            }, 5000);
         }
     }
     
@@ -2506,6 +2638,314 @@ style.textContent = `
     .make-move-btn:active {
         transform: translateY(0px);
         box-shadow: 0 2px 6px rgba(143, 189, 223, 0.2);
+    }
+    
+    /* AI Settings Modal Styles */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(3px);
+    }
+    
+    .modal-content {
+        background-color: #ffffff;
+        margin: 5% auto;
+        padding: 0;
+        border: none;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: modalSlideIn 0.3s ease-out;
+        overflow: hidden;
+    }
+    
+    @keyframes modalSlideIn {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .modal-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 25px;
+        border-bottom: none;
+    }
+    
+    .modal-header h3 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+    }
+    
+    .modal-header .close {
+        color: white;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        line-height: 1;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+    
+    .modal-header .close:hover {
+        opacity: 1;
+    }
+    
+    .modal-body {
+        padding: 25px;
+        background: #ffffff;
+    }
+    
+    .modal-description {
+        background: #f8f9ff;
+        border-left: 4px solid #667eea;
+        padding: 15px;
+        margin-bottom: 25px;
+        border-radius: 0 8px 8px 0;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #444;
+    }
+    
+    .api-key-group {
+        margin-bottom: 20px;
+        position: relative;
+    }
+    
+    .api-key-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #333;
+        font-size: 14px;
+    }
+    
+    .api-key-group .api-description {
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 8px;
+        font-style: italic;
+    }
+    
+    .input-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+    
+    .input-group input {
+        width: 100%;
+        padding: 12px 45px 12px 15px;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: 'Courier New', monospace;
+        transition: all 0.3s ease;
+        background: #fafbfc;
+    }
+    
+    .input-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        background: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    .input-group .toggle-visibility {
+        position: absolute;
+        right: 12px;
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 4px;
+        transition: all 0.3s ease;
+        z-index: 1;
+    }
+    
+    .input-group .toggle-visibility:hover {
+        background: #f0f0f0;
+        color: #333;
+    }
+    
+    .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .btn-group {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .modal-btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        min-width: 120px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .modal-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #f8f9fa;
+        color: #495057;
+        border: 2px solid #dee2e6;
+    }
+    
+    .btn-secondary:hover:not(:disabled) {
+        background: #e9ecef;
+        border-color: #adb5bd;
+    }
+    
+    .btn-danger {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+    }
+    
+    .btn-danger:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    }
+    
+    .api-test-result {
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        display: none;
+        animation: fadeInUp 0.3s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .api-test-result.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .api-test-result.warning {
+        background: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+    
+    .api-test-result.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .api-test-result.info {
+        background: #cce7ff;
+        color: #0c5460;
+        border: 1px solid #b3d7ff;
+    }
+    
+    /* AI Settings Button */
+    #aiSettingsBtn {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #495057;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-left: 8px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    #aiSettingsBtn:hover {
+        background: #e9ecef;
+        border-color: #adb5bd;
+        transform: translateY(-1px);
+    }
+    
+    #aiSettingsBtn i {
+        font-size: 12px;
+    }
+    
+    /* Responsive design for mobile */
+    @media (max-width: 768px) {
+        .modal-content {
+            width: 95%;
+            margin: 10px auto;
+        }
+        
+        .modal-header {
+            padding: 15px 20px;
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-actions {
+            flex-direction: column;
+        }
+        
+        .btn-group {
+            width: 100%;
+            justify-content: space-between;
+        }
+        
+        .modal-btn {
+            min-width: auto;
+            flex: 1;
+        }
     }
 `;
 document.head.appendChild(style);
