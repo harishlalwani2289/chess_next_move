@@ -561,7 +561,7 @@ $(document).ready(function() {
             fen: initialFen,
             movable: {
                 free: false,
-                color: 'white', // Start with white to move
+                color: 'both', // Allow both colors to move freely
                 dests: getValidMoves(),
                 events: {
                     after: onMove
@@ -704,12 +704,13 @@ $(document).ready(function() {
         }, 150);
     }
     
-    // Get valid moves for current position
+    // Get valid moves for current position - now includes both colors for free movement
     function getValidMoves() {
         const dests = new Map();
-        const moves = game.moves({ verbose: true });
         
-        moves.forEach(move => {
+        // Get moves for the current player
+        const currentMoves = game.moves({ verbose: true });
+        currentMoves.forEach(move => {
             const from = move.from;
             const to = move.to;
             
@@ -720,6 +721,35 @@ $(document).ready(function() {
             }
         });
         
+        // To enable free movement, also get moves for the opposite color
+        // We'll temporarily switch the turn and get those moves too
+        const originalFen = game.fen();
+        const fenParts = originalFen.split(' ');
+        const oppositeTurn = fenParts[1] === 'w' ? 'b' : 'w';
+        const modifiedFen = fenParts[0] + ' ' + oppositeTurn + ' ' + fenParts.slice(2).join(' ');
+        
+        try {
+            // Create a temporary game instance to get opposite color moves
+            const tempGame = new Chess();
+            if (tempGame.load(modifiedFen)) {
+                const oppositeMoves = tempGame.moves({ verbose: true });
+                oppositeMoves.forEach(move => {
+                    const from = move.from;
+                    const to = move.to;
+                    
+                    if (dests.has(from)) {
+                        if (!dests.get(from).includes(to)) {
+                            dests.get(from).push(to);
+                        }
+                    } else {
+                        dests.set(from, [to]);
+                    }
+                });
+            }
+        } catch (error) {
+            console.warn('Could not generate opposite color moves:', error);
+        }
+        
         return dests;
     }
     
@@ -728,8 +758,10 @@ $(document).ready(function() {
         const currentTurn = game.turn() === 'w' ? 'white' : 'black';
         const validMoves = getValidMoves();
         
-        console.log('Updating valid moves for:', currentTurn, 'Valid moves:', validMoves.size);
+        console.log('Updating valid moves for free movement. Total valid moves:', validMoves.size);
         
+        // For free movement, we set the movable color to 'both' which allows both sides to move
+        // The getValidMoves() function already generates moves for both colors
         board.set({
             movable: {
                 free: false,
@@ -740,7 +772,7 @@ $(document).ready(function() {
         });
     }
     
-    // Handle moves with Chessground
+    // Handle moves with Chessground - now supports free movement
     function onMove(orig, dest, metadata) {
         console.log('Chessground move:', orig, '->', dest, 'metadata:', metadata);
         
@@ -751,24 +783,72 @@ $(document).ready(function() {
                 promotion = metadata.promotion;
             }
             
-            // Try to make the move in chess.js
-            const moveObj = game.move({
+            // For free movement, we'll try the move as-is first
+            let moveObj = game.move({
                 from: orig,
                 to: dest,
                 promotion: promotion
             });
             
+            // If the move failed (e.g., wrong turn), try forcing it
+            if (!moveObj) {
+                console.log('Move failed with current turn, trying to force move for free movement');
+                
+                // Get the current FEN and board state
+                const currentFen = game.fen();
+                const fenParts = currentFen.split(' ');
+                
+                // Get the piece at the source square
+                const board_array = game.board();
+                let sourcePiece = null;
+                for (let row = 0; row < 8; row++) {
+                    for (let col = 0; col < 8; col++) {
+                        const square = String.fromCharCode(97 + col) + (8 - row);
+                        if (square === orig && board_array[row][col]) {
+                            sourcePiece = board_array[row][col];
+                            break;
+                        }
+                    }
+                    if (sourcePiece) break;
+                }
+                
+                if (sourcePiece) {
+                    // Temporarily switch the turn to match the piece color
+                    const pieceColor = sourcePiece.color; // 'w' or 'b'
+                    const currentTurn = fenParts[1];
+                    
+                    if (pieceColor !== currentTurn) {
+                        // Create a temporary FEN with the correct turn
+                        const tempFen = fenParts[0] + ' ' + pieceColor + ' ' + fenParts.slice(2).join(' ');
+                        
+                        // Load the temporary FEN
+                        const tempGame = new Chess();
+                        if (tempGame.load(tempFen)) {
+                            // Try the move with the correct turn
+                            moveObj = tempGame.move({
+                                from: orig,
+                                to: dest,
+                                promotion: promotion
+                            });
+                            
+                            if (moveObj) {
+                                // Apply the move to the main game by loading the resulting position
+                                const resultFen = tempGame.fen();
+                                const resultParts = resultFen.split(' ');
+                                
+                                // Restore the original turn after the move
+                                const finalFen = resultParts[0] + ' ' + currentTurn + ' ' + resultParts.slice(2).join(' ');
+                                game.load(finalFen);
+                                
+                                console.log('Free movement successful:', moveObj);
+                            }
+                        }
+                    }
+                }
+            }
+            
             if (moveObj) {
                 console.log('Move successful:', moveObj);
-                
-                // Update turn radio buttons based on the current turn AFTER the move
-                if (game.turn() === 'w') {
-                    $('#whiteToMove').prop('checked', true);
-                    $('#blackToMove').prop('checked', false);
-                } else {
-                    $('#blackToMove').prop('checked', true);
-                    $('#whiteToMove').prop('checked', false);
-                }
                 
                 // Update valid moves for the new position
                 updateValidMoves();
@@ -1154,6 +1234,7 @@ $(document).ready(function() {
         $('#whiteToMove').prop('checked', true);
         $('#whiteKingSide, #whiteQueenSide, #blackKingSide, #blackQueenSide').prop('checked', true);
         updateFenDisplay();
+        updateValidMoves(); // Ensure pieces can be moved after reset
         clearResults();
         setAnalysisProgress(50);
         clearHistory();
