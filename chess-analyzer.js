@@ -2007,6 +2007,53 @@ stockfish.postMessage('setoption name MultiPV value 3');
     // Initialize tooltip functionality for AI explanations
     initAITooltips();
     
+    // Function to position tooltip near the icon
+    function positionTooltip($tooltip, $icon) {
+        // Get icon position relative to viewport using getBoundingClientRect
+        const iconRect = $icon[0].getBoundingClientRect();
+        
+        // Position tooltip just to the right and slightly above the icon
+        const tooltipLeft = iconRect.right + 5; // 5px to the right of icon
+        const tooltipTop = iconRect.top - 5; // slightly above icon's top
+        
+        // Ensure tooltip stays within viewport bounds
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const tooltipWidth = 400; // max-width from CSS
+        
+        let finalLeft = tooltipLeft;
+        let finalTop = tooltipTop;
+        
+        // Adjust if tooltip would go off-screen to the right
+        if (tooltipLeft + tooltipWidth > viewportWidth) {
+            finalLeft = iconRect.left - tooltipWidth - 5; // Position to the left of icon instead
+        }
+        
+        // Adjust if tooltip would go off-screen at the top
+        if (tooltipTop < 0) {
+            finalTop = iconRect.bottom + 5; // Position below icon instead
+        }
+        
+        // Move tooltip to body to avoid parent container issues
+        if ($tooltip.parent()[0] !== document.body) {
+            $tooltip.appendTo('body');
+        }
+        
+        // Apply positioning using fixed position relative to viewport
+        $tooltip.css({
+            position: 'fixed',
+            left: finalLeft + 'px',
+            top: finalTop + 'px',
+            zIndex: 10000
+        });
+        
+        console.log('Positioning tooltip:', {
+            iconRect: iconRect,
+            finalPosition: { left: finalLeft, top: finalTop },
+            viewport: { width: viewportWidth, height: viewportHeight }
+        });
+    }
+    
     // Function to initialize AI tooltips
     function initAITooltips() {
         // Cache for explanations to avoid repeated API calls
@@ -2026,9 +2073,12 @@ stockfish.postMessage('setoption name MultiPV value 3');
             let hoverTimeout;
             let isLoading = false;
             
-            $icon.on('mouseenter', function() {
+            $icon.on('mouseenter', function(e) {
                 // Clear any existing timeout
                 clearTimeout(hoverTimeout);
+                
+                // Position tooltip at bottom right of icon
+                positionTooltip($tooltip, $icon);
                 
                 // Show tooltip immediately
                 $tooltip.addClass('visible');
@@ -2099,6 +2149,8 @@ stockfish.postMessage('setoption name MultiPV value 3');
                         $aiLoading.hide();
                     });
             });
+            
+            // Tooltip position is fixed relative to icon, so no need to track mouse movement
             
             $icon.on('mouseleave', function() {
                 // Clear timeout to prevent loading if user moves away quickly
@@ -2350,9 +2402,7 @@ style.textContent = `
     }
     
     .ai-tooltip {
-        position: absolute;
-        top: -10px;
-        left: 25px;
+        position: fixed;
         background: #2c3e50 !important;
         color: white !important;
         padding: 12px 16px;
@@ -2360,11 +2410,10 @@ style.textContent = `
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         min-width: 250px;
         max-width: 400px;
-        z-index: 1000;
+        z-index: 9999 !important;
         opacity: 0;
         visibility: hidden;
-        transform: translateY(-5px);
-        transition: all 0.3s ease;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
         font-size: 14px;
         line-height: 1.4;
         pointer-events: none;
