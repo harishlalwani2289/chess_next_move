@@ -853,10 +853,22 @@ $(document).ready(function() {
         // Since castling rights are now synced from chess.js game state,
         // we can simply use the chess.js FEN which has the correct values
         try {
-            return game.fen();
+            const currentFen = game.fen();
+            console.log('📋 buildFenString() returning FEN:', currentFen);
+            return currentFen;
         } catch (error) {
-            console.error('Error getting FEN from game:', error);
-            // Fallback: build manually if chess.js fails
+            console.error('❌ Error getting FEN from game:', error);
+            console.log('🔧 Game state:', game);
+            console.log('🔧 Game valid:', game.validate_fen ? game.validate_fen(game.fen()) : 'unknown');
+            
+            // Fallback: try to get FEN from the fenInput field as last resort
+            const fenInputValue = $('#fenInput').val().trim();
+            if (fenInputValue && fenInputValue !== '') {
+                console.log('🔧 Using FEN from input field as fallback:', fenInputValue);
+                return fenInputValue;
+            }
+            
+            // Final fallback: build manually if chess.js fails
             const turn = $('input[name="turn"]:checked').val();
             
             let castling = '';
@@ -866,6 +878,7 @@ $(document).ready(function() {
             if ($('#blackQueenSide').is(':checked')) castling += 'q';
             if (castling === '') castling = '-';
             
+            console.log('⚠️ Using manual fallback FEN - this should not happen!');
             return `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR ${turn} ${castling} - 0 1`;
         }
     }
