@@ -1638,9 +1638,51 @@ stockfish.postMessage('setoption name MultiPV value 3');
         // Create a new chess instance for PGN parsing
         const tempGame = new Chess();
         
-        // Load the PGN
-        if (!tempGame.load_pgn(pgnText)) {
-            throw new Error('Invalid PGN format');
+        // Clean and prepare PGN text
+        let cleanedPgn = pgnText.trim();
+        
+        // Fix common PGN formatting issues
+        // 1. Handle escaped quotes in header values
+        cleanedPgn = cleanedPgn.replace(/\\\\/g, '');
+        
+        // 2. Ensure proper spacing after move numbers
+        cleanedPgn = cleanedPgn.replace(/(\d+)\./g, '$1. ');
+        
+        // 3. Clean up extra whitespace
+        cleanedPgn = cleanedPgn.replace(/\s+/g, ' ');
+        
+        console.log('Original PGN:', pgnText.substring(0, 200) + '...');
+        console.log('Cleaned PGN:', cleanedPgn.substring(0, 200) + '...');
+        
+        // Try to load the PGN with detailed error handling
+        try {
+            const loadResult = tempGame.load_pgn(cleanedPgn);
+            if (!loadResult) {
+                // If standard loading fails, try with more aggressive cleaning
+                console.warn('Standard PGN loading failed, trying with aggressive cleaning...');
+                
+                // More aggressive cleaning - extract just the moves
+                const movePattern = /\d+\.\s*[a-h1-8NBRQK+#=-Ox]+(?:\s+[a-h1-8NBRQK+#=-Ox]+)?/g;
+                const moves = cleanedPgn.match(movePattern);
+                
+                if (moves && moves.length > 0) {
+                    // Create a minimal PGN with just the moves
+                    const minimalPgn = moves.join(' ');
+                    console.log('Trying minimal PGN:', minimalPgn);
+                    
+                    // Reset and try again
+                    const retryGame = new Chess();
+                    if (!retryGame.load_pgn(minimalPgn)) {
+                        throw new Error('Could not parse PGN moves. Please check the game format.');
+                    }
+                    tempGame.load_pgn(minimalPgn);
+                } else {
+                    throw new Error('No valid chess moves found in PGN.');
+                }
+            }
+        } catch (error) {
+            console.error('PGN loading error:', error);
+            throw new Error('Invalid PGN format: ' + error.message);
         }
         
         // Store the game and moves
