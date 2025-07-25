@@ -1,0 +1,1655 @@
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #a8b5e6 0%, #b3a5c7 100%);
+  min-height: 100vh;
+  text-align: center;
+  color: #4a5568;
+}
+
+#container {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08);
+  margin-top: 20px;
+  margin-bottom: 20px;
+  overflow: visible;
+}
+
+header {
+  padding: 20px 0 30px;
+  background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%);
+  margin: -20px -20px 30px -20px;
+  border-radius: 20px 20px 0 0;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+header p {
+  margin: 10px 0 0;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+#main-content {
+  display: grid;
+  grid-template-columns: 35% 35% 25%;
+  gap: 30px;
+  align-items: start;
+  max-width: 100%;
+  width: 100%;
+  overflow: visible;
+  justify-content: stretch;
+  min-height: 600px;
+}
+
+/* Board column - contains board and PGN sections */
+.board-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#board-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  height: auto;
+  min-height: 500px;
+  box-sizing: border-box;
+}
+
+#myBoard {
+  width: min(500px, 90vw);
+  height: min(500px, 90vw);
+  max-width: 500px;
+  max-height: 500px;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+}
+
+#board-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  margin-top: 10px;
+}
+
+#navigation-controls {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  margin-top: 10px;
+}
+
+.btn:disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  background: #bbb !important;
+  color: #777 !important;
+}
+
+.btn:disabled:hover {
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn:disabled::before {
+  display: none !important;
+}
+
+/* Theme Selectors */
+.theme-selectors {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.theme-select {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 12px;
+  border: 2px solid #e1e8ed;
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #5a6c7d;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.theme-select:hover {
+  border-color: #8fbddf;
+  box-shadow: 0 2px 8px rgba(143, 189, 223, 0.2);
+}
+
+.theme-select:focus {
+  outline: none;
+  border-color: #7bc4c4;
+  box-shadow: 0 0 0 3px rgba(123, 196, 196, 0.1);
+}
+
+.theme-select option {
+  padding: 8px;
+  background: white;
+  color: #5a6c7d;
+}
+
+#controls-section {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  width: 100%;
+  height: fit-content;
+  box-sizing: border-box;
+}
+
+#results-section {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: opacity 0.3s ease;
+  width: 100%;
+  height: fit-content;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.control-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.control-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #5a6c7d;
+  font-size: 0.95rem;
+}
+
+.btn {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%);
+  color: white;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(143, 189, 223, 0.4);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6bb6ae 0%, #7de8a3 100%);
+  color: white;
+  font-size: 1.1rem;
+  padding: 15px 30px;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(125, 232, 163, 0.3);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+input[type="text"], input[type="number"], textarea {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e8ecf0;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  background: #fafbfc;
+}
+
+input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+  outline: none;
+  border-color: #8fbddf;
+  box-shadow: 0 0 0 3px rgba(143, 189, 223, 0.12);
+}
+
+input[readonly] {
+  background-color: #f5f7fa;
+  color: #6b7785;
+}
+
+.radio-group, .checkbox-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.radio-group label, .checkbox-group label {
+  display: flex;
+  align-items: center;
+  font-weight: 400;
+  cursor: pointer;
+  margin-bottom: 0;
+}
+
+input[type="radio"], input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+#progressBars {
+  margin-top: 20px;
+}
+
+#analysisProgress, #timeProgress {
+  height: 8px;
+  border-radius: 4px;
+  margin: 10px 0;
+  background-color: #eaecf0;
+}
+
+.ui-progressbar-value {
+  background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%) !important;
+  border: none !important;
+  border-radius: 4px !important;
+}
+
+h3 {
+  margin: 0 0 20px;
+  color: #5a6c7d;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.result-item {
+  margin-bottom: 15px;
+}
+
+.result-item label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #6b7785;
+}
+
+/* Multi-move result layout */
+.result-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.result-item input {
+  margin-bottom: 0;
+}
+
+/* Evaluation field styling */
+.eval-field {
+  width: 100px !important;
+  text-align: center;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+/* Container for move and evaluation */
+.result-item:has(.eval-field) {
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.result-item:has(.eval-field) label {
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.result-item:has(.eval-field) input:first-of-type {
+  flex: 1;
+  margin-right: 10px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  #main-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  #container {
+    margin: 10px;
+    padding: 15px;
+  }
+  
+  h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  #main-content {
+    grid-template-columns: 1fr !important;
+    gap: 20px;
+    padding: 0 5px;
+  }
+  
+  #container {
+    margin: 5px !important;
+    padding: 10px !important;
+  }
+  
+  /* Clean mobile board section with proper centering */
+  #board-section {
+    width: 100% !important;
+    max-width: 420px !important;
+    height: 420px !important;
+    min-height: 420px !important;
+    margin: 0 auto !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: white !important;
+    border-radius: 15px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+  }
+  
+  #myBoard {
+    width: 380px !important;
+    height: 380px !important;
+    max-width: 380px !important;
+    min-width: 300px !important;
+    min-height: 380px !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+    border-radius: 12px !important;
+    overflow: visible !important;
+    flex-shrink: 0 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  .turn-control-row,
+  .analysis-control-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .turn-buttons,
+  .mode-buttons {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 1.7rem;
+  }
+  
+  .btn {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+  }
+  
+  /* Smaller board for very small screens */
+  #board-section {
+    max-width: 350px;
+  }
+  
+  #myBoard {
+    max-width: 350px;
+  }
+  
+  #board-controls,
+  #navigation-controls {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .castling-buttons {
+    justify-content: center;
+  }
+  
+  .fen-input-container {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .fen-input-container input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  #container {
+    margin: 5px;
+    padding: 10px;
+  }
+  
+  /* Even smaller board for tiny screens */
+  #board-section {
+    max-width: 300px;
+  }
+  
+  #myBoard {
+    max-width: 300px;
+  }
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.thinking {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Chess piece hover effects */
+.piece-417db:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Ensure chessboard is fully visible */
+.chessboard-63f37 {
+  border-radius: 8px;
+  overflow: visible !important;
+}
+
+/* Fix any clipping issues with the board */
+#board-section {
+  overflow: visible;
+}
+
+#main-content {
+  overflow: visible;
+}
+
+/* Ensure spare pieces container is visible */
+.spare-pieces-7492f {
+  margin-top: 10px;
+}
+
+/* Make sure all board elements are visible */
+.board-b72b1 {
+  border-radius: 8px;
+}
+
+/* Enhanced move details styling */
+.move-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+}
+
+.move-description {
+  color: #475569;
+  font-weight: 500;
+  flex: 1;
+}
+
+.resulting-value {
+  color: #059669;
+  font-weight: 600;
+  background: rgba(5, 150, 105, 0.1);
+  padding: 3px 8px;
+  border-radius: 4px;
+  min-width: 80px;
+  text-align: center;
+}
+
+.resulting-value.negative {
+  color: #dc2626;
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.resulting-value.mate {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.1);
+}
+
+/* FEN input container - inline input and button */
+.fen-input-container {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.fen-input-container input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.fen-input-container button {
+  flex-shrink: 0;
+}
+
+/* Turn control row - inline layout */
+.turn-control-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.turn-control-row label {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+.turn-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.turn-btn {
+  width: 100px;
+  height: 42px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.turn-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.turn-btn:hover::before {
+  left: 100%;
+}
+
+/* White piece button */
+.white-btn {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  color: #333;
+  border-color: #dee2e6;
+}
+
+.white-btn:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f3f4 100%);
+  border-color: #adb5bd;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.white-btn.active {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-color: #8fbddf;
+  box-shadow: 0 0 0 2px rgba(143, 189, 223, 0.3), 0 4px 15px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+
+/* Black piece button */
+.black-btn {
+  background: linear-gradient(135deg, #495057 0%, #343a40 100%);
+  color: #fff;
+  border-color: #6c757d;
+}
+
+.black-btn:hover {
+  background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+  border-color: #495057;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.black-btn.active {
+  background: linear-gradient(135deg, #343a40 0%, #212529 100%);
+  border-color: #8fbddf;
+  box-shadow: 0 0 0 2px rgba(143, 189, 223, 0.3), 0 4px 15px rgba(0, 0, 0, 0.4);
+  transform: scale(1.05);
+}
+
+.turn-circle {
+  font-size: 1.3rem;
+  line-height: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Castling toggle buttons */
+.castling-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.castling-btn {
+  padding: 8px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background: #f8f9fa;
+  color: #333;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.castling-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.castling-btn:hover::before {
+  left: 100%;
+}
+
+.castling-btn:hover {
+  border-color: #8fbddf;
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(143, 189, 223, 0.2);
+}
+
+.castling-btn.active {
+  background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%);
+  border-color: #7bc4c4;
+  color: white;
+  box-shadow: 0 3px 12px rgba(143, 189, 223, 0.3);
+}
+
+.castling-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(143, 189, 223, 0.4);
+}
+
+/* Analysis control row - inline layout */
+.analysis-control-row {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.analysis-control-row label {
+  margin-bottom: 0;
+  flex-shrink: 0;
+}
+
+/* Compact number input */
+.compact-number {
+  width: 60px !important;
+  padding: 8px 10px !important;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Mode toggle buttons */
+.mode-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-btn {
+  padding: 8px 16px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background: #f8f9fa;
+  color: #333;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  min-width: 70px;
+}
+
+.mode-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.mode-btn:hover::before {
+  left: 100%;
+}
+
+.mode-btn:hover {
+  border-color: #8fbddf;
+  background: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(143, 189, 223, 0.2);
+}
+
+.mode-btn.active {
+  background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%);
+  border-color: #7bc4c4;
+  color: white;
+  box-shadow: 0 3px 12px rgba(143, 189, 223, 0.3);
+}
+
+.mode-btn.active:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(143, 189, 223, 0.4);
+}
+
+/* PGN Import Styles */
+.pgn-import-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#pgnInput {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #e0e4e7;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  resize: vertical;
+  min-height: 120px;
+  background: #fafbfc;
+  color: #2d3748;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#pgnInput:focus {
+  outline: none;
+  border-color: #7bc4c4;
+  box-shadow: 0 0 0 3px rgba(123, 196, 196, 0.1);
+  background: white;
+}
+
+.pgn-controls {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pgn-controls .btn {
+  flex: 1;
+  min-width: 100px;
+}
+
+/* PGN sections below board */
+#pgn-info-section,
+#pgn-navigation-section {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+#pgn-info-section {
+  margin-bottom: 0;
+}
+
+#pgn-navigation-section {
+  margin-bottom: 0;
+}
+
+/* PGN Game Info */
+.pgn-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 10px;
+}
+
+.game-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+#gameWhite, #gameBlack {
+  font-weight: 700;
+}
+
+#gameWhite {
+  color: #4a5568;
+}
+
+#gameBlack {
+  color: #2d3748;
+}
+
+.game-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+  color: #718096;
+  text-align: center;
+}
+
+.game-details span {
+  display: block;
+}
+
+#gameEvent {
+  font-weight: 500;
+  color: #4a5568;
+}
+
+#gameResult {
+  font-weight: 600;
+  color: #2b6cb0;
+}
+
+/* PGN Navigation */
+.pgn-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 15px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.pgn-navigation .btn {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  min-width: auto;
+}
+
+#moveCounter {
+  font-weight: 600;
+  color: #4a5568;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  min-width: 80px;
+  text-align: center;
+}
+
+.current-move-info {
+  margin-top: 10px;
+  text-align: center;
+  font-family: 'Courier New', monospace;
+}
+
+#currentMoveDisplay {
+  font-weight: 600;
+  color: #2d3748;
+  background: #edf2f7;
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: inline-block;
+  min-width: 100px;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%);
+  color: white;
+  padding: 20px 25px;
+  border-radius: 15px 15px 0 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s ease;
+}
+
+.close-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.modal-body .control-group {
+  margin-bottom: 20px;
+}
+
+.modal-body #pgnInput {
+  min-height: 150px;
+  font-size: 0.85rem;
+}
+
+/* Custom Chessground Themes */
+
+/* Board Theme Colors */
+#myBoard.brown cg-board {
+  background-color: #f0d9b5;
+}
+
+#myBoard.brown cg-board square.light {
+  background-color: #f0d9b5;
+}
+
+#myBoard.brown cg-board square.dark {
+  background-color: #b58863;
+}
+
+/* Blue Ocean Theme */
+#myBoard.blue cg-board {
+  background-color: #dee3e6;
+}
+
+#myBoard.blue cg-board square.light {
+  background-color: #dee3e6;
+}
+
+#myBoard.blue cg-board square.dark {
+  background-color: #8ca2ad;
+}
+
+/* Forest Green Theme */
+#myBoard.green cg-board {
+  background-color: #ffffdd;
+}
+
+#myBoard.green cg-board square.light {
+  background-color: #ffffdd;
+}
+
+#myBoard.green cg-board square.dark {
+  background-color: #86a666;
+}
+
+/* Royal Purple Theme */
+#myBoard.purple cg-board {
+  background-color: #e8e0d6;
+}
+
+#myBoard.purple cg-board square.light {
+  background-color: #e8e0d6;
+}
+
+#myBoard.purple cg-board square.dark {
+  background-color: #9f7eb2;
+}
+
+/* Wooden Theme */
+#myBoard.wood cg-board {
+  background-color: #f4f2e7;
+  background-image: 
+    radial-gradient(circle at 25% 25%, #e8d5b2 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, #d4b894 0%, transparent 50%);
+}
+
+#myBoard.wood cg-board square.light {
+  background-color: #f4f2e7;
+  background-image: 
+    radial-gradient(circle at 25% 25%, #e8d5b2 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, #d4b894 0%, transparent 50%);
+}
+
+#myBoard.wood cg-board square.dark {
+  background-color: #c8956d;
+  background-image: 
+    radial-gradient(circle at 25% 25%, #b8845d 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, #a67c52 0%, transparent 50%);
+}
+
+/* Fix Chessground piece display issues */
+.cg-wrap {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* Ensure proper piece sizing and positioning */
+.cg-wrap piece {
+  background-size: 80% 80% !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  width: 12.5% !important;
+  height: 12.5% !important;
+  position: absolute !important;
+  display: block !important;
+  z-index: 2 !important;
+}
+
+/* Fix board squares positioning */
+.cg-wrap square {
+  position: absolute !important;
+  width: 12.5% !important;
+  height: 12.5% !important;
+}
+
+/* Ensure the board itself is properly sized */
+#myBoard .cg-wrap {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Make sure the board container doesn't interfere */
+#myBoard {
+  position: relative !important;
+  overflow: visible !important;
+}
+
+/* Custom piece sets - now with proper selectors */
+/* Merida piece set */
+#myBoard.merida .cg-wrap piece.pawn.white {
+  background-image: url('https://lichess1.org/assets/piece/merida/wP.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.rook.white {
+  background-image: url('https://lichess1.org/assets/piece/merida/wR.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.knight.white {
+  background-image: url('https://lichess1.org/assets/piece/merida/wN.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.bishop.white {
+  background-image: url('https://lichess1.org/assets/piece/merida/wB.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.queen.white {
+  background-image: url('https://lichess1.org/assets/piece/merida/wQ.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.king.white {
+  background-image: url('https://lichess1.org/assets/piece/merida/wK.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.pawn.black {
+  background-image: url('https://lichess1.org/assets/piece/merida/bP.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.rook.black {
+  background-image: url('https://lichess1.org/assets/piece/merida/bR.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.knight.black {
+  background-image: url('https://lichess1.org/assets/piece/merida/bN.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.bishop.black {
+  background-image: url('https://lichess1.org/assets/piece/merida/bB.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.queen.black {
+  background-image: url('https://lichess1.org/assets/piece/merida/bQ.svg') !important;
+}
+#myBoard.merida .cg-wrap piece.king.black {
+  background-image: url('https://lichess1.org/assets/piece/merida/bK.svg') !important;
+}
+
+/* Alpha piece set */
+#myBoard.alpha .cg-wrap piece.pawn.white {
+  background-image: url('https://lichess1.org/assets/piece/alpha/wP.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.rook.white {
+  background-image: url('https://lichess1.org/assets/piece/alpha/wR.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.knight.white {
+  background-image: url('https://lichess1.org/assets/piece/alpha/wN.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.bishop.white {
+  background-image: url('https://lichess1.org/assets/piece/alpha/wB.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.queen.white {
+  background-image: url('https://lichess1.org/assets/piece/alpha/wQ.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.king.white {
+  background-image: url('https://lichess1.org/assets/piece/alpha/wK.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.pawn.black {
+  background-image: url('https://lichess1.org/assets/piece/alpha/bP.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.rook.black {
+  background-image: url('https://lichess1.org/assets/piece/alpha/bR.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.knight.black {
+  background-image: url('https://lichess1.org/assets/piece/alpha/bN.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.bishop.black {
+  background-image: url('https://lichess1.org/assets/piece/alpha/bB.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.queen.black {
+  background-image: url('https://lichess1.org/assets/piece/alpha/bQ.svg') !important;
+}
+#myBoard.alpha .cg-wrap piece.king.black {
+  background-image: url('https://lichess1.org/assets/piece/alpha/bK.svg') !important;
+}
+
+/* Leipzig piece set */
+#myBoard.leipzig .cg-wrap piece.pawn.white {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/wP.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.rook.white {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/wR.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.knight.white {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/wN.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.bishop.white {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/wB.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.queen.white {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/wQ.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.king.white {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/wK.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.pawn.black {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/bP.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.rook.black {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/bR.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.knight.black {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/bN.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.bishop.black {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/bB.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.queen.black {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/bQ.svg') !important;
+}
+#myBoard.leipzig .cg-wrap piece.king.black {
+  background-image: url('https://lichess1.org/assets/piece/leipzig/bK.svg') !important;
+}
+
+/* Pirouetti piece set */
+#myBoard.pirouetti .cg-wrap piece.pawn.white {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/wP.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.rook.white {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/wR.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.knight.white {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/wN.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.bishop.white {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/wB.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.queen.white {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/wQ.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.king.white {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/wK.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.pawn.black {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/bP.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.rook.black {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/bR.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.knight.black {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/bN.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.bishop.black {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/bB.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.queen.black {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/bQ.svg') !important;
+}
+#myBoard.pirouetti .cg-wrap piece.king.black {
+  background-image: url('https://lichess1.org/assets/piece/pirouetti/bK.svg') !important;
+}
+
+/* Load Saved button styling */
+.btn-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+  color: white;
+  border: 1px solid #17a2b8;
+  font-size: 12px;
+  padding: 8px 12px;
+}
+
+.btn-info:hover {
+  background: linear-gradient(135deg, #138496 0%, #0f6674 100%);
+  border-color: #138496;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
+}
+
+/* Results Header Layout */
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f1f5f9;
+}
+
+.results-header h3 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+/* AI Explanations Toggle Styles - Improved */
+.ai-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ai-toggle-label {
+  font-size: 0.9rem;
+  color: #4a5568;
+  font-weight: 500;
+  user-select: none;
+  margin-right: 2px;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+  border-radius: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #d1d5db;
+}
+
+.toggle-slider::before {
+  position: absolute;
+  content: '';
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  top: 2px;
+  background: white;
+  border-radius: 50%;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+input:checked + .toggle-slider {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  border-color: #10b981;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(16, 185, 129, 0.2);
+}
+
+input:checked + .toggle-slider::before {
+  transform: translateX(24px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Removed - replaced with .ai-toggle-label above */
+
+/* AI Explanation Containers */
+.ai-explanation {
+  margin-top: 12px;
+  padding: 15px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  border-left: 4px solid #8fbddf;
+}
+
+.ai-explain-btn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.ai-explain-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.ai-explain-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.ai-explain-btn:hover::before {
+  left: 100%;
+}
+
+.ai-explain-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  background: #94a3b8 !important;
+}
+
+/* AI Loading State */
+.ai-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: rgba(99, 102, 241, 0.05);
+  border: 1px solid rgba(99, 102, 241, 0.1);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #6366f1;
+  font-weight: 500;
+}
+
+.ai-loading i {
+  font-size: 1rem;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* AI Content Container */
+.ai-content {
+  margin-top: 12px;
+  animation: fadeInContent 0.5s ease-in-out;
+}
+
+@keyframes fadeInContent {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ai-text {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 16px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #374151;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.ai-text::before {
+  content: '🤖';
+  position: absolute;
+  top: -8px;
+  left: 12px;
+  background: white;
+  padding: 0 6px;
+  font-size: 1rem;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Make Move Button Styling */
+.make-move-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 5px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.make-move-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.make-move-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
+}
+
+/* Responsive adjustments for AI explanations */
+@media (max-width: 768px) {
+  .ai-toggle-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .toggle-label {
+    font-size: 0.85rem;
+  }
+  
+  .ai-explanation {
+    padding: 12px;
+  }
+  
+  .ai-explain-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 0.85rem;
+  }
+  
+  .ai-text {
+    padding: 14px;
+    font-size: 0.85rem;
+  }
+  
+  .move-details {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  
+  .make-move-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+}
