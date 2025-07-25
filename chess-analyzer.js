@@ -733,7 +733,7 @@ $(document).ready(function() {
         board.set({
             movable: {
                 free: false,
-                color: currentTurn,
+                color: 'both', // Allow both white and black pieces to move
                 dests: validMoves
             },
             turnColor: currentTurn
@@ -1662,14 +1662,28 @@ stockfish.postMessage('setoption name MultiPV value 3');
                 console.warn('Standard PGN loading failed, trying with aggressive cleaning...');
                 
                 // More aggressive cleaning - extract just the moves
-                // Updated pattern to handle castling and more move types
-                const movePattern = /\d+\.\s*(?:O-O-O|O-O|[a-h][1-8]?[a-h][1-8](?:=[QRNB])?[+#]?|[NBRQK][a-h]?[1-8]?[x]?[a-h][1-8][+#]?)/g;
-                const moves = cleanedPgn.match(movePattern);
+                // First try to extract complete moves with both white and black moves
+                let extractedMoves = [];
                 
-                console.log('Extracted moves using regex:', moves ? moves.slice(0, 10) : 'none');
+                // Pattern to match complete move pairs: "1. e4 e5" or individual moves "1. e4" "1... e5"
+                const moveLinePattern = /\d+\.\s*([NBRQK]?[a-h]?[1-8]?[x]?[a-h][1-8](?:=[QRNB])?[+#]?|O-O-O|O-O)(?:\s+([NBRQK]?[a-h]?[1-8]?[x]?[a-h][1-8](?:=[QRNB])?[+#]?|O-O-O|O-O))?/g;
+                
+                let match;
+                while ((match = moveLinePattern.exec(cleanedPgn)) !== null) {
+                    // Add white move
+                    if (match[1]) {
+                        extractedMoves.push(match[1].trim());
+                    }
+                    // Add black move if present
+                    if (match[2]) {
+                        extractedMoves.push(match[2].trim());
+                    }
+                }
+                
+                console.log('Extracted moves using regex:', extractedMoves.slice(0, 20)); // Show first 20 moves
                 
                 // If the move pattern doesn't work, try an even simpler approach
-                if (!moves || moves.length === 0) {
+                if (!extractedMoves || extractedMoves.length === 0) {
                     console.log('Move pattern failed, trying line-by-line extraction...');
                     
                     // Split by lines and extract just the move portion
@@ -1677,25 +1691,27 @@ stockfish.postMessage('setoption name MultiPV value 3');
                     const moveLines = lines.filter(line => /\d+\./.test(line) && !line.startsWith('['));
                     
                     if (moveLines.length > 0) {
-                        const movesOnly = moveLines.join(' ');
-                        console.log('Extracted move lines:', movesOnly);
-                        
-                        const simplePgn = movesOnly.replace(/\*/g, '').trim(); // Remove result markers
-                        console.log('Trying simple moves PGN:', simplePgn);
-                        
-                        const finalTryGame = new Chess();
-                        if (!finalTryGame.load_pgn(simplePgn)) {
-                            throw new Error('Could not parse PGN moves after multiple attempts.');
+                        // Extract moves from each line manually
+                        for (const line of moveLines) {
+                            // Remove move numbers and extract just the moves
+                            const cleanLine = line.replace(/\d+\./g, '').replace(/\*/g, '').trim();
+                            const movesInLine = cleanLine.split(/\s+/).filter(move => 
+                                move && /^([NBRQK]?[a-h]?[1-8]?[x]?[a-h][1-8](?:=[QRNB])?[+#]?|O-O-O|O-O)$/.test(move)
+                            );
+                            extractedMoves.push(...movesInLine);
                         }
-                        tempGame.load_pgn(simplePgn);
-                    } else {
+                        
+                        console.log('Extracted moves from lines:', extractedMoves.slice(0, 20));
+                    }
+                    
+                    if (extractedMoves.length === 0) {
                         throw new Error('No move lines found in PGN.');
                     }
-                } else {
+                }
                 
-                if (moves && moves.length > 0) {
+                if (extractedMoves && extractedMoves.length > 0) {
                     // Create a minimal PGN with just the moves
-                    const minimalPgn = moves.join(' ');
+                    const minimalPgn = extractedMoves.join(' ');
                     console.log('Trying minimal PGN:', minimalPgn);
                     
                     // Reset and try again
