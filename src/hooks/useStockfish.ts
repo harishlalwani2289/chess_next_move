@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useChessStore } from '../store/chessStore';
-import { AnalysisResult } from '../types/chess';
+import type { AnalysisResult } from '../types/chess';
 
 interface StockfishMessage {
   data: string;

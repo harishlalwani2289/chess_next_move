@@ -1,4 +1,3 @@
-import React from 'react';
 import ChessBoard from './components/ChessBoard';
 import BoardControls from './components/BoardControls';
 import AnalysisResults from './components/AnalysisResults';

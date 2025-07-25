@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { Chess } from 'chess.js';
-import { GameState, HistoryState, AnalysisResult, EngineOptions, AISettings, BoardTheme, PieceSet } from '../types/chess';
+import type { GameState, HistoryState, AnalysisResult, EngineOptions, AISettings, BoardTheme, PieceSet } from '../types/chess';
 
 interface ChessStore {
   // Game state
@@ -40,7 +40,7 @@ interface ChessStore {
   restoreState: (state: HistoryState) => void;
   
   // Analysis actions
-  setAnalysisResults: (results: AnalysisResult[]) => void;
+  setAnalysisResults: (results: AnalysisResult[] | ((prev: AnalysisResult[]) => AnalysisResult[])) => void;
   clearAnalysisResults: () => void;
   setEngineThinking: (thinking: boolean) => void;
   
@@ -146,7 +146,7 @@ export const useChessStore = create<ChessStore>((set, get) => ({
   resetToStartPosition: () => {
     const { game } = get();
     game.reset();
-    set((state) => ({
+    set({
       gameState: {
         ...initialGameState,
         fen: game.fen(),
@@ -154,7 +154,7 @@ export const useChessStore = create<ChessStore>((set, get) => ({
       },
       moveHistory: [{ ...initialGameState, position: game.fen() }],
       currentHistoryIndex: 0,
-    }));
+    });
     get().clearAnalysisResults();
   },
   
