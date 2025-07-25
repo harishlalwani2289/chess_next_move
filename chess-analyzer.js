@@ -1986,11 +1986,11 @@ stockfish.postMessage('setoption name MultiPV value 3');
         const isEnabled = $(this).is(':checked');
         console.log('AI explanations toggled:', isEnabled);
         
-        // Show/hide all AI explanation containers
+        // Show/hide all AI info icons
         if (isEnabled) {
-            $('.ai-explanation').show();
+            $('.ai-info-icon').show();
         } else {
-            $('.ai-explanation').hide();
+            $('.ai-info-icon').hide();
         }
         
         // Save preference to localStorage
@@ -2001,7 +2001,7 @@ stockfish.postMessage('setoption name MultiPV value 3');
     const savedAIPreference = localStorage.getItem('aiExplanationsEnabled');
     if (savedAIPreference === 'true') {
         $('#aiExplanationsToggle').prop('checked', true);
-        $('.ai-explanation').show();
+        $('.ai-info-icon').show();
     }
     
     // Initialize tooltip functionality for AI explanations
