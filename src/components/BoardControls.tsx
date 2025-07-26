@@ -1,5 +1,5 @@
 import React from 'react';
-import { RotateCcw, Square, SkipBack, SkipForward } from 'lucide-react';
+import { RotateCcw, Square, SkipBack, SkipForward, Grid3x3 } from 'lucide-react';
 import { useChessStore } from '../store/chessStore';
 
 export const BoardControls: React.FC = () => {
@@ -27,6 +27,7 @@ export const BoardControls: React.FC = () => {
             onClick={resetToStartPosition}
             title="Reset to starting position"
           >
+            <Grid3x3 size={16} />
             Start Position
           </button>
           <button 

@@ -39,7 +39,7 @@ export const GameNavigation: React.FC = () => {
           className="btn btn-nav"
           onClick={resetToStartPosition}
           disabled={!canGoBack}
-          title="Go to start"
+          title="Go to start position"
         >
           <SkipBack size={16} />
         </button>

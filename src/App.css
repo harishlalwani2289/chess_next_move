@@ -581,6 +581,7 @@ input:checked + .toggle-slider:before {
   width: 24px;
   height: 24px;
   margin-left: 0.5rem;
+  margin-right: 10px;
 }
 
 .make-move-icon-btn-small:hover {
@@ -1256,6 +1257,21 @@ progress::-moz-progress-bar {
   font-size: 0.8rem;
 }
 
+/* Load PGN button specific styling */
+.btn-secondary.btn-small {
+  padding: 0.55rem 0.825rem; /* Increased by 10% */
+  font-size: 0.88rem; /* Increased by 10% */
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+.btn-secondary.btn-small:hover {
+  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+  border-color: #d97706;
+  color: #78350f;
+}
+
 /* FEN label container */
 .fen-label-container {
   display: flex;
@@ -1447,6 +1463,9 @@ progress::-moz-progress-bar {
   background: white;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
+  width: 90%; /* 10% less than full width */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .game-navigation h3 {
@@ -1454,26 +1473,42 @@ progress::-moz-progress-bar {
   font-size: 1rem;
   font-weight: 600;
   color: #2d3748;
+  text-align: center;
 }
 
 .navigation-buttons {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  justify-content: center;
+  justify-content: space-between; /* Distribute buttons across full width */
+  width: 100%; /* Full width */
+  gap: 0; /* Remove gap to allow full width distribution */
 }
 
 .btn-nav {
-  padding: 0.5rem;
+  padding: 0.75rem; /* Increased padding */
   border: 1px solid #cbd5e1;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-radius: 4px;
+  border-radius: 6px; /* Slightly larger border radius */
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
   color: #475569;
+  min-width: 48px; /* Minimum width for larger buttons */
+  min-height: 48px; /* Minimum height for larger buttons */
+  flex: 1; /* Equal width distribution */
+  margin: 0 2px; /* Small margin between buttons */
+}
+
+.move-indicator {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #4a5568;
+  padding: 0 0.5rem;
+  min-width: 80px; /* Wider to accommodate longer text */
+  text-align: center;
+  flex: 1.5; /* Slightly wider than buttons */
 }
 
 .btn-nav:hover:not(:disabled) {
@@ -1485,15 +1520,6 @@ progress::-moz-progress-bar {
 .btn-nav:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.move-indicator {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #4a5568;
-  padding: 0 0.5rem;
-  min-width: 60px;
-  text-align: center;
 }
 
 /* AI Info Icon and Tooltip Styling */

@@ -182,6 +182,9 @@ export const useChessStore = create<ChessStore>((set, get) => {
     
     makeMove: (from, to, promotion) => {
       const { game } = get();
+      const originalFen = game.fen();
+      
+      // First try to make the move as if it's the current player's turn
       try {
         const move = game.move({ from, to, promotion });
         if (move) {
@@ -199,9 +202,51 @@ export const useChessStore = create<ChessStore>((set, get) => {
           get().addToHistory();
           return true;
         }
+      } catch (error) {
+        // Move failed for current turn, try with opposite turn
+      }
+      
+      // If that fails, try switching the turn and making the move
+      try {
+        const fenParts = originalFen.split(' ');
+        const currentTurn = fenParts[1];
+        const oppositeTurn = currentTurn === 'w' ? 'b' : 'w';
+        
+        // Create a FEN with the opposite turn
+        const tempFen = [fenParts[0], oppositeTurn, fenParts[2], fenParts[3], fenParts[4], fenParts[5]].join(' ');
+        
+        // Load the position with opposite turn
+        game.load(tempFen);
+        
+        // Try to make the move
+        const move = game.move({ from, to, promotion });
+        if (move) {
+          set((state) => {
+            const updatedState = {
+              gameState: {
+                ...state.gameState,
+                fen: game.fen(),
+                turn: game.turn(),
+              }
+            };
+            saveToStorage({ ...state, ...updatedState });
+            return updatedState;
+          });
+          get().addToHistory();
+          return true;
+        }
+        
+        // If move still fails, restore original position
+        game.load(originalFen);
         return false;
       } catch (error) {
-        console.error('Invalid move:', error);
+        // Restore original position on any error
+        try {
+          game.load(originalFen);
+        } catch (restoreError) {
+          console.error('Failed to restore game position:', restoreError);
+        }
+        console.error('Move validation failed:', error);
         return false;
       }
     },

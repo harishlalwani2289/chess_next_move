@@ -49,7 +49,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
       turnColor: gameState.turn === 'w' ? 'white' as const : 'black' as const,
       movable: {
         free: false,
-        color: gameState.turn === 'w' ? 'white' as const : 'black' as const,
+        color: 'both' as const,
         dests: new Map(),
       },
       events: {
@@ -103,33 +103,67 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
   // Update board when game state changes
   useEffect(() => {
     if (chessgroundRef.current) {
-      const moves = game.moves({ verbose: true });
+      // Calculate legal moves for both white and black pieces
       const dests = new Map<Key, Key[]>();
+      const originalFen = game.fen();
       
-      // Group moves by source square
-      moves.forEach((move: any) => {
-        const from = move.from as Key;
-        const to = move.to as Key;
-        
-        if (!dests.has(from)) {
-          dests.set(from, []);
+      // Get legal moves for both colors by temporarily switching turns
+      const colors = ['w', 'b'];
+      colors.forEach(color => {
+        try {
+          // Create a temporary FEN with the specified turn
+          const fenParts = originalFen.split(' ');
+          fenParts[1] = color; // Set the turn
+          const tempFen = fenParts.join(' ');
+          
+          // Load the temporary position
+          game.load(tempFen);
+          
+          // Get all legal moves for this color
+          const moves = game.moves({ verbose: true });
+          moves.forEach((move: any) => {
+            const from = move.from as Key;
+            const to = move.to as Key;
+            if (!dests.has(from)) {
+              dests.set(from, []);
+            }
+            if (!dests.get(from)!.includes(to)) {
+              dests.get(from)!.push(to);
+            }
+          });
+        } catch (e) {
+          console.error(`Error calculating moves for ${color}:`, e);
         }
-        dests.get(from)!.push(to);
       });
-
+      
+      // Restore the original position
+      try {
+        game.load(originalFen);
+      } catch (e) {
+        console.error('Error restoring original position:', e);
+      }
+      
       chessgroundRef.current.set({
         fen: gameState.fen,
         turnColor: gameState.turn === 'w' ? 'white' : 'black',
         movable: {
-          color: gameState.turn === 'w' ? 'white' : 'black',
-          dests,
+          free: false,
+          color: 'both',
+          dests, // Legal destinations for both colors
         },
       });
+      
+      // Clear arrow numbers and shapes when the game state changes (after moves)
+      if (engineOptions.mode !== 'show') {
+        const existingNumbers = boardRef.current?.querySelectorAll('.pv-arrow-number');
+        existingNumbers?.forEach(el => el.remove());
+        chessgroundRef.current.setShapes([]);
+      }
       
       // Also apply CSS-based highlighting as fallback
       applyCSSHighlighting();
     }
-  }, [gameState.fen, gameState.turn, game]);
+  }, [gameState.fen, gameState.turn, game, engineOptions.mode]);
 
   // Apply CSS-based highlighting as fallback
   const applyCSSHighlighting = () => {
