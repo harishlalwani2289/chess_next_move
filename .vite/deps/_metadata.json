@@ -1,0 +1,58 @@
+{
+  "hash": "7df86ee7",
+  "configHash": "5c35b5e9",
+  "lockfileHash": "fc75e876",
+  "browserHash": "f0b2655f",
+  "optimized": {
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "9cc8ae62",
+      "needsInterop": true
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "7864047f",
+      "needsInterop": true
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "821efcfd",
+      "needsInterop": true
+    },
+    "chessground": {
+      "src": "../../node_modules/chessground/chessground.js",
+      "file": "chessground.js",
+      "fileHash": "1846a69a",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "80c05947",
+      "needsInterop": false
+    },
+    "zustand": {
+      "src": "../../node_modules/zustand/esm/index.mjs",
+      "file": "zustand.js",
+      "fileHash": "9ecc1619",
+      "needsInterop": false
+    },
+    "chess.js": {
+      "src": "../../node_modules/chess.js/dist/esm/chess.js",
+      "file": "chess__js.js",
+      "fileHash": "9458a2dd",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "chunk-TVFQMRVC": {
+      "file": "chunk-TVFQMRVC.js"
+    },
+    "chunk-G3PMV62Z": {
+      "file": "chunk-G3PMV62Z.js"
+    }
+  }
+}

@@ -9,6 +9,13 @@ export interface AnalysisResult {
   evaluation: string;
   principalVariation: string;
   moveNumber: number;
+  aiExplanation?: {
+    explanation: string;
+    provider: string;
+    confidence?: number;
+    loading?: boolean;
+    error?: string;
+  };
 }
 
 export interface GameState {

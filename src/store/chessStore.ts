@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { Chess } from 'chess.js';
-import type { GameState, HistoryState, AnalysisResult, EngineOptions, AISettings, BoardTheme, PieceSet, GameInformation } from '../types/chess';
+import type { GameState, HistoryState, AnalysisResult, EngineOptions, BoardTheme, PieceSet, GameInformation } from '../types/chess';
+import type { AISettings } from '../services/aiService';
 
 interface ChessStore {
   // Game state
@@ -84,20 +85,15 @@ const initialAISettings: AISettings = {
   groqApiKey: '',
 };
 
-// Create a unique storage key for each tab/session
-const getSessionStorageKey = () => {
-  // Use a combination of timestamp and random number for unique tab identification
-  if (!sessionStorage.getItem('chess-tab-id')) {
-    const tabId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    sessionStorage.setItem('chess-tab-id', tabId);
-  }
-  return `chess-store-${sessionStorage.getItem('chess-tab-id')}`;
+// Create a storage key - use localStorage for persistence across refresh
+const getStorageKey = () => {
+  return 'chess-analyzer-state';
 };
 
 // Load persisted state from localStorage
 const loadPersistedState = (): Partial<ChessStore> => {
   try {
-    const stored = localStorage.getItem(getSessionStorageKey());
+    const stored = localStorage.getItem(getStorageKey());
     if (stored) {
       const parsed = JSON.parse(stored);
       // Only restore specific state that should persist
@@ -133,7 +129,7 @@ const saveToStorage = (state: ChessStore) => {
       showCoordinates: state.showCoordinates,
       aiExplanationsEnabled: state.aiExplanationsEnabled,
     };
-    localStorage.setItem(getSessionStorageKey(), JSON.stringify(stateToSave));
+    localStorage.setItem(getStorageKey(), JSON.stringify(stateToSave));
   } catch (error) {
     console.warn('Failed to save chess state:', error);
   }

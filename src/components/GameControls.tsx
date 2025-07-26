@@ -31,7 +31,7 @@ export const GameControls: React.FC = () => {
   const handleSetFen = () => {
     if (fenInput.trim()) {
       setPosition(fenInput.trim());
-      setFenInput('');
+      // Don't clear the FEN input - it will be updated by the useEffect when gameState changes
     }
   };
 

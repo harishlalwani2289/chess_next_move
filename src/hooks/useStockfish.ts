@@ -8,6 +8,7 @@ interface StockfishMessage {
 
 export const useStockfish = () => {
   const workerRef = useRef<Worker | null>(null);
+  const isReadyRef = useRef<boolean>(false);
   const { 
     gameState, 
     engineOptions, 
@@ -127,6 +128,23 @@ export const useStockfish = () => {
   const handleEngineMessage = useCallback((line: string) => {
     console.log('Stockfish:', line);
     
+    // Check if UCI is ready
+    if (line === 'uciok') {
+      isReadyRef.current = true;
+      console.log('Stockfish UCI ready');
+      // Send isready command to ensure engine is fully initialized
+      if (workerRef.current) {
+        workerRef.current.postMessage('isready');
+      }
+      return;
+    }
+    
+    // Confirm engine is ready for commands
+    if (line === 'readyok') {
+      console.log('Stockfish ready for commands');
+      return;
+    }
+    
     // Parse multi-PV analysis
     if (line.includes('multipv')) {
       const match = line.match(/multipv (\d+).*?pv\s+(.+)/);
@@ -226,6 +244,6 @@ export const useStockfish = () => {
   return {
     analyzePosition,
     stopAnalysis,
-    isReady: workerRef.current !== null,
+    isReady: workerRef.current !== null && isReadyRef.current,
   };
 };

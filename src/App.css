@@ -1007,6 +1007,7 @@ progress::-moz-progress-bar {
 .engine-controls-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
@@ -1495,6 +1496,358 @@ progress::-moz-progress-bar {
   text-align: center;
 }
 
+/* AI Info Icon and Tooltip Styling */
+.ai-info-icon {
+  color: #4a90e2;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: color 0.3s ease;
+  position: relative;
+  background: none;
+  border: none;
+  padding: 2px;
+}
+
+.ai-info-icon:hover {
+  color: #2171b5;
+}
+
+.ai-tooltip {
+  position: fixed;
+  background: #2c3e50 !important;
+  color: white !important;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 250px;
+  max-width: 400px;
+  z-index: 9999 !important;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  font-size: 14px;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.ai-tooltip.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.ai-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-right: 8px solid #2c3e50;
+}
+
+.ai-tooltip .ai-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-style: italic;
+  color: #bdc3c7;
+}
+
+.ai-tooltip .ai-loading .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.ai-tooltip .ai-text {
+  color: white !important;
+  font-weight: normal;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+}
+
+.ai-tooltip .ai-text::before {
+  display: none;
+}
+
+.ai-tooltip .ai-content {
+  color: white !important;
+  background: transparent !important;
+}
+
+/* Make Move Button Styling */
+.make-move-btn {
+  background: linear-gradient(135deg, #8fbddf 0%, #7bc4c4 100%);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  margin-left: auto;
+}
+
+.make-move-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.make-move-btn:hover::before {
+  left: 100%;
+}
+
+.make-move-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(143, 189, 223, 0.3);
+}
+
+.make-move-btn:active {
+  transform: translateY(0px);
+  box-shadow: 0 2px 6px rgba(143, 189, 223, 0.2);
+}
+
+.make-move-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.make-move-btn:disabled:hover {
+  transform: none;
+}
+
+/* AI Settings Modal CSS */
+.ai-settings-info {
+  margin-bottom: 1.5rem;
+}
+
+.info-banner {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #e3f2fd;
+  border-radius: 8px;
+  border-left: 4px solid #2196f3;
+}
+
+.info-banner div {
+  flex: 1;
+}
+
+.info-banner p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.info-banner code {
+  display: block;
+  background: rgba(0, 0, 0, 0.1);
+  padding: 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  margin: 0.5rem 0;
+  word-break: break-all;
+}
+
+.env-note {
+  font-style: italic;
+  color: #666;
+}
+
+.api-services {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.api-service {
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.service-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.service-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.free-badge {
+  background: #28a745;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.paid-badge {
+  background: #ffc107;
+  color: #333;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.api-link {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: #2196f3;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.api-link:hover {
+  text-decoration: underline;
+}
+
+.api-key-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.api-key-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.api-status {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.status-connected {
+  color: #28a745;
+}
+
+.status-disconnected {
+  color: #dc3545;
+}
+
+.providers-info {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #f0f4f8;
+  border-radius: 6px;
+}
+
+.providers-info h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #4a5568;
+}
+
+.providers-list {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.provider-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.no-providers {
+  color: #666;
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+/* AI Explanation Styles */
+.ai-explanation {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%);
+  border-radius: 6px;
+  border-left: 4px solid #28a745;
+}
+
+.ai-explanation label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #2d5016;
+}
+
+.ai-explanation p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #4a5568;
+}
+
+.loading-icon {
+  animation: spin 1s linear infinite;
+  color: #667eea;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #dc3545;
+  font-size: 0.85rem;
+}
+
+.ai-toggle-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #4a5568;
+}
+
 @media (max-width: 768px) {
   .main-content {
     grid-template-columns: 1fr;
@@ -1508,5 +1861,15 @@ progress::-moz-progress-bar {
   
   .app-header h1 {
     font-size: 2rem;
+  }
+  
+  .api-services {
+    gap: 0.75rem;
+  }
+  
+  .service-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
   }
 }
