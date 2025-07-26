@@ -12,7 +12,7 @@ function App() {
     <div className="app">
       <header className="app-header">
         <h1>Chess Position Analyzer</h1>
-        <p>Analyze any chess position with the powerful Stockfish engine</p>
+        <p>Analyze chess positions with Stockfish engine and get the best moves with AI explanations</p>
       </header>
 
       <main className="main-content">
