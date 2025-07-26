@@ -154,9 +154,11 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
       });
       
       // Clear arrow numbers and shapes when the game state changes (after moves)
+      // Always clear arrow numbers when game state changes (moves made)
+      const existingNumbers = boardRef.current?.querySelectorAll('.pv-arrow-number');
+      existingNumbers?.forEach(el => el.remove());
+      
       if (engineOptions.mode !== 'show') {
-        const existingNumbers = boardRef.current?.querySelectorAll('.pv-arrow-number');
-        existingNumbers?.forEach(el => el.remove());
         chessgroundRef.current.setShapes([]);
       }
       

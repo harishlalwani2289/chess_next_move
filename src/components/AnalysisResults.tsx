@@ -31,6 +31,10 @@ export const AnalysisResults: React.FC = () => {
 
   const handleMakeMove = (moveStr: string) => {
     if (moveStr && moveStr.length >= 4) {
+      // Clear any existing arrow numbers immediately before making the move
+      const existingNumbers = document.querySelectorAll('.pv-arrow-number');
+      existingNumbers.forEach(el => el.remove());
+      
       // Remove piece notation if present (e.g., "Qe6e7" -> "e6e7")
       let cleanMove = moveStr;
       if (moveStr.length > 4 && /^[a-zA-Z]/.test(moveStr)) {
