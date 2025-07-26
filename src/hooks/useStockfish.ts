@@ -13,7 +13,8 @@ export const useStockfish = () => {
     engineOptions, 
     setAnalysisResults, 
     setEngineThinking,
-    clearAnalysisResults 
+    clearAnalysisResults,
+    game
   } = useChessStore();
 
   // Initialize Stockfish worker
@@ -81,11 +82,20 @@ export const useStockfish = () => {
     return '';
   };
 
-  // Format move for display
+  // Format move for display with piece notation
   const formatMove = (move: string): string => {
     if (move.length >= 4) {
-      // For now, return the move as-is
-      // TODO: Add piece notation based on current position
+      const fromSquare = move.slice(0, 2);
+      const toSquare = move.slice(2, 4);
+      
+      // Get the piece at the source square from chess.js
+      const piece = game.get(fromSquare as any);
+      
+      if (piece) {
+        const pieceSymbol = piece.type === 'p' ? 'p' : piece.type.toUpperCase();
+        return pieceSymbol + fromSquare + toSquare;
+      }
+      
       return move;
     }
     return move;
@@ -95,6 +105,23 @@ export const useStockfish = () => {
   const formatPrincipalVariation = (pv: string): string => {
     return pv.split(' ').map(move => formatMove(move)).join(' ');
   };
+
+  // Update progress bars
+  const updateProgressBars = useCallback((evaluation: string) => {
+    const analysisProgress = document.getElementById('analysisProgress') as HTMLProgressElement;
+    
+    if (analysisProgress) {
+      if (evaluation.includes('M')) {
+        // Mate - set to max or min based on sign
+        analysisProgress.value = evaluation.startsWith('+') ? 100 : 1;
+      } else {
+        // Regular evaluation - convert to progress (0-100)
+        const score = parseFloat(evaluation);
+        const progressValue = Math.max(1, Math.min(99, 50 + score * 5));
+        analysisProgress.value = progressValue;
+      }
+    }
+  }, []);
 
   // Handle engine messages
   const handleEngineMessage = useCallback((line: string) => {
@@ -129,15 +156,23 @@ export const useStockfish = () => {
           
           return newResults.sort((a, b) => a.moveNumber - b.moveNumber);
         });
+        
+        // Update progress bar for the best move (PV 1)
+        if (pvNumber === 1) {
+          updateProgressBars(evaluation);
+        }
       }
     }
     
     // Handle analysis completion
     if (line.startsWith('bestmove')) {
       setEngineThinking(false);
+      // Animate time progress to completion
+      const timeProgress = document.getElementById('timeProgress') as HTMLProgressElement;
+      if (timeProgress) timeProgress.value = 100;
     }
-  }, [gameState.turn, setAnalysisResults, setEngineThinking]);
-
+  }, [gameState.turn, setAnalysisResults, setEngineThinking, updateProgressBars]);
+  
   // Start analysis
   const analyzePosition = useCallback(() => {
     if (!workerRef.current) {
@@ -150,6 +185,12 @@ export const useStockfish = () => {
     clearAnalysisResults();
     setEngineThinking(true);
     
+    // Reset progress bars
+    const analysisProgress = document.getElementById('analysisProgress') as HTMLProgressElement;
+    const timeProgress = document.getElementById('timeProgress') as HTMLProgressElement;
+    if (analysisProgress) analysisProgress.value = 50;
+    if (timeProgress) timeProgress.value = 0;
+    
     // Set up position
     workerRef.current.postMessage('ucinewgame');
     workerRef.current.postMessage(`position fen ${gameState.fen}`);
@@ -160,6 +201,18 @@ export const useStockfish = () => {
     // Start analysis
     const thinkTime = engineOptions.thinkTime * 1000; // Convert to milliseconds
     workerRef.current.postMessage(`go movetime ${thinkTime}`);
+    
+    // Animate time progress
+    let timeElapsed = 0;
+    const timeInterval = setInterval(() => {
+      timeElapsed += 100;
+      const progress = Math.min(100, (timeElapsed / (thinkTime)) * 100);
+      if (timeProgress) timeProgress.value = progress;
+      
+      if (timeElapsed >= thinkTime) {
+        clearInterval(timeInterval);
+      }
+    }, 100);
   }, [gameState.fen, engineOptions.thinkTime, clearAnalysisResults, setEngineThinking]);
 
   // Stop analysis

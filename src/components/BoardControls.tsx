@@ -15,6 +15,7 @@ export const BoardControls: React.FC = () => {
 
   const canNavigateBack = currentHistoryIndex > 0;
   const canNavigateForward = currentHistoryIndex < moveHistory.length - 1;
+  const hasGameLoaded = moveHistory.length > 1; // Hide position navigation when game is loaded
 
   return (
     <div className="board-controls">
@@ -47,29 +48,32 @@ export const BoardControls: React.FC = () => {
         </div>
       </div>
 
-      <div className="control-group">
-        <label>Position Navigation:</label>
-        <div className="navigation-controls">
-          <button 
-            className="btn btn-secondary"
-            onClick={navigateToPrevious}
-            disabled={!canNavigateBack}
-            title="Previous position"
-          >
-            <SkipBack size={16} />
-            Previous
-          </button>
-          <button 
-            className="btn btn-secondary"
-            onClick={navigateToNext}
-            disabled={!canNavigateForward}
-            title="Next position"
-          >
-            <SkipForward size={16} />
-            Next
-          </button>
+      {!hasGameLoaded && (
+        <div className="control-group">
+          <label>Position Navigation:</label>
+          <div className="navigation-controls">
+            <button 
+              className="btn btn-secondary"
+              onClick={navigateToPrevious}
+              disabled={!canNavigateBack}
+              title="Previous position"
+            >
+              <SkipBack size={16} />
+              Previous
+            </button>
+            <button 
+              className="btn btn-secondary"
+              onClick={navigateToNext}
+              disabled={!canNavigateForward}
+              title="Next position"
+            >
+              <SkipForward size={16} />
+              Next
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
     </div>
   );
 };

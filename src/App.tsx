@@ -1,11 +1,12 @@
 import ChessBoard from './components/ChessBoard';
 import BoardControls from './components/BoardControls';
+import GameControls from './components/GameControls';
+import { GameInformation } from './components/GameInformation';
+import GameNavigation from './components/GameNavigation';
 import AnalysisResults from './components/AnalysisResults';
-import { useChessStore } from './store/chessStore';
 import './App.css'
 
 function App() {
-  const { gameState } = useChessStore();
 
   return (
     <div className="app">
@@ -19,34 +20,15 @@ function App() {
           <div className="board-section">
             <ChessBoard width={500} />
           </div>
-          
-          <div className="fen-display">
-            <label>Current FEN:</label>
-            <input 
-              type="text" 
-              value={gameState.fen} 
-              readOnly 
-              className="fen-input"
-            />
-          </div>
+          <GameNavigation />
+          <GameInformation />
         </div>
 
         <div className="controls-column">
           <BoardControls />
           
-          <div className="engine-controls">
-            <div className="control-group">
-              <label>Turn:</label>
-              <div className="turn-indicator">
-                <span className={`turn-badge ${gameState.turn === 'w' ? 'active' : ''}`}>
-                  ♔ White {gameState.turn === 'w' ? '(to move)' : ''}
-                </span>
-                <span className={`turn-badge ${gameState.turn === 'b' ? 'active' : ''}`}>
-                  ♚ Black {gameState.turn === 'b' ? '(to move)' : ''}
-                </span>
-              </div>
-            </div>
-          </div>
+          <GameControls />
+          
         </div>
 
         <div className="results-column">

@@ -45,5 +45,15 @@ export interface PGNGame {
   result: string;
 }
 
+export interface GameInformation {
+  white?: string;
+  black?: string;
+  event?: string;
+  site?: string;
+  date?: string;
+  round?: string;
+  result?: string;
+}
+
 export type BoardTheme = 'brown' | 'blue' | 'green' | 'purple' | 'wood';
 export type PieceSet = 'cburnett' | 'merida' | 'alpha' | 'leipzig' | 'pirouetti';

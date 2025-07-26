@@ -1,7 +1,6 @@
 import React from 'react';
 import { Play, Settings } from 'lucide-react';
 import { useChessStore } from '../store/chessStore';
-import { useStockfish } from '../hooks/useStockfish';
 
 export const AnalysisResults: React.FC = () => {
   const {
@@ -12,20 +11,18 @@ export const AnalysisResults: React.FC = () => {
     makeMove,
   } = useChessStore();
 
-  const { analyzePosition, isReady } = useStockfish();
-
   const handleMakeMove = (moveStr: string) => {
     if (moveStr && moveStr.length >= 4) {
-      const from = moveStr.slice(0, 2);
-      const to = moveStr.slice(2, 4);
-      const promotion = moveStr.length > 4 ? moveStr.slice(4) : undefined;
+      // Remove piece notation if present (e.g., "Qe6e7" -> "e6e7")
+      let cleanMove = moveStr;
+      if (moveStr.length > 4 && /^[a-zA-Z]/.test(moveStr)) {
+        cleanMove = moveStr.slice(1); // Remove piece letter
+      }
+      
+      const from = cleanMove.slice(0, 2);
+      const to = cleanMove.slice(2, 4);
+      const promotion = cleanMove.length > 4 ? cleanMove.slice(4) : undefined;
       makeMove(from, to, promotion);
-    }
-  };
-
-  const handleAnalyze = () => {
-    if (isReady && !engineThinking) {
-      analyzePosition();
     }
   };
 
@@ -49,19 +46,21 @@ export const AnalysisResults: React.FC = () => {
         </div>
       </div>
 
-      <button 
-        className={`btn btn-primary analyze-btn ${engineThinking ? 'thinking' : ''}`}
-        onClick={handleAnalyze}
-        disabled={!isReady || engineThinking}
-      >
-        {engineThinking ? 'Analyzing...' : 'Calculate Best Move'}
-      </button>
-
       <div className="results-list">
         {analysisResults.slice(0, 3).map((result, index) => (
           <div key={index} className="result-item">
             <div className="result-header">
-              <label>Best Move #{result.moveNumber}:</label>
+              <div className="best-move-label">
+                <label>Best Move #{result.moveNumber}:</label>
+                <button 
+                  className="make-move-icon-btn-small"
+                  onClick={() => handleMakeMove(result.bestMove)}
+                  disabled={!result.bestMove}
+                  title="Make Move"
+                >
+                  <Play size={12} />
+                </button>
+              </div>
               <div className="result-values">
                 <input 
                   type="text" 
@@ -76,17 +75,6 @@ export const AnalysisResults: React.FC = () => {
                   className="eval-input"
                 />
               </div>
-            </div>
-            
-            <div className="move-details">
-              <button 
-                className="make-move-btn"
-                onClick={() => handleMakeMove(result.bestMove)}
-                disabled={!result.bestMove}
-              >
-                <Play size={14} />
-                Make Move
-              </button>
             </div>
 
             <div className="principal-variation">

@@ -1,0 +1,144 @@
+import React, { useState, useEffect } from 'react';
+import { FileText, Brain, Clock } from 'lucide-react';
+import { useChessStore } from '../store/chessStore';
+import { PgnModal } from './PgnModal';
+import { useStockfish } from '../hooks/useStockfish';
+
+export const GameControls: React.FC = () => {
+  const { 
+    setPosition, 
+    gameState, 
+    engineOptions,
+    setEngineOptions,
+    engineThinking
+  } = useChessStore();
+  const [fenInput, setFenInput] = useState(gameState.fen);
+  const [isPgnModalOpen, setIsPgnModalOpen] = useState(false);
+  
+  const { analyzePosition, isReady } = useStockfish();
+  
+  const handleAnalyze = () => {
+    if (isReady && !engineThinking) {
+      analyzePosition();
+    }
+  };
+  
+  // Update FEN input when game state changes
+  useEffect(() => {
+    setFenInput(gameState.fen);
+  }, [gameState.fen]);
+
+  const handleSetFen = () => {
+    if (fenInput.trim()) {
+      setPosition(fenInput.trim());
+      setFenInput('');
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSetFen();
+    }
+  };
+
+
+  return (
+    <div className="game-controls">
+      <div className="control-group">
+        <div className="fen-label-container">
+          <label>FEN Position:</label>
+          <div className="fen-header-buttons">
+            <button 
+              onClick={() => setIsPgnModalOpen(true)}
+              className="btn btn-secondary btn-small"
+              title="Load a chess game from PGN notation"
+            >
+              <FileText size={14} />
+              Load PGN
+            </button>
+          </div>
+        </div>
+        <div className="fen-input-container">
+          <input
+            type="text"
+            value={fenInput}
+            onChange={(e) => setFenInput(e.target.value)}
+            onKeyPress={handleKeyPress}
+            placeholder="Enter FEN position..."
+            className="fen-input-field"
+          />
+          <button 
+            onClick={handleSetFen}
+            className="btn btn-secondary"
+            disabled={!fenInput.trim()}
+          >
+            Set Position
+          </button>
+        </div>
+      </div>
+
+      <div className="control-group">
+        <div className="turn-indicator">
+          <div className={`turn-badge ${gameState.turn === 'w' ? 'active' : ''}`}>
+            ♔
+          </div>
+          <div className={`turn-badge ${gameState.turn === 'b' ? 'active' : ''}`}>
+            ♚
+          </div>
+        </div>
+      </div>
+
+      <div className="control-group">
+        <div className="engine-analysis-section">
+          <div className="engine-controls-row">
+            <div className="think-time-container">
+              <Clock size={16} />
+              <label htmlFor="thinkTime">Think Time:</label>
+              <select 
+                id="thinkTime"
+                value={engineOptions.thinkTime}
+                onChange={(e) => setEngineOptions({ thinkTime: parseInt(e.target.value) })}
+                className="think-time-select"
+              >
+                <option value={1}>1s</option>
+                <option value={2}>2s</option>
+                <option value={3}>3s</option>
+                <option value={5}>5s</option>
+                <option value={10}>10s</option>
+                <option value={15}>15s</option>
+              </select>
+            </div>
+            <button
+              className={`btn-calculate-best-move ${engineThinking ? 'thinking' : ''}`}
+              onClick={handleAnalyze}
+              disabled={!isReady || engineThinking}
+              title="Analyze current position with Stockfish engine"
+            >
+              <Brain size={16} />
+              {engineThinking ? 'Analyzing...' : 'Calculate Best Move'}
+            </button>
+          </div>
+          
+          {/* Compact Progress bars */}
+          <div className="progress-bars-section-compact">
+            <div className="progress-item-compact">
+              <div className="progress-label-compact">Analysis Progress</div>
+              <progress id="analysisProgress" value="0" max="100" className="progress-compact"></progress>
+            </div>
+            <div className="progress-item-compact">
+              <div className="progress-label-compact">Time Progress</div>
+              <progress id="timeProgress" value="0" max="100" className="progress-compact"></progress>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <PgnModal 
+        isOpen={isPgnModalOpen} 
+        onClose={() => setIsPgnModalOpen(false)} 
+      />
+    </div>
+  );
+};
+
+export default GameControls;
