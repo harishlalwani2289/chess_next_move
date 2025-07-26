@@ -26,7 +26,7 @@ export const AnalysisResults: React.FC = () => {
   const [tooltips, setTooltips] = useState<Record<number, TooltipState>>({});
   const tooltipRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const iconRefs = useRef<Record<number, HTMLButtonElement | null>>({});
-  const hoverTimeouts = useRef<Record<number, NodeJS.Timeout>>({});
+  const hoverTimeouts = useRef<Record<number, ReturnType<typeof setTimeout>>>({});
   const explanationCache = useRef<Map<string, string>>(new Map());
 
   const handleMakeMove = (moveStr: string) => {
@@ -184,7 +184,7 @@ export const AnalysisResults: React.FC = () => {
         }
       }));
     })
-    .catch((error) => {
+    .catch(() => {
       setTooltips(prev => ({
         ...prev,
         [index]: {
@@ -273,7 +273,7 @@ export const AnalysisResults: React.FC = () => {
                 <label>
                   Best Move #{result.moveNumber}:
                   <button
-                    ref={el => iconRefs.current[index] = el}
+                    ref={el => { iconRefs.current[index] = el; }}
                     className="ai-info-icon"
                     style={{ display: aiExplanationsEnabled ? 'inline' : 'none' }}
                     title="Hover for AI explanation"
@@ -321,7 +321,7 @@ export const AnalysisResults: React.FC = () => {
             {/* AI Tooltip */}
             {tooltips[index]?.visible && (
               <div 
-                ref={el => tooltipRefs.current[index] = el}
+                ref={el => { tooltipRefs.current[index] = el; }}
                 className="ai-tooltip visible"
                 style={{
                   position: 'fixed',
