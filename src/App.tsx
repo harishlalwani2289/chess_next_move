@@ -5,12 +5,15 @@ import { GameInformation } from './components/GameInformation';
 import GameNavigation from './components/GameNavigation';
 import AnalysisResults from './components/AnalysisResults';
 import BoardsManager from './components/BoardsManager';
+import MobileNavigation from './components/MobileNavigation';
+import MobileCalculateButton from './components/MobileCalculateButton';
 import './App.css'
 
 function App() {
 
   return (
     <div className="app">
+      <MobileNavigation />
       <header className="app-header">
         <h1>Chess Position Analyzer</h1>
         <p>Analyze chess positions with Stockfish engine and get the best moves with AI explanations</p>
@@ -25,6 +28,7 @@ function App() {
           <div className="board-section">
             <ChessBoard width={500} />
           </div>
+          <MobileCalculateButton />
           <GameNavigation />
           <GameInformation />
         </div>

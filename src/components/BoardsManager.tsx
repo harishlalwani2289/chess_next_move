@@ -84,6 +84,11 @@ export const BoardsManager: React.FC = () => {
     }
   };
 
+  const handleBoardNameClick = (e: React.MouseEvent, boardId: string, boardName: string) => {
+    e.stopPropagation(); // Prevent switching to board when editing
+    startEditing(boardId, boardName);
+  };
+
   return (
     <div className="boards-manager">
       <div className="boards-header">
@@ -119,7 +124,13 @@ export const BoardsManager: React.FC = () => {
                   className="board-name-input"
                 />
               ) : (
-                <span className="board-name">{board.name}</span>
+                <span 
+                  className="board-name clickable"
+                  onClick={(e) => handleBoardNameClick(e, board.id, board.name)}
+                  title="Click to edit board name"
+                >
+                  {board.name}
+                </span>
               )}
             </div>
             

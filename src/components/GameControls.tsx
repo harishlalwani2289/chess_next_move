@@ -43,6 +43,11 @@ export const GameControls: React.FC = () => {
     }
   };
 
+  const handleFenInputFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // Select all text when the input is focused
+    e.target.select();
+  };
+
 
   return (
     <div className="game-controls">
@@ -66,8 +71,9 @@ export const GameControls: React.FC = () => {
             value={fenInput}
             onChange={(e) => setFenInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Enter FEN position..."
-            className="fen-input-field"
+          onFocus={handleFenInputFocus}
+          placeholder="Enter FEN position..."
+          className="fen-input-field"
           />
           <button 
             onClick={handleSetFen}
