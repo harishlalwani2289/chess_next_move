@@ -103,7 +103,10 @@ export const BoardsManager: React.FC = () => {
       </div>
       
       <div className="boards-list" ref={boardsListRef}>
-        {boards.map((board) => (
+        {boards
+          .slice()
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map((board) => (
           <div
             key={board.id}
             className={`board-item ${board.id === currentBoardId ? 'active' : ''}`}
