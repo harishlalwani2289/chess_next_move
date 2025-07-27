@@ -12,7 +12,7 @@ export const GameControls: React.FC = () => {
     setEngineOptions,
     engineThinking
   } = useChessStore();
-  const [fenInput, setFenInput] = useState(gameState.fen);
+  const [fenInput, setFenInput] = useState(gameState?.fen || '');
   const [isPgnModalOpen, setIsPgnModalOpen] = useState(false);
   
   const { analyzePosition, isReady } = useStockfish();
@@ -25,8 +25,10 @@ export const GameControls: React.FC = () => {
   
   // Update FEN input when game state changes
   useEffect(() => {
-    setFenInput(gameState.fen);
-  }, [gameState.fen]);
+    if (gameState?.fen) {
+      setFenInput(gameState.fen);
+    }
+  }, [gameState?.fen]);
 
   const handleSetFen = () => {
     if (fenInput.trim()) {
@@ -79,10 +81,10 @@ export const GameControls: React.FC = () => {
 
       <div className="control-group">
         <div className="turn-indicator">
-          <div className={`turn-badge ${gameState.turn === 'w' ? 'active' : ''}`}>
+          <div className={`turn-badge ${gameState?.turn === 'w' ? 'active' : ''}`}>
             ♔
           </div>
-          <div className={`turn-badge ${gameState.turn === 'b' ? 'active' : ''}`}>
+          <div className={`turn-badge ${gameState?.turn === 'b' ? 'active' : ''}`}>
             ♚
           </div>
         </div>

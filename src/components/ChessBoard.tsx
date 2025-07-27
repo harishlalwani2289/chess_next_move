@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useChessStore } from '../store/chessStore';
 import { Chessground } from 'chessground';
+import { Chess } from 'chess.js';
 
 
 type Key = string;
@@ -27,26 +28,94 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
     gameState,
     boardOrientation,
     makeMove,
-    game,
-    analysisResults,
+    getCurrentBoard,
     engineOptions,
   } = useChessStore();
+
+  const currentBoard = getCurrentBoard();
+  const game = currentBoard?.game;
+  const analysisResults = currentBoard?.analysisResults || [];
+  
+  // Debug logging
+  console.log('ChessBoard render:', {
+    currentBoardId: currentBoard?.id,
+    gameStateFen: gameState?.fen,
+    currentBoardFen: currentBoard?.gameState?.fen,
+    hasGame: !!game,
+    turn: gameState?.turn
+  });
 
   // Helper function to create custom SVG circles for better visibility
   const createCustomSvgCircle = (color: string, opacity: number = 0.3) => {
     return `<circle cx="50" cy="50" r="45" fill="${color}" opacity="${opacity}" stroke="${color}" stroke-width="2"/>`;
   };
+  
+  // Function to update board movability
+  const updateBoardMovability = () => {
+    if (!chessgroundRef.current || !currentBoard?.gameState) return;
+    
+    const tempGame = new Chess();
+    try {
+      tempGame.load(currentBoard.gameState.fen);
+    } catch (e) {
+      console.error('Invalid FEN in updateBoardMovability:', currentBoard.gameState.fen, e);
+      return;
+    }
+    
+    // Calculate legal moves for both white and black pieces
+    const dests = new Map<Key, Key[]>();
+    const originalFen = tempGame.fen();
+    
+    // Get legal moves for both colors by temporarily switching turns
+    const colors = ['w', 'b'];
+    colors.forEach(color => {
+      try {
+        // Create a temporary FEN with the specified turn
+        const fenParts = originalFen.split(' ');
+        fenParts[1] = color; // Set the turn
+        const tempFen = fenParts.join(' ');
+        
+        // Load the temporary position
+        tempGame.load(tempFen);
+        
+        // Get all legal moves for this color
+        const moves = tempGame.moves({ verbose: true });
+        moves.forEach((move: any) => {
+          const from = move.from as Key;
+          const to = move.to as Key;
+          if (!dests.has(from)) {
+            dests.set(from, []);
+          }
+          if (!dests.get(from)!.includes(to)) {
+            dests.get(from)!.push(to);
+          }
+        });
+      } catch (e) {
+        console.error(`Error calculating moves for ${color}:`, e);
+      }
+    });
+    
+    console.log('Setting legal destinations:', dests.size, 'squares with moves');
+    
+    chessgroundRef.current.set({
+      movable: {
+        free: false,
+        color: 'both',
+        dests, // Legal destinations for both colors
+      },
+    });
+  };
 
-  // Initialize Chessground
+  // Initialize/Update Chessground when board or game state changes
   useEffect(() => {
-    if (!boardRef.current) return;
+    if (!boardRef.current || !currentBoard?.gameState) return;
 
-    console.log('Initializing Chessground board with npm package...');
+    console.log('Initializing Chessground board for board:', currentBoard.id, 'FEN:', currentBoard.gameState.fen);
 
     const config = {
-      fen: gameState.fen,
+      fen: currentBoard.gameState.fen,
       orientation: boardOrientation as 'white' | 'black',
-      turnColor: gameState.turn === 'w' ? 'white' as const : 'black' as const,
+      turnColor: currentBoard.gameState.turn === 'w' ? 'white' as const : 'black' as const,
       movable: {
         free: false,
         color: 'both' as const,
@@ -58,10 +127,13 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
           const success = makeMove(orig, dest);
           if (!success) {
             // Reset board if move was invalid
-            chessgroundRef.current?.set({
-              fen: gameState.fen,
-              turnColor: gameState.turn === 'w' ? 'white' : 'black',
-            });
+            const currentGameState = getCurrentBoard()?.gameState;
+            if (currentGameState) {
+              chessgroundRef.current?.set({
+                fen: currentGameState.fen,
+                turnColor: currentGameState.turn === 'w' ? 'white' : 'black',
+              });
+            }
           }
         },
       },
@@ -85,9 +157,18 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
       },
     };
 
+    // Destroy existing instance if it exists
+    if (chessgroundRef.current) {
+      chessgroundRef.current.destroy?.();
+      chessgroundRef.current = null;
+    }
+    
     try {
       chessgroundRef.current = Chessground(boardRef.current, config);
-      console.log('Chessground board created successfully');
+      console.log('Chessground board created successfully for board:', currentBoard.id);
+      
+      // Calculate and set legal moves immediately after creation
+      updateBoardMovability();
       
     } catch (error) {
       console.error('Failed to initialize Chessground:', error);
@@ -96,16 +177,29 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
     return () => {
       if (chessgroundRef.current) {
         chessgroundRef.current.destroy?.();
+        chessgroundRef.current = null;
       }
     };
-  }, []);
+  }, [currentBoard?.id, currentBoard?.gameState?.fen, boardOrientation]); // Re-initialize when switching boards or position changes
 
   // Update board when game state changes
   useEffect(() => {
-    if (chessgroundRef.current) {
+    if (chessgroundRef.current && gameState && game) {
+      console.log('Updating board state, FEN:', gameState.fen, 'Turn:', gameState.turn);
+      
+      // Create a fresh Chess instance for legal move calculation to avoid state conflicts
+      const tempGame = new Chess();
+      
+      try {
+        tempGame.load(gameState.fen);
+      } catch (e) {
+        console.error('Invalid FEN in game state:', gameState.fen, e);
+        return;
+      }
+      
       // Calculate legal moves for both white and black pieces
       const dests = new Map<Key, Key[]>();
-      const originalFen = game.fen();
+      const originalFen = tempGame.fen();
       
       // Get legal moves for both colors by temporarily switching turns
       const colors = ['w', 'b'];
@@ -117,10 +211,10 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
           const tempFen = fenParts.join(' ');
           
           // Load the temporary position
-          game.load(tempFen);
+          tempGame.load(tempFen);
           
           // Get all legal moves for this color
-          const moves = game.moves({ verbose: true });
+          const moves = tempGame.moves({ verbose: true });
           moves.forEach((move: any) => {
             const from = move.from as Key;
             const to = move.to as Key;
@@ -136,12 +230,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
         }
       });
       
-      // Restore the original position
-      try {
-        game.load(originalFen);
-      } catch (e) {
-        console.error('Error restoring original position:', e);
-      }
+      console.log('Legal destinations calculated:', dests.size, 'squares with moves');
       
       chessgroundRef.current.set({
         fen: gameState.fen,
@@ -165,7 +254,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
       // Also apply CSS-based highlighting as fallback
       applyCSSHighlighting();
     }
-  }, [gameState.fen, gameState.turn, game, engineOptions.mode]);
+  }, [gameState?.fen, gameState?.turn, currentBoard?.id, engineOptions.mode]);
 
   // Apply CSS-based highlighting as fallback
   const applyCSSHighlighting = () => {

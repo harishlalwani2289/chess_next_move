@@ -59,7 +59,7 @@ export const useStockfish = () => {
       const mateIn = parseInt(mateMatch[1]);
       let displayMate = mateIn;
       
-      if (gameState.turn === 'b') {
+      if (gameState?.turn === 'b') {
         displayMate = -mateIn;
       }
       
@@ -73,7 +73,7 @@ export const useStockfish = () => {
     } else if (cpMatch) {
       let evalScore = parseInt(cpMatch[1]);
       
-      if (gameState.turn === 'b') {
+      if (gameState?.turn === 'b') {
         evalScore = -evalScore;
       }
       
@@ -90,7 +90,7 @@ export const useStockfish = () => {
       const toSquare = move.slice(2, 4);
       
       // Get the piece at the source square from chess.js
-      const piece = game.get(fromSquare as any);
+      const piece = game?.get(fromSquare as any);
       
       if (piece) {
         const pieceSymbol = piece.type === 'p' ? 'p' : piece.type.toUpperCase();
@@ -189,7 +189,7 @@ export const useStockfish = () => {
       const timeProgress = document.getElementById('timeProgress') as HTMLProgressElement;
       if (timeProgress) timeProgress.value = 100;
     }
-  }, [gameState.turn, setAnalysisResults, setEngineThinking, updateProgressBars]);
+  }, [gameState?.turn, setAnalysisResults, setEngineThinking, updateProgressBars]);
   
   // Start analysis
   const analyzePosition = useCallback(() => {
@@ -198,6 +198,11 @@ export const useStockfish = () => {
       return;
     }
 
+    if (!gameState?.fen) {
+      console.error('No position available for analysis');
+      return;
+    }
+    
     console.log('Starting analysis for position:', gameState.fen);
     
     clearAnalysisResults();
@@ -231,7 +236,7 @@ export const useStockfish = () => {
         clearInterval(timeInterval);
       }
     }, 100);
-  }, [gameState.fen, engineOptions.thinkTime, clearAnalysisResults, setEngineThinking]);
+  }, [gameState?.fen, engineOptions.thinkTime, clearAnalysisResults, setEngineThinking]);
 
   // Stop analysis
   const stopAnalysis = useCallback(() => {

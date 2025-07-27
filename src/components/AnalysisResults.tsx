@@ -168,6 +168,8 @@ export const AnalysisResults: React.FC = () => {
     }));
 
     // Fetch explanation
+    if (!gameState?.fen) return;
+    
     aiService.getExplanation({
       position: gameState.fen,
       bestMove: result.bestMove,

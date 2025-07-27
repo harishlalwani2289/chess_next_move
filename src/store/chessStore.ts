@@ -3,33 +3,56 @@ import { Chess } from 'chess.js';
 import type { GameState, HistoryState, AnalysisResult, EngineOptions, BoardTheme, PieceSet, GameInformation } from '../types/chess';
 import type { AISettings } from '../services/aiService';
 
-interface ChessStore {
-  // Game state
+interface BoardData {
+  id: string;
+  name: string;
   game: Chess;
   gameState: GameState;
   moveHistory: HistoryState[];
   currentHistoryIndex: number;
-  
-  // Analysis state
   analysisResults: AnalysisResult[];
   isAnalyzing: boolean;
-  engineThinking: boolean;
+  gameInformation: GameInformation | null;
+  boardOrientation: 'white' | 'black';
+}
+
+interface ChessStore {
+  // Multiple boards state
+  boards: BoardData[];
+  currentBoardId: string;
   
-  // UI state
+  // Global UI state
   boardTheme: BoardTheme;
   pieceSet: PieceSet;
-  boardOrientation: 'white' | 'black';
   showCoordinates: boolean;
   
   // Engine settings
   engineOptions: EngineOptions;
   aiSettings: AISettings;
   aiExplanationsEnabled: boolean;
+  engineThinking: boolean;
   
-  // Game information
+  // Board management actions
+  addBoard: (name?: string) => string;
+  removeBoard: (boardId: string) => void;
+  switchToBoard: (boardId: string) => void;
+  renameBoardNormal: (boardId: string, name: string) => void;
+  
+  // Current board getters (computed properties)
+  getCurrentBoard: () => BoardData | null;
+  game: Chess | null;
+  gameState: GameState | null;
+  moveHistory: HistoryState[];
+  currentHistoryIndex: number;
+  analysisResults: AnalysisResult[];
+  isAnalyzing: boolean;
   gameInformation: GameInformation | null;
+  boardOrientation: 'white' | 'black';
   
-  // Actions
+  // Helper method for updating current board
+  updateCurrentBoard: (updates: Partial<BoardData>) => void;
+  
+  // Actions (all operate on current board)
   setGameState: (state: Partial<GameState>) => void;
   makeMove: (from: string, to: string, promotion?: string) => boolean;
   setPosition: (fen: string) => void;
@@ -57,7 +80,7 @@ interface ChessStore {
   
   // Game information actions
   setGameInformation: (info: GameInformation | null) => void;
-  
+
   // PGN loading with full history
   loadPgnWithHistory: (pgnText: string) => boolean;
 }
@@ -90,24 +113,83 @@ const getStorageKey = () => {
   return 'chess-analyzer-state';
 };
 
+// Create initial board data
+const createInitialBoard = (id: string, name: string): BoardData => {
+  const game = new Chess();
+  return {
+    id,
+    name,
+    game,
+    gameState: { ...initialGameState },
+    moveHistory: [{ ...initialGameState, position: initialGameState.fen }],
+    currentHistoryIndex: 0,
+    analysisResults: [],
+    isAnalyzing: false,
+    gameInformation: null,
+    boardOrientation: 'white'
+  };
+};
+
 // Load persisted state from localStorage
 const loadPersistedState = (): Partial<ChessStore> => {
   try {
     const stored = localStorage.getItem(getStorageKey());
     if (stored) {
       const parsed = JSON.parse(stored);
-      // Only restore specific state that should persist
-      return {
-        gameState: parsed.gameState || initialGameState,
-        moveHistory: parsed.moveHistory || [{ ...initialGameState, position: initialGameState.fen }],
-        currentHistoryIndex: parsed.currentHistoryIndex || 0,
-        boardOrientation: parsed.boardOrientation || 'white',
-        engineOptions: parsed.engineOptions || initialEngineOptions,
-        boardTheme: parsed.boardTheme || 'brown',
-        pieceSet: parsed.pieceSet || 'cburnett',
-        showCoordinates: parsed.showCoordinates !== undefined ? parsed.showCoordinates : true,
-        aiExplanationsEnabled: parsed.aiExplanationsEnabled || false,
-      };
+      
+      // Handle legacy single-board format
+      if (parsed.gameState && !parsed.boards) {
+        const legacyBoard = createInitialBoard('board-1', 'Main Board');
+        legacyBoard.gameState = parsed.gameState || initialGameState;
+        legacyBoard.moveHistory = parsed.moveHistory || [{ ...initialGameState, position: initialGameState.fen }];
+        legacyBoard.currentHistoryIndex = parsed.currentHistoryIndex || 0;
+        legacyBoard.boardOrientation = parsed.boardOrientation || 'white';
+        
+        // Load the game state
+        try {
+          legacyBoard.game.load(legacyBoard.gameState.fen);
+        } catch (error) {
+          console.warn('Invalid persisted FEN in legacy format:', error);
+        }
+        
+        return {
+          boards: [legacyBoard],
+          currentBoardId: 'board-1',
+          engineOptions: parsed.engineOptions || initialEngineOptions,
+          boardTheme: parsed.boardTheme || 'brown',
+          pieceSet: parsed.pieceSet || 'cburnett',
+          showCoordinates: parsed.showCoordinates !== undefined ? parsed.showCoordinates : true,
+          aiExplanationsEnabled: parsed.aiExplanationsEnabled || false,
+        };
+      }
+      
+      // Handle new multi-board format
+      if (parsed.boards) {
+        // Recreate Chess instances from persisted data
+        const restoredBoards = parsed.boards.map((boardData: any) => {
+          const game = new Chess();
+          try {
+            game.load(boardData.gameState.fen);
+          } catch (error) {
+            console.warn('Invalid persisted FEN for board:', boardData.id, error);
+          }
+          
+          return {
+            ...boardData,
+            game
+          };
+        });
+        
+        return {
+          boards: restoredBoards,
+          currentBoardId: parsed.currentBoardId || (restoredBoards[0]?.id || 'board-1'),
+          engineOptions: parsed.engineOptions || initialEngineOptions,
+          boardTheme: parsed.boardTheme || 'brown',
+          pieceSet: parsed.pieceSet || 'cburnett',
+          showCoordinates: parsed.showCoordinates !== undefined ? parsed.showCoordinates : true,
+          aiExplanationsEnabled: parsed.aiExplanationsEnabled || false,
+        };
+      }
     }
   } catch (error) {
     console.warn('Failed to load persisted chess state:', error);
@@ -118,11 +200,22 @@ const loadPersistedState = (): Partial<ChessStore> => {
 // Save state to localStorage
 const saveToStorage = (state: ChessStore) => {
   try {
+    // Prepare boards for serialization (without Chess instances)
+    const boardsForStorage = state.boards.map(board => ({
+      id: board.id,
+      name: board.name,
+      gameState: board.gameState,
+      moveHistory: board.moveHistory,
+      currentHistoryIndex: board.currentHistoryIndex,
+      analysisResults: [], // Don't persist analysis results
+      isAnalyzing: false,
+      gameInformation: board.gameInformation,
+      boardOrientation: board.boardOrientation
+    }));
+    
     const stateToSave = {
-      gameState: state.gameState,
-      moveHistory: state.moveHistory,
-      currentHistoryIndex: state.currentHistoryIndex,
-      boardOrientation: state.boardOrientation,
+      boards: boardsForStorage,
+      currentBoardId: state.currentBoardId,
       engineOptions: state.engineOptions,
       boardTheme: state.boardTheme,
       pieceSet: state.pieceSet,
@@ -135,190 +228,291 @@ const saveToStorage = (state: ChessStore) => {
   }
 };
 
+// Helper function to sync current board properties
+const syncCurrentBoardProperties = (state: any) => {
+  const currentBoard = state.boards.find((board: BoardData) => board.id === state.currentBoardId);
+  if (currentBoard) {
+    state.game = currentBoard.game;
+    state.gameState = currentBoard.gameState;
+    state.moveHistory = currentBoard.moveHistory;
+    state.currentHistoryIndex = currentBoard.currentHistoryIndex;
+    state.analysisResults = currentBoard.analysisResults;
+    state.isAnalyzing = currentBoard.isAnalyzing;
+    state.gameInformation = currentBoard.gameInformation;
+    state.boardOrientation = currentBoard.boardOrientation;
+  }
+};
+
 export const useChessStore = create<ChessStore>((set, get) => {
   // Load persisted state
   const persistedState = loadPersistedState();
   
-  // Create and initialize the chess game with persisted position
-  const initialGame = new Chess();
-  if (persistedState.gameState?.fen) {
-    try {
-      initialGame.load(persistedState.gameState.fen);
-    } catch (error) {
-      console.warn('Invalid persisted FEN, using default position:', error);
-    }
-  }
+  // Initialize boards - use persisted boards or create default board
+  const initialBoards = persistedState.boards && persistedState.boards.length > 0 
+    ? persistedState.boards 
+    : [createInitialBoard('board-1', 'Main Board')];
+  
+  const initialCurrentBoardId = persistedState.currentBoardId || initialBoards[0].id;
+  
+  // Find initial current board
+  const initialCurrentBoard = initialBoards.find(board => board.id === initialCurrentBoardId) || initialBoards[0];
 
   return {
-    // Initial state with persistence
-    game: initialGame,
-    gameState: persistedState.gameState || initialGameState,
-    moveHistory: persistedState.moveHistory || [{ ...initialGameState, position: initialGameState.fen }],
-    currentHistoryIndex: persistedState.currentHistoryIndex || 0,
+    // Multiple boards state
+    boards: initialBoards,
+    currentBoardId: initialCurrentBoardId,
     
-    analysisResults: [],
-    isAnalyzing: false,
-    engineThinking: false,
-    
+    // Global UI state
     boardTheme: persistedState.boardTheme || 'brown',
     pieceSet: persistedState.pieceSet || 'cburnett',
-    boardOrientation: persistedState.boardOrientation || 'white',
     showCoordinates: persistedState.showCoordinates !== undefined ? persistedState.showCoordinates : true,
     
+    // Engine settings
     engineOptions: persistedState.engineOptions || initialEngineOptions,
     aiSettings: initialAISettings,
     aiExplanationsEnabled: persistedState.aiExplanationsEnabled || false,
+    engineThinking: false,
     
-    gameInformation: null,
-  
-    // Game actions
-    setGameState: (newState) => set((state) => {
-      const updatedState = {
-        gameState: { ...state.gameState, ...newState }
-      };
-      saveToStorage({ ...state, ...updatedState });
-      return updatedState;
-    }),
+    // Board management actions
+    addBoard: (name) => {
+      const boardName = name || `Board ${get().boards.length + 1}`;
+      const newBoardId = `board-${Date.now()}`;
+      const newBoard = createInitialBoard(newBoardId, boardName);
+      
+      set((state) => {
+        const updatedState = {
+          boards: [...state.boards, newBoard]
+        };
+        saveToStorage({ ...state, ...updatedState });
+        return updatedState;
+      });
+      
+      return newBoardId;
+    },
+    
+    removeBoard: (boardId) => {
+      const { boards, currentBoardId } = get();
+      
+      if (boards.length <= 1) {
+        console.warn('Cannot remove the last board');
+        return;
+      }
+      
+      const newBoards = boards.filter(board => board.id !== boardId);
+      let newCurrentBoardId = currentBoardId;
+      
+      // If we're removing the current board, switch to the first remaining board
+      if (currentBoardId === boardId) {
+        newCurrentBoardId = newBoards[0].id;
+      }
+      
+      set((state) => {
+        const updatedState = {
+          boards: newBoards,
+          currentBoardId: newCurrentBoardId
+        };
+        saveToStorage({ ...state, ...updatedState });
+        return updatedState;
+      });
+    },
+    
+    switchToBoard: (boardId) => {
+      const { boards } = get();
+      const boardExists = boards.some(board => board.id === boardId);
+      
+      if (!boardExists) {
+        console.warn('Board not found:', boardId);
+        return;
+      }
+      
+      set((state) => {
+        const updatedState = { ...state, currentBoardId: boardId };
+        // Sync current board properties when switching
+        syncCurrentBoardProperties(updatedState);
+        saveToStorage(updatedState);
+        return updatedState;
+      });
+    },
+    
+    renameBoardNormal: (boardId, name) => {
+      set((state) => {
+        const updatedState = {
+          boards: state.boards.map(board => 
+            board.id === boardId ? { ...board, name } : board
+          )
+        };
+        saveToStorage({ ...state, ...updatedState });
+        return updatedState;
+      });
+    },
+    
+    // Current board getters
+    getCurrentBoard: () => {
+      const { boards, currentBoardId } = get();
+      return boards.find(board => board.id === currentBoardId) || null;
+    },
+    
+    // Computed properties for current board - initialized from current board
+    game: initialCurrentBoard.game,
+    gameState: initialCurrentBoard.gameState,
+    moveHistory: initialCurrentBoard.moveHistory,
+    currentHistoryIndex: initialCurrentBoard.currentHistoryIndex,
+    analysisResults: initialCurrentBoard.analysisResults,
+    isAnalyzing: initialCurrentBoard.isAnalyzing,
+    gameInformation: initialCurrentBoard.gameInformation,
+    boardOrientation: initialCurrentBoard.boardOrientation,
+    
+    // Helper to update current board
+    updateCurrentBoard: (updates: Partial<BoardData>) => {
+      const { currentBoardId } = get();
+      set((state) => {
+        const updatedState = {
+          ...state,
+          boards: state.boards.map(board => 
+            board.id === currentBoardId ? { ...board, ...updates } : board
+          )
+        };
+        // Sync current board properties
+        syncCurrentBoardProperties(updatedState);
+        saveToStorage(updatedState);
+        return updatedState;
+      });
+    },
+    
+    // Game actions (operate on current board)
+    setGameState: (newState) => {
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const updatedGameState = { ...currentBoard.gameState, ...newState };
+      get().updateCurrentBoard({ gameState: updatedGameState });
+    },
     
     makeMove: (from, to, promotion) => {
-      const { game } = get();
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return false;
+      
+      const { game } = currentBoard;
       const originalFen = game.fen();
       
-      // First try to make the move as if it's the current player's turn
-      try {
-        const move = game.move({ from, to, promotion });
-        if (move) {
-          set((state) => {
-            const updatedState = {
-              gameState: {
-                ...state.gameState,
-                fen: game.fen(),
-                turn: game.turn(),
-              }
+      console.log(`makeMove called: ${from} -> ${to}, current FEN: ${originalFen}`);
+      
+      // Validate move with both possible turns
+      const colors = ['w', 'b'];
+      
+      for (const color of colors) {
+        try {
+          // Create a FEN with the specified turn
+          const fenParts = originalFen.split(' ');
+          fenParts[1] = color; // Set the turn
+          const tempFen = fenParts.join(' ');
+          
+          console.log(`Trying move with ${color} to move: ${tempFen}`);
+          
+          // Load the position with the specified turn
+          game.load(tempFen);
+          
+          // Try to make the move
+          const move = game.move({ from, to, promotion });
+          if (move) {
+            console.log(`Move successful with ${color} to move:`, move);
+            
+            const updatedGameState = {
+              ...currentBoard.gameState,
+              fen: game.fen(),
+              turn: game.turn(),
             };
-            saveToStorage({ ...state, ...updatedState });
-            return updatedState;
-          });
-          get().addToHistory();
-          return true;
+            
+            get().updateCurrentBoard({ gameState: updatedGameState });
+            get().addToHistory();
+            return true;
+          }
+        } catch (error) {
+          console.log(`Move failed with ${color} to move:`, error);
+          // Continue to next color
         }
-      } catch (error) {
-        // Move failed for current turn, try with opposite turn
       }
       
-      // If that fails, try switching the turn and making the move
+      // If all attempts fail, restore original position
       try {
-        const fenParts = originalFen.split(' ');
-        const currentTurn = fenParts[1];
-        const oppositeTurn = currentTurn === 'w' ? 'b' : 'w';
-        
-        // Create a FEN with the opposite turn
-        const tempFen = [fenParts[0], oppositeTurn, fenParts[2], fenParts[3], fenParts[4], fenParts[5]].join(' ');
-        
-        // Load the position with opposite turn
-        game.load(tempFen);
-        
-        // Try to make the move
-        const move = game.move({ from, to, promotion });
-        if (move) {
-          set((state) => {
-            const updatedState = {
-              gameState: {
-                ...state.gameState,
-                fen: game.fen(),
-                turn: game.turn(),
-              }
-            };
-            saveToStorage({ ...state, ...updatedState });
-            return updatedState;
-          });
-          get().addToHistory();
-          return true;
-        }
-        
-        // If move still fails, restore original position
         game.load(originalFen);
-        return false;
-      } catch (error) {
-        // Restore original position on any error
-        try {
-          game.load(originalFen);
-        } catch (restoreError) {
-          console.error('Failed to restore game position:', restoreError);
-        }
-        console.error('Move validation failed:', error);
-        return false;
+      } catch (restoreError) {
+        console.error('Failed to restore game position:', restoreError);
       }
+      
+      console.log('Move completely failed, restored original position');
+      return false;
     },
     
     setPosition: (fen) => {
-      const { game } = get();
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { game } = currentBoard;
       try {
         game.load(fen);
-        set((state) => {
-          const updatedState = {
-            gameState: {
-              ...state.gameState,
-              fen: game.fen(),
-              turn: game.turn(),
-            }
-          };
-          saveToStorage({ ...state, ...updatedState });
-          return updatedState;
-        });
+        const updatedGameState = {
+          ...currentBoard.gameState,
+          fen: game.fen(),
+          turn: game.turn(),
+        };
+        get().updateCurrentBoard({ gameState: updatedGameState });
         get().addToHistory();
       } catch (error) {
         console.error('Invalid FEN:', error);
       }
     },
     
-    flipBoard: () => set((state) => {
-      const updatedState = {
-        boardOrientation: state.boardOrientation === 'white' ? 'black' : 'white'
-      } as const;
-      saveToStorage({ ...state, ...updatedState });
-      return updatedState;
-    }),
+    flipBoard: () => {
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const newOrientation = currentBoard.boardOrientation === 'white' ? 'black' : 'white';
+      get().updateCurrentBoard({ boardOrientation: newOrientation });
+    },
     
     resetToStartPosition: () => {
-      const { game } = get();
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { game } = currentBoard;
       game.reset();
-      set((state) => {
-        const updatedState = {
-          gameState: {
-            ...initialGameState,
-            fen: game.fen(),
-            turn: game.turn(),
-          },
-          moveHistory: [{ ...initialGameState, position: game.fen() }],
-          currentHistoryIndex: 0,
-        };
-        saveToStorage({ ...state, ...updatedState });
-        return updatedState;
+      const updatedGameState = {
+        ...initialGameState,
+        fen: game.fen(),
+        turn: game.turn(),
+      };
+      const newMoveHistory = [{ ...initialGameState, position: game.fen() }];
+      
+      get().updateCurrentBoard({
+        gameState: updatedGameState,
+        moveHistory: newMoveHistory,
+        currentHistoryIndex: 0,
+        analysisResults: []
       });
-      get().clearAnalysisResults();
     },
     
     clearBoard: () => {
-      const { game } = get();
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { game } = currentBoard;
       game.clear();
-      set((state) => {
-        const updatedState = {
-          gameState: {
-            ...state.gameState,
-            fen: game.fen(),
-            turn: 'w' as const,
-          }
-        };
-        saveToStorage({ ...state, ...updatedState });
-        return updatedState;
-      });
+      const updatedGameState = {
+        ...currentBoard.gameState,
+        fen: game.fen(),
+        turn: 'w' as const,
+      };
+      get().updateCurrentBoard({ gameState: updatedGameState });
       get().addToHistory();
     },
     
     // History actions
     addToHistory: () => {
-      const { gameState, moveHistory, currentHistoryIndex } = get();
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { gameState, moveHistory, currentHistoryIndex } = currentBoard;
       const newState: HistoryState = {
         ...gameState,
         position: gameState.fen,
@@ -327,71 +521,71 @@ export const useChessStore = create<ChessStore>((set, get) => {
       const newHistory = moveHistory.slice(0, currentHistoryIndex + 1);
       newHistory.push(newState);
       
-      set((state) => {
-        const updatedState = {
-          moveHistory: newHistory,
-          currentHistoryIndex: newHistory.length - 1,
-        };
-        saveToStorage({ ...state, ...updatedState });
-        return updatedState;
+      get().updateCurrentBoard({
+        moveHistory: newHistory,
+        currentHistoryIndex: newHistory.length - 1,
       });
     },
     
     navigateToPrevious: () => {
-      const { currentHistoryIndex, moveHistory } = get();
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { currentHistoryIndex, moveHistory } = currentBoard;
       if (currentHistoryIndex > 0) {
         const newIndex = currentHistoryIndex - 1;
         const state = moveHistory[newIndex];
         get().restoreState(state);
-        set((currentState) => {
-          const updatedState = { currentHistoryIndex: newIndex };
-          saveToStorage({ ...currentState, ...updatedState });
-          return updatedState;
-        });
+        get().updateCurrentBoard({ currentHistoryIndex: newIndex });
       }
     },
     
     navigateToNext: () => {
-      const { currentHistoryIndex, moveHistory } = get();
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { currentHistoryIndex, moveHistory } = currentBoard;
       if (currentHistoryIndex < moveHistory.length - 1) {
         const newIndex = currentHistoryIndex + 1;
         const state = moveHistory[newIndex];
         get().restoreState(state);
-        set((currentState) => {
-          const updatedState = { currentHistoryIndex: newIndex };
-          saveToStorage({ ...currentState, ...updatedState });
-          return updatedState;
-        });
+        get().updateCurrentBoard({ currentHistoryIndex: newIndex });
       }
     },
     
     restoreState: (state) => {
-      const { game } = get();
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { game } = currentBoard;
       game.load(state.position);
-      set((currentState) => {
-        const updatedState = {
-          gameState: {
-            fen: state.position,
-            turn: state.turn,
-            castlingRights: state.castlingRights,
-          }
-        };
-        saveToStorage({ ...currentState, ...updatedState });
-        return updatedState;
+      const updatedGameState = {
+        fen: state.position,
+        turn: state.turn,
+        castlingRights: state.castlingRights,
+      };
+      get().updateCurrentBoard({ 
+        gameState: updatedGameState,
+        analysisResults: []
       });
-      get().clearAnalysisResults();
     },
     
     // Analysis actions
     setAnalysisResults: (results) => {
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
       if (typeof results === 'function') {
-        set((state) => ({ analysisResults: results(state.analysisResults) }));
+        const newResults = results(currentBoard.analysisResults);
+        get().updateCurrentBoard({ analysisResults: newResults });
       } else {
-        set({ analysisResults: results });
+        get().updateCurrentBoard({ analysisResults: results });
       }
     },
     
-    clearAnalysisResults: () => set({ analysisResults: [] }),
+    clearAnalysisResults: () => {
+      get().updateCurrentBoard({ analysisResults: [] });
+    },
     
     setEngineThinking: (thinking) => set({ engineThinking: thinking }),
     
@@ -428,12 +622,17 @@ export const useChessStore = create<ChessStore>((set, get) => {
       return updatedState;
     }),
     
-  // Game information actions
-  setGameInformation: (info) => set({ gameInformation: info }),
+    // Game information actions
+    setGameInformation: (info) => {
+      get().updateCurrentBoard({ gameInformation: info });
+    },
   
   // PGN loading with full history
   loadPgnWithHistory: (pgnText: string) => {
-    const { game } = get();
+    const currentBoard = get().getCurrentBoard();
+    if (!currentBoard) return false;
+    
+    const { game } = currentBoard;
     try {
       // Create a temporary game to parse the PGN
       const tempGame = new Chess();
@@ -476,26 +675,24 @@ export const useChessStore = create<ChessStore>((set, get) => {
         });
       }
       
-      // Set the final state
-      set((state) => {
-        const finalWhiteCastling = game.getCastlingRights('w');
-        const finalBlackCastling = game.getCastlingRights('b');
-        const updatedState = {
-          gameState: {
-            fen: game.fen(),
-            turn: game.turn(),
-            castlingRights: {
-              whiteKingSide: finalWhiteCastling.k,
-              whiteQueenSide: finalWhiteCastling.q,
-              blackKingSide: finalBlackCastling.k,
-              blackQueenSide: finalBlackCastling.q,
-            },
-          },
-          moveHistory: historyStates,
-          currentHistoryIndex: historyStates.length - 1,
-        };
-        saveToStorage({ ...state, ...updatedState });
-        return updatedState;
+      // Update the current board with final state
+      const finalWhiteCastling = game.getCastlingRights('w');
+      const finalBlackCastling = game.getCastlingRights('b');
+      const finalGameState = {
+        fen: game.fen(),
+        turn: game.turn(),
+        castlingRights: {
+          whiteKingSide: finalWhiteCastling.k,
+          whiteQueenSide: finalWhiteCastling.q,
+          blackKingSide: finalBlackCastling.k,
+          blackQueenSide: finalBlackCastling.q,
+        },
+      };
+      
+      get().updateCurrentBoard({
+        gameState: finalGameState,
+        moveHistory: historyStates,
+        currentHistoryIndex: historyStates.length - 1,
       });
       
       return true;

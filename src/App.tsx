@@ -4,6 +4,7 @@ import GameControls from './components/GameControls';
 import { GameInformation } from './components/GameInformation';
 import GameNavigation from './components/GameNavigation';
 import AnalysisResults from './components/AnalysisResults';
+import BoardsManager from './components/BoardsManager';
 import './App.css'
 
 function App() {
@@ -16,6 +17,10 @@ function App() {
       </header>
 
       <main className="main-content">
+        <div className="boards-sidebar">
+          <BoardsManager />
+        </div>
+        
         <div className="board-column">
           <div className="board-section">
             <ChessBoard width={500} />
