@@ -56,6 +56,9 @@ interface ChessStore {
   setBoardIdMapping: (localId: string, serverId: string) => void;
   getBoardServerId: (localId: string) => string | null;
   
+  // Direct database persistence
+  saveCurrentBoardToDatabase: () => Promise<void>;
+  
   // Auto-sync actions
   startAutoSync: () => void;
   stopAutoSync: () => void;
@@ -444,7 +447,11 @@ export const useChessStore = create<ChessStore>((set, get) => {
       });
       
       // Mark pending changes to trigger sync for authenticated users
-      get().markPendingChanges();
+      // Directly save to database if authenticated
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated) {
+        await get().saveCurrentBoardToDatabase();
+      }
     },
     
     // Current board getters
@@ -481,13 +488,18 @@ export const useChessStore = create<ChessStore>((set, get) => {
     },
     
     // Game actions (operate on current board)
-    setGameState: (newState) => {
+    setGameState: async (newState) => {
       const currentBoard = get().getCurrentBoard();
       if (!currentBoard) return;
       
       const updatedGameState = { ...currentBoard.gameState, ...newState };
       get().updateCurrentBoard({ gameState: updatedGameState });
-      get().markPendingChanges();
+      
+      // Directly save to database if authenticated
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated) {
+        await get().saveCurrentBoardToDatabase();
+      }
     },
     
     makeMove: (from, to, promotion) => {
@@ -561,7 +573,11 @@ export const useChessStore = create<ChessStore>((set, get) => {
         };
         get().updateCurrentBoard({ gameState: updatedGameState });
         get().addToHistory();
-        get().markPendingChanges();
+        // Directly save to database if authenticated
+        const authStore = useAuthStore.getState();
+        if (authStore.isAuthenticated) {
+          await get().saveCurrentBoardToDatabase();
+        }
       } catch (error) {
         console.error('Invalid FEN:', error);
       }
@@ -573,7 +589,11 @@ export const useChessStore = create<ChessStore>((set, get) => {
       
       const newOrientation = currentBoard.boardOrientation === 'white' ? 'black' : 'white';
       get().updateCurrentBoard({ boardOrientation: newOrientation });
-      get().markPendingChanges();
+      // Directly save to database if authenticated
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated) {
+        await get().saveCurrentBoardToDatabase();
+      }
     },
     
     resetToStartPosition: () => {
@@ -595,7 +615,11 @@ export const useChessStore = create<ChessStore>((set, get) => {
         currentHistoryIndex: 0,
         analysisResults: []
       });
-      get().markPendingChanges();
+      // Directly save to database if authenticated
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated) {
+        await get().saveCurrentBoardToDatabase();
+      }
     },
     
     clearBoard: () => {
@@ -610,8 +634,13 @@ export const useChessStore = create<ChessStore>((set, get) => {
         turn: 'w' as const,
       };
       get().updateCurrentBoard({ gameState: updatedGameState });
-      get().markPendingChanges();
       get().addToHistory();
+
+      // Directly save to database if authenticated
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated) {
+        await get().saveCurrentBoardToDatabase();
+      }
     },
     
     // History actions
@@ -620,6 +649,13 @@ export const useChessStore = create<ChessStore>((set, get) => {
       if (!currentBoard) return;
       
       const { gameState, moveHistory, currentHistoryIndex } = currentBoard;
+
+      // Directly save to database if authenticated
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated) {
+        await get().saveCurrentBoardToDatabase();
+      }
+
       const newState: HistoryState = {
         ...gameState,
         position: gameState.fen,
@@ -1041,6 +1077,56 @@ export const useChessStore = create<ChessStore>((set, get) => {
         }
         return newState;
       });
+    },
+
+    // Direct database persistence method
+    saveCurrentBoardToDatabase: async () => {
+      console.log('💾 Saving current board to database...');
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) {
+        console.log('❌ No current board found');
+        return;
+      }
+
+      try {
+        set({ isSyncing: true });
+
+        const boardServerId = get().getBoardServerId(currentBoard.id);
+        console.log('🔍 Board server ID:', boardServerId);
+        
+        const saveData = {
+          name: currentBoard.name,
+          fen: currentBoard.game.fen(),
+          gameState: currentBoard.gameState,
+          pgn: '',
+          boardOrientation: currentBoard.boardOrientation,
+        };
+        console.log('📦 Save data:', saveData);
+
+        if (boardServerId) {
+          console.log('📝 Updating existing board in database...');
+          await apiService.updateChessBoard(boardServerId, saveData);
+          console.log('✅ Board updated in database successfully');
+        } else {
+          console.log('🆕 Creating new board in database...');
+          const createResponse = await apiService.createChessBoard(saveData);
+          console.log('✅ Create response:', createResponse);
+          if (createResponse.success && createResponse.data) {
+            const serverId = createResponse.data.chessBoard._id;
+            console.log('🔗 Mapping local ID to server ID:', currentBoard.id, '->', serverId);
+            get().setBoardIdMapping(currentBoard.id, serverId);
+          }
+        }
+
+        console.log('✅ Database save completed successfully');
+        set({ 
+          isSyncing: false, 
+          lastSyncTime: new Date()
+        });
+      } catch (error) {
+        console.error('❌ Failed to save current board to database:', error);
+        set({ isSyncing: false });
+      }
     },
 
     markPendingChanges: () => {
