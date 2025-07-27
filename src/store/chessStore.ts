@@ -630,6 +630,8 @@ export const useChessStore = create<ChessStore>((set, get) => {
         moveHistory: newHistory,
         currentHistoryIndex: newHistory.length - 1,
       });
+      
+      // Note: markPendingChanges is already called by the methods that call addToHistory
     },
     
     navigateToPrevious: () => {
@@ -686,6 +688,9 @@ export const useChessStore = create<ChessStore>((set, get) => {
       } else {
         get().updateCurrentBoard({ analysisResults: results });
       }
+      
+      // Mark changes for sync
+      get().markPendingChanges();
     },
     
     clearAnalysisResults: () => {
