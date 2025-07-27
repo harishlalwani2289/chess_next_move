@@ -835,9 +835,9 @@ export const useChessStore = create<ChessStore>((set, get) => {
             get().setBoardIdMapping(board.id, board.id);
           });
           
-          set((state) => {
-            const boardsMap = new Map(state.boards.map(b => [b.id, b]));
-            restoredBoards.forEach(b => boardsMap.set(b.id, b));
+          set((state) => {
+            const boardsMap = new Map(state.boards.map(b => [b.id, b]));
+            restoredBoards.forEach(b => boardsMap.set(b.id, b));
 
             const mergedBoards = Array.from(boardsMap.values());
 
