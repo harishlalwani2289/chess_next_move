@@ -144,8 +144,17 @@ export const useAuthStore = create<AuthState>()(
               isLoading: false,
               error: null
             });
-            // Start auto-sync if user is already authenticated
-            useChessStore.getState().startAutoSync();
+            
+            // Load user's boards from backend after auth check
+            try {
+              await useChessStore.getState().loadBoardsFromBackend();
+              // Start auto-sync after successful auth check and board loading
+              useChessStore.getState().startAutoSync();
+            } catch (error) {
+              console.warn('Failed to load boards after auth check:', error);
+              // Still start auto-sync even if board loading fails
+              useChessStore.getState().startAutoSync();
+            }
           } else {
             // Token is invalid, remove it
             apiService.removeAuthToken();
