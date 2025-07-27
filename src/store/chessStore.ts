@@ -41,6 +41,7 @@ interface ChessStore {
   pendingChanges: boolean;
   autoSyncEnabled: boolean;
   autoSyncInterval: number | null;
+  debouncedSyncTimeout: number | null;
   
   // Board management actions
   addBoard: (name?: string) => string;
@@ -344,6 +345,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
     pendingChanges: false,
     autoSyncEnabled: true,
     autoSyncInterval: null,
+    debouncedSyncTimeout: null,
     
     // Board management actions
     addBoard: (name) => {
@@ -1045,14 +1047,25 @@ export const useChessStore = create<ChessStore>((set, get) => {
       console.log('📝 Marking pending changes...');
       set({ pendingChanges: true });
       
-      // Sync immediately instead of waiting for the timer
+      // Use debounced sync to prevent rate limiting
       const authStore = useAuthStore.getState();
       if (authStore.isAuthenticated) {
-        console.log('⚡ Triggering immediate sync...');
-        // Use setTimeout to avoid blocking the UI
-        setTimeout(() => {
+        const { debouncedSyncTimeout } = get();
+        
+        // Clear any existing timeout
+        if (debouncedSyncTimeout) {
+          clearTimeout(debouncedSyncTimeout);
+        }
+        
+        // Set a new timeout for debounced sync (wait 2 seconds after last change)
+        const newTimeout = setTimeout(() => {
+          console.log('⚡ Executing debounced sync...');
           get().syncCurrentBoardToBackend();
-        }, 100);
+          set({ debouncedSyncTimeout: null });
+        }, 2000); // Wait 2 seconds after last change
+        
+        set({ debouncedSyncTimeout: newTimeout });
+        console.log('⏱️ Debounced sync scheduled in 2 seconds...');
       }
     },
   };
