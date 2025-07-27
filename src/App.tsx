@@ -11,7 +11,6 @@ import MobileNavigation from './components/MobileNavigation';
 import MobileCalculateButton from './components/MobileCalculateButton';
 import AuthModal from './components/AuthModal';
 import UserProfile from './components/UserProfile';
-import SyncStatus from './components/SyncStatus';
 import { useAuthStore } from './store/authStore';
 import './App.css'
 
@@ -34,7 +33,6 @@ function App() {
             <p>Analyze chess positions with Stockfish engine and get the best moves with AI explanations</p>
           </div>
           <div className="header-right">
-            <SyncStatus className="header-sync" />
             <div className="auth-section">
               {isAuthenticated ? (
                 <UserProfile />
@@ -55,7 +53,6 @@ function App() {
       <main className="main-content">
         <div className="boards-sidebar">
           <BoardsManager />
-          <SyncStatus className="boards-sync" />
         </div>
         
         <div className="board-column">
