@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from 'react';
+import { LogIn } from 'lucide-react';
 import ChessBoard from './components/ChessBoard';
 import BoardControls from './components/BoardControls';
 import GameControls from './components/GameControls';
@@ -7,21 +9,53 @@ import AnalysisResults from './components/AnalysisResults';
 import BoardsManager from './components/BoardsManager';
 import MobileNavigation from './components/MobileNavigation';
 import MobileCalculateButton from './components/MobileCalculateButton';
+import AuthModal from './components/AuthModal';
+import UserProfile from './components/UserProfile';
+import SyncStatus from './components/SyncStatus';
+import { useAuthStore } from './store/authStore';
 import './App.css'
 
 function App() {
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const { isAuthenticated, checkAuth } = useAuthStore();
+
+  // Check authentication status on app load
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   return (
     <div className="app">
       <MobileNavigation />
       <header className="app-header">
-        <h1>Chess Position Analyzer</h1>
-        <p>Analyze chess positions with Stockfish engine and get the best moves with AI explanations</p>
+        <div className="header-content">
+          <div className="header-text">
+            <h1>Chess Position Analyzer</h1>
+            <p>Analyze chess positions with Stockfish engine and get the best moves with AI explanations</p>
+          </div>
+          <div className="header-right">
+            <SyncStatus className="header-sync" />
+            <div className="auth-section">
+              {isAuthenticated ? (
+                <UserProfile />
+              ) : (
+                <button 
+                  className="btn btn-secondary login-button"
+                  onClick={() => setShowAuthModal(true)}
+                >
+                  <LogIn size={18} />
+                  Sign In
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </header>
 
       <main className="main-content">
         <div className="boards-sidebar">
           <BoardsManager />
+          <SyncStatus className="boards-sync" />
         </div>
         
         <div className="board-column">
@@ -44,6 +78,11 @@ function App() {
           <AnalysisResults />
         </div>
       </main>
+      
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+      />
     </div>
   )
 }

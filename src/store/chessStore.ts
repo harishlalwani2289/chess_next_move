@@ -1,5 +1,8 @@
 import { create } from 'zustand';
 import { Chess } from 'chess.js';
+import apiService from '../services/api';
+import type { ChessBoard as ApiChessBoard } from '../services/api';
+import { useAuthStore } from './authStore';
 import type { GameState, HistoryState, AnalysisResult, EngineOptions, BoardTheme, PieceSet, GameInformation } from '../types/chess';
 import type { AISettings } from '../services/aiService';
 
@@ -32,11 +35,31 @@ interface ChessStore {
   aiExplanationsEnabled: boolean;
   engineThinking: boolean;
   
+  // Backend sync state
+  isSyncing: boolean;
+  lastSyncTime: Date | null;
+  pendingChanges: boolean;
+  autoSyncEnabled: boolean;
+  autoSyncInterval: NodeJS.Timeout | null;
+  
   // Board management actions
   addBoard: (name?: string) => string;
   removeBoard: (boardId: string) => void;
   switchToBoard: (boardId: string) => void;
   renameBoardNormal: (boardId: string, name: string) => void;
+  
+  // Backend sync actions
+  loadBoardsFromBackend: () => Promise<void>;
+  syncCurrentBoardToBackend: () => Promise<void>;
+  syncAllBoardsToBackend: () => Promise<void>;
+  setBoardIdMapping: (localId: string, serverId: string) => void;
+  getBoardServerId: (localId: string) => string | null;
+  
+  // Auto-sync actions
+  startAutoSync: () => void;
+  stopAutoSync: () => void;
+  toggleAutoSync: () => void;
+  markPendingChanges: () => void;
   
   // Current board getters (computed properties)
   getCurrentBoard: () => BoardData | null;
@@ -111,6 +134,36 @@ const initialAISettings: AISettings = {
 // Create a storage key - use localStorage for persistence across refresh
 const getStorageKey = () => {
   return 'chess-analyzer-state';
+};
+
+// Board ID mapping storage
+const getBoardMappingKey = () => {
+  const authStore = useAuthStore.getState();
+  const userId = authStore.user?.id || 'anonymous';
+  return `chess-board-id-mapping-${userId}`;
+};
+
+const saveBoardIdMapping = (localId: string, serverId: string) => {
+  try {
+    const stored = localStorage.getItem(getBoardMappingKey());
+    const mapping = stored ? JSON.parse(stored) : {};
+    mapping[localId] = serverId;
+    localStorage.setItem(getBoardMappingKey(), JSON.stringify(mapping));
+  } catch (error) {
+    console.warn('Failed to save board ID mapping:', error);
+  }
+};
+
+const getBoardIdMapping = (localId: string): string | null => {
+  try {
+    const stored = localStorage.getItem(getBoardMappingKey());
+    if (!stored) return null;
+    const mapping = JSON.parse(stored);
+    return mapping[localId] || null;
+  } catch (error) {
+    console.warn('Failed to get board ID mapping:', error);
+    return null;
+  }
 };
 
 // Create initial board data
@@ -257,7 +310,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
   // Find initial current board
   const initialCurrentBoard = initialBoards.find(board => board.id === initialCurrentBoardId) || initialBoards[0];
 
-  return {
+    return {
     // Multiple boards state
     boards: initialBoards,
     currentBoardId: initialCurrentBoardId,
@@ -273,6 +326,13 @@ export const useChessStore = create<ChessStore>((set, get) => {
     aiExplanationsEnabled: persistedState.aiExplanationsEnabled || false,
     engineThinking: false,
     
+    // Backend sync state
+    isSyncing: false,
+    lastSyncTime: null,
+    pendingChanges: false,
+    autoSyncEnabled: true,
+    autoSyncInterval: null,
+    
     // Board management actions
     addBoard: (name) => {
       const boardName = name || `Board ${get().boards.length + 1}`;
@@ -286,6 +346,9 @@ export const useChessStore = create<ChessStore>((set, get) => {
         saveToStorage({ ...state, ...updatedState });
         return updatedState;
       });
+      
+      // Mark pending changes to trigger sync for authenticated users
+      get().markPendingChanges();
       
       return newBoardId;
     },
@@ -314,6 +377,9 @@ export const useChessStore = create<ChessStore>((set, get) => {
         saveToStorage({ ...state, ...updatedState });
         return updatedState;
       });
+      
+      // Mark pending changes to trigger sync for authenticated users
+      get().markPendingChanges();
     },
     
     switchToBoard: (boardId) => {
@@ -344,6 +410,9 @@ export const useChessStore = create<ChessStore>((set, get) => {
         saveToStorage({ ...state, ...updatedState });
         return updatedState;
       });
+      
+      // Mark pending changes to trigger sync for authenticated users
+      get().markPendingChanges();
     },
     
     // Current board getters
@@ -386,6 +455,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
       
       const updatedGameState = { ...currentBoard.gameState, ...newState };
       get().updateCurrentBoard({ gameState: updatedGameState });
+      get().markPendingChanges();
     },
     
     makeMove: (from, to, promotion) => {
@@ -425,6 +495,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
             
             get().updateCurrentBoard({ gameState: updatedGameState });
             get().addToHistory();
+            get().markPendingChanges();
             return true;
           }
         } catch (error) {
@@ -458,6 +529,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
         };
         get().updateCurrentBoard({ gameState: updatedGameState });
         get().addToHistory();
+        get().markPendingChanges();
       } catch (error) {
         console.error('Invalid FEN:', error);
       }
@@ -490,6 +562,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
         currentHistoryIndex: 0,
         analysisResults: []
       });
+      get().markPendingChanges();
     },
     
     clearBoard: () => {
@@ -504,6 +577,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
         turn: 'w' as const,
       };
       get().updateCurrentBoard({ gameState: updatedGameState });
+      get().markPendingChanges();
       get().addToHistory();
     },
     
@@ -701,5 +775,217 @@ export const useChessStore = create<ChessStore>((set, get) => {
       return false;
     }
   },
+    // Load boards from backend for authenticated user
+    loadBoardsFromBackend: async () => {
+      const authStore = useAuthStore.getState();
+      const userId = authStore.user?.id;
+
+      if (!userId) return;
+
+      try {
+        set({ isSyncing: true });
+
+        const response = await apiService.getChessBoards();
+        if (response.success && response.data) {
+          const boardsFromBackend = response.data.chessBoards;
+          const restoredBoards = boardsFromBackend.map((apiBoard: ApiChessBoard) => {
+            const game = new Chess();
+            game.load(apiBoard.fen);
+            return {
+              id: apiBoard._id, // Use server ID as local ID
+              name: apiBoard.name,
+              game,
+              gameState: apiBoard.gameState,
+              moveHistory: apiBoard.gameHistory,
+              currentHistoryIndex: apiBoard.gameHistory.length - 1,
+              analysisResults: apiBoard.analysisResults,
+              isAnalyzing: false,
+              gameInformation: null,
+              boardOrientation: 'white' as const
+            };
+          });
+          
+          // Update board ID mappings for restored boards
+          // Each board's server ID maps to itself since we're using server IDs as local IDs
+          restoredBoards.forEach(board => {
+            get().setBoardIdMapping(board.id, board.id);
+          });
+          
+          set((state) => {
+            const updatedState = { 
+              boards: restoredBoards,
+              currentBoardId: restoredBoards[0]?.id || null,
+              isSyncing: false, 
+              lastSyncTime: new Date(), 
+              pendingChanges: false 
+            };
+            // Sync current board properties when loading from backend
+            syncCurrentBoardProperties({ ...state, ...updatedState });
+            return updatedState;
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load boards from the backend:', error);
+        set({ isSyncing: false });
+      }
+    },
+
+    // Sync the current board with the backend
+    syncCurrentBoardToBackend: async () => {
+      console.log('💾 syncCurrentBoardToBackend called');
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) {
+        console.log('❌ No current board found');
+        return;
+      }
+
+      try {
+        console.log('🔄 Starting sync process...');
+        set({ isSyncing: true });
+
+        const boardServerId = get().getBoardServerId(currentBoard.id);
+        console.log('🔍 Board server ID:', boardServerId);
+        
+        const syncData = {
+          name: currentBoard.name,
+          fen: currentBoard.game.fen(),
+          gameState: currentBoard.gameState,
+          pgn: '',
+        };
+        console.log('📦 Sync data:', syncData);
+
+        if (boardServerId) {
+          console.log('📝 Updating existing board...');
+          const response = await apiService.updateChessBoard(boardServerId, syncData);
+          console.log('✅ Update response:', response);
+        } else {
+          console.log('🆕 Creating new board...');
+          const createResponse = await apiService.createChessBoard(syncData);
+          console.log('✅ Create response:', createResponse);
+          if (createResponse.success && createResponse.data) {
+            const serverId = createResponse.data.chessBoard._id;
+            console.log('🔗 Mapping local ID to server ID:', currentBoard.id, '->', serverId);
+            get().setBoardIdMapping(currentBoard.id, serverId);
+          }
+        }
+
+        console.log('✅ Sync completed successfully');
+        set({ 
+          isSyncing: false, 
+          lastSyncTime: new Date(), 
+          pendingChanges: false 
+        });
+      } catch (error) {
+        console.error('❌ Failed to sync current board with the backend:', error);
+        set({ isSyncing: false });
+      }
+    },
+
+    // Sync all boards with the backend
+    syncAllBoardsToBackend: async () => {
+      const { boards } = get();
+
+      try {
+        set({ isSyncing: true });
+        await Promise.all(boards.map((board) => {
+          const boardServerId = get().getBoardServerId(board.id);
+          const syncData = {
+            name: board.name,
+            fen: board.game.fen(),
+            gameState: board.gameState,
+            pgn: '',
+          };
+
+          if (boardServerId) {
+            return apiService.updateChessBoard(boardServerId, syncData);
+          } else {
+            return apiService.createChessBoard(syncData).then((createResponse) => {
+              if (createResponse.success && createResponse.data) {
+                const serverId = createResponse.data.chessBoard._id;
+                get().setBoardIdMapping(board.id, serverId);
+              }
+            });
+          }
+        }));
+
+        set({ 
+          isSyncing: false, 
+          lastSyncTime: new Date(), 
+          pendingChanges: false 
+        });
+      } catch (error) {
+        console.error('Failed to sync all boards with the backend:', error);
+        set({ isSyncing: false });
+      }
+    },
+
+    setBoardIdMapping: (localId: string, serverId: string) => {
+      saveBoardIdMapping(localId, serverId);
+    },
+
+    getBoardServerId: (localId: string) => {
+      return getBoardIdMapping(localId);
+    },
+    
+    // Auto-sync functionality
+    startAutoSync: () => {
+      console.log('🚀 Starting auto-sync...');
+      if (!get().autoSyncEnabled) {
+        console.log('❌ Auto-sync disabled');
+        return;
+      }
+      const authStore = useAuthStore.getState();
+      if (!authStore.isAuthenticated) {
+        console.log('❌ User not authenticated');
+        return;
+      }
+      
+      console.log('✅ Auto-sync started - will check every 60 seconds');
+      const interval = setInterval(async () => {
+        const { pendingChanges, syncCurrentBoardToBackend } = get();
+        console.log('🔄 Auto-sync check - pendingChanges:', pendingChanges);
+        if (pendingChanges) {
+          console.log('💾 Auto-syncing board to backend...');
+          await syncCurrentBoardToBackend();
+        }
+      }, 10000); // Reduced to 10 seconds for testing
+      set({ autoSyncInterval: interval });
+    },
+
+    stopAutoSync: () => {
+      const { autoSyncInterval } = get();
+      if (autoSyncInterval) {
+        clearInterval(autoSyncInterval);
+        set({ autoSyncInterval: null });
+      }
+    },
+
+    toggleAutoSync: () => {
+      set((state) => {
+        const newState = { autoSyncEnabled: !state.autoSyncEnabled };
+        if (newState.autoSyncEnabled) {
+          // Start auto-sync in next tick to ensure state is updated
+          setTimeout(() => get().startAutoSync(), 0);
+        } else {
+          get().stopAutoSync();
+        }
+        return newState;
+      });
+    },
+
+    markPendingChanges: () => {
+      console.log('📝 Marking pending changes...');
+      set({ pendingChanges: true });
+      
+      // Sync immediately instead of waiting for the timer
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated) {
+        console.log('⚡ Triggering immediate sync...');
+        // Use setTimeout to avoid blocking the UI
+        setTimeout(() => {
+          get().syncCurrentBoardToBackend();
+        }, 100);
+      }
+    },
   };
 });
