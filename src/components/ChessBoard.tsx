@@ -29,24 +29,51 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     if (width) return width; // Use provided width if specified
     
     const screenWidth = window.innerWidth;
-    if (screenWidth <= 768) {
-      // Mobile: use 90% of screen width, max 320px
-      return Math.min(screenWidth * 0.9, 320);
+    
+    // Ensure minimum width of 200px to prevent board from vanishing
+    const minWidth = 200;
+    let calculatedWidth;
+    
+    if (screenWidth <= 480) {
+      // Very small mobile: 85% of screen width
+      calculatedWidth = Math.max(screenWidth * 0.85, minWidth);
+    } else if (screenWidth <= 768) {
+      // Mobile: 90% of screen width, max 320px
+      calculatedWidth = Math.min(screenWidth * 0.9, 320);
     } else if (screenWidth <= 1024) {
-      // Tablet: 400px
-      return 400;
+      // Tablet: scale from 320px to 450px
+      const progress = (screenWidth - 768) / (1024 - 768);
+      calculatedWidth = Math.round(320 + progress * (450 - 320));
+    } else if (screenWidth <= 1440) {
+      // Medium desktop: scale from 450px to 550px
+      const progress = (screenWidth - 1024) / (1440 - 1024);
+      calculatedWidth = Math.round(450 + progress * (550 - 450));
     } else {
-      // Desktop: 500px
-      return 500;
+      // Large desktop: scale from 550px to 650px
+      const progress = Math.min((screenWidth - 1440) / 1000, 1); // Cap the scaling
+      calculatedWidth = Math.round(550 + progress * (650 - 550));
     }
+    
+    // Ensure the calculated width is within reasonable bounds
+    return Math.max(calculatedWidth, minWidth);
   };
   
-  const [boardWidth, setBoardWidth] = React.useState(getResponsiveWidth());
+  const [boardWidth, setBoardWidth] = React.useState(() => {
+    return getResponsiveWidth();
+  });
   
   // Update board width on window resize
   React.useEffect(() => {
     const handleResize = () => {
-      setBoardWidth(getResponsiveWidth());
+      const newWidth = getResponsiveWidth();
+      setBoardWidth(newWidth);
+      
+      // Force Chessground to redraw after size change
+      setTimeout(() => {
+        if (chessgroundRef.current) {
+          chessgroundRef.current.redrawAll?.();
+        }
+      }, 100);
     };
     
     window.addEventListener('resize', handleResize);
@@ -65,14 +92,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
   const game = currentBoard?.game;
   const analysisResults = currentBoard?.analysisResults || [];
   
-  // Debug logging
-  console.log('ChessBoard render:', {
-    currentBoardId: currentBoard?.id,
-    gameStateFen: gameState?.fen,
-    currentBoardFen: currentBoard?.gameState?.fen,
-    hasGame: !!game,
-    turn: gameState?.turn
-  });
 
   // Helper function to create custom SVG circles for better visibility
   const createCustomSvgCircle = (color: string, opacity: number = 0.3) => {
@@ -124,7 +143,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       }
     });
     
-    console.log('Setting legal destinations:', dests.size, 'squares with moves');
     
     chessgroundRef.current.set({
       movable: {
@@ -139,7 +157,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
   useEffect(() => {
     if (!boardRef.current || !currentBoard?.gameState) return;
 
-    console.log('Initializing Chessground board for board:', currentBoard.id, 'FEN:', currentBoard.gameState.fen);
 
     const config = {
       fen: currentBoard.gameState.fen,
@@ -194,10 +211,30 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     
     try {
       chessgroundRef.current = Chessground(boardRef.current, config);
-      console.log('Chessground board created successfully for board:', currentBoard.id);
       
       // Calculate and set legal moves immediately after creation
       updateBoardMovability();
+      
+      // Force correct dimensions on the Chessground elements
+      setTimeout(() => {
+        const cgWrap = boardRef.current?.querySelector('.cg-wrap') as HTMLElement;
+        const cgBoard = boardRef.current?.querySelector('.cg-board') as HTMLElement;
+        
+        if (cgWrap) {
+          cgWrap.style.width = `${boardWidth}px`;
+          cgWrap.style.height = `${boardWidth}px`;
+        }
+        if (cgBoard) {
+          cgBoard.style.width = `${boardWidth}px`;
+          cgBoard.style.height = `${boardWidth}px`;
+        }
+        
+        
+        // Force redraw after dimension changes
+        if (chessgroundRef.current) {
+          chessgroundRef.current.redrawAll?.();
+        }
+      }, 50);
       
     } catch (error) {
       console.error('Failed to initialize Chessground:', error);
@@ -209,12 +246,11 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         chessgroundRef.current = null;
       }
     };
-  }, [currentBoard?.id, currentBoard?.gameState?.fen, boardOrientation]); // Re-initialize when switching boards or position changes
+  }, [currentBoard?.id, currentBoard?.gameState?.fen, boardOrientation, boardWidth]); // Re-initialize when switching boards, position changes, or board size changes
 
   // Update board when game state changes
   useEffect(() => {
     if (chessgroundRef.current && gameState && game) {
-      console.log('Updating board state, FEN:', gameState.fen, 'Turn:', gameState.turn);
       
       // Create a fresh Chess instance for legal move calculation to avoid state conflicts
       const tempGame = new Chess();
@@ -259,7 +295,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         }
       });
       
-      console.log('Legal destinations calculated:', dests.size, 'squares with moves');
       
       chessgroundRef.current.set({
         fen: gameState.fen,
@@ -371,9 +406,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     const boardRect = boardElement.getBoundingClientRect();
     const squareSize = boardRect.width / 8;
     
-    console.log('Board rect:', boardRect);
-    console.log('Board width:', boardRect.width, 'Square size:', squareSize);
-    console.log('Adding arrow numbers for moves:', pvMoves);
     
     pvMoves.forEach((moveStr, index) => {
       if (!moveStr) return;
@@ -382,7 +414,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       const fromSquare = moveStr.slice(0, 2);
       const toSquare = moveStr.slice(2, 4);
       
-      console.log(`Arrow ${index + 1}: ${fromSquare} -> ${toSquare}`);
       
       // Convert square notation to coordinates (exactly like original)
       const fromFile = fromSquare.charCodeAt(0) - 97; // a=0, b=1, etc.
@@ -403,7 +434,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       const midX = (fromX + toX) / 2 + squareSize / 2;
       const midY = (fromY + toY) / 2 + squareSize / 2;
       
-      console.log(`Number ${index + 1} calculated position: (${midX}, ${midY})`);
       
       // Define colors to match arrows (like original)
       const colors = ['#4CAF50', '#2196F3', '#FF9800', '#9C27B0']; // Green, Blue, Orange, Purple
@@ -434,18 +464,10 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         border: 2px solid white;
       `;
       
-      console.log(`Created number element ${index + 1} at position:`, numberElement.style.left, numberElement.style.top);
-      
       // Append to board element (like original .append())
       boardElement.appendChild(numberElement);
-      
-      // Verify it was added
-      console.log('Element added to DOM:', document.contains(numberElement));
     });
     
-    // Log all arrow numbers after creation
-    const allNumbers = boardElement.querySelectorAll('.pv-arrow-number');
-    console.log(`Total arrow numbers created: ${allNumbers.length}`);
   };
 
   
@@ -465,24 +487,16 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       squareElement.style.boxShadow = '';
     });
     
-    console.log('Removed best move highlighting from', highlightedSquares.length, 'squares');
   };
 
   // Highlight best moves with colored square borders and numbered PV sequence
   useEffect(() => {
-    console.log('Highlighting effect triggered:', {
-      hasChessground: !!chessgroundRef.current,
-      analysisResultsLength: analysisResults.length,
-      analysisResults: analysisResults,
-      engineMode: engineOptions.mode
-    });
     
     if (chessgroundRef.current && analysisResults.length > 0 && engineOptions.mode === 'show') {
       const shapes: DrawShape[] = [];
       
       // Helper function to extract squares from formatted move
       const extractSquares = (formattedMove: string) => {
-        console.log('Extracting squares from:', formattedMove);
         if (!formattedMove) return null;
         
         // Remove piece letter at the beginning (like 'p', 'K', 'Q', etc.)
@@ -492,14 +506,11 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         }
         
         if (moveStr.length >= 4) {
-          const result = {
+          return {
             from: moveStr.slice(0, 2) as Key,
             to: moveStr.slice(2, 4) as Key
           };
-          console.log('Extracted squares:', result);
-          return result;
         }
-        console.log('Could not extract squares from:', moveStr);
         return null;
       };
       
@@ -525,7 +536,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       });
       
       // Convert highlight map to shapes using custom SVG circles for visibility
-      console.log('Highlight map entries:', Array.from(highlightMap.entries()));
       highlightMap.forEach((cssClass, square) => {
         let color = '#15781B'; // default green
         let brush = 'green';
@@ -559,7 +569,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
           }
         }
         
-        console.log(`Creating shape for square ${square} with color ${color}`);
         
         // Use custom SVG for "from" squares (pale colors) and regular brush for "to" squares
         if (cssClass.includes('-from')) {
@@ -602,7 +611,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         
         // Take first 4 moves for arrows
         const pvMoves = cleanMoves.slice(0, 4);
-        console.log('Clean PV moves for arrows:', pvMoves);
         
         // Add arrows for each PV move
         pvMoves.forEach((moveStr, index) => {
@@ -624,18 +632,9 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       }
       
       // Apply all shapes
-      console.log('Setting shapes:', shapes);
-      console.log('Chessground state before setShapes:', chessgroundRef.current.state);
-      console.log('Drawable enabled:', chessgroundRef.current.state.drawable?.enabled);
-      console.log('Drawable visible:', chessgroundRef.current.state.drawable?.visible);
       
       chessgroundRef.current.setShapes(shapes);
       
-      // Verify shapes were actually set
-      setTimeout(() => {
-        console.log('Chessground state after setShapes:', chessgroundRef.current?.state.drawable?.shapes);
-        console.log('Drawable shapes length:', chessgroundRef.current?.state.drawable?.shapes?.length || 0);
-      }, 100);
     } else if (chessgroundRef.current) {
       chessgroundRef.current.setShapes([]);
       // Remove arrow numbers too
@@ -646,6 +645,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     }
   }, [analysisResults, boardOrientation, engineOptions.mode]);
 
+  
   return (
     <div className="chess-board-container">
       <div 
@@ -654,6 +654,13 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         style={{
           width: `${boardWidth}px`,
           height: `${boardWidth}px`,
+          minWidth: '200px',
+          minHeight: '200px',
+          maxWidth: `${boardWidth}px`,
+          maxHeight: `${boardWidth}px`,
+          overflow: 'hidden',
+          position: 'relative',
+          boxSizing: 'border-box',
         }}
       />
     </div>

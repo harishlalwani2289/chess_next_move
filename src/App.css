@@ -2458,15 +2458,12 @@ progress::-moz-progress-bar {
   }
   
   .chessground-board {
-    width: 100% !important;
-    max-width: 320px !important;
-    height: auto !important;
+    min-width: 200px !important;
+    /* Allow JavaScript to control width and height */
   }
   
   .chessground-board .cg-wrap {
-    width: 100% !important;
-    max-width: 320px !important;
-    height: auto !important;
+    /* Allow JavaScript to control dimensions */
   }
   
   .chessground-board .cg-board {
