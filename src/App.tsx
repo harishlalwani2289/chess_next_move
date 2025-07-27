@@ -26,7 +26,7 @@ function App() {
         
         <div className="board-column">
           <div className="board-section">
-            <ChessBoard width={500} />
+            <ChessBoard />
           </div>
           <MobileCalculateButton />
           <GameNavigation />

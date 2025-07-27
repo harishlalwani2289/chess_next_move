@@ -20,9 +20,38 @@ interface ChessBoardProps {
 }
 
 
-export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
+export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
   const boardRef = useRef<HTMLDivElement>(null);
   const chessgroundRef = useRef<any>(null);
+  
+  // Calculate responsive width based on screen size
+  const getResponsiveWidth = () => {
+    if (width) return width; // Use provided width if specified
+    
+    const screenWidth = window.innerWidth;
+    if (screenWidth <= 768) {
+      // Mobile: use 90% of screen width, max 320px
+      return Math.min(screenWidth * 0.9, 320);
+    } else if (screenWidth <= 1024) {
+      // Tablet: 400px
+      return 400;
+    } else {
+      // Desktop: 500px
+      return 500;
+    }
+  };
+  
+  const [boardWidth, setBoardWidth] = React.useState(getResponsiveWidth());
+  
+  // Update board width on window resize
+  React.useEffect(() => {
+    const handleResize = () => {
+      setBoardWidth(getResponsiveWidth());
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [width]);
   
   const {
     gameState,
@@ -623,8 +652,8 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width = 500 }) => {
         ref={boardRef}
         className="chessground-board"
         style={{
-          width: `${width}px`,
-          height: `${width}px`,
+          width: `${boardWidth}px`,
+          height: `${boardWidth}px`,
         }}
       />
     </div>
