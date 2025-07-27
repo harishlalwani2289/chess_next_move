@@ -44,7 +44,7 @@ interface ChessStore {
   
   // Board management actions
   addBoard: (name?: string) => string;
-  removeBoard: (boardId: string) => void;
+  removeBoard: (boardId: string) => Promise<void>;
   switchToBoard: (boardId: string) => void;
   renameBoardNormal: (boardId: string, name: string) => void;
   
@@ -163,6 +163,18 @@ const getBoardIdMapping = (localId: string): string | null => {
   } catch (error) {
     console.warn('Failed to get board ID mapping:', error);
     return null;
+  }
+};
+
+const removeBoardIdMapping = (localId: string) => {
+  try {
+    const stored = localStorage.getItem(getBoardMappingKey());
+    if (!stored) return;
+    const mapping = JSON.parse(stored);
+    delete mapping[localId];
+    localStorage.setItem(getBoardMappingKey(), JSON.stringify(mapping));
+  } catch (error) {
+    console.warn('Failed to remove board ID mapping:', error);
   }
 };
 
@@ -353,12 +365,28 @@ export const useChessStore = create<ChessStore>((set, get) => {
       return newBoardId;
     },
     
-    removeBoard: (boardId) => {
+    removeBoard: async (boardId) => {
       const { boards, currentBoardId } = get();
       
       if (boards.length <= 1) {
         console.warn('Cannot remove the last board');
         return;
+      }
+      
+      // Get the server ID for this board
+      const boardServerId = get().getBoardServerId(boardId);
+      
+      // Delete from backend if it exists there
+      const authStore = useAuthStore.getState();
+      if (authStore.isAuthenticated && boardServerId) {
+        try {
+          console.log('🗑️ Deleting board from backend:', boardServerId);
+          await apiService.deleteChessBoard(boardServerId);
+          console.log('✅ Board deleted from backend successfully');
+        } catch (error) {
+          console.error('❌ Failed to delete board from backend:', error);
+          // Continue with local deletion even if backend deletion fails
+        }
       }
       
       const newBoards = boards.filter(board => board.id !== boardId);
@@ -378,8 +406,10 @@ export const useChessStore = create<ChessStore>((set, get) => {
         return updatedState;
       });
       
-      // Mark pending changes to trigger sync for authenticated users
-      get().markPendingChanges();
+      // Clean up the board ID mapping
+      removeBoardIdMapping(boardId);
+      
+      // No need to mark pending changes since we already synced the deletion
     },
     
     switchToBoard: (boardId) => {
@@ -541,6 +571,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
       
       const newOrientation = currentBoard.boardOrientation === 'white' ? 'black' : 'white';
       get().updateCurrentBoard({ boardOrientation: newOrientation });
+      get().markPendingChanges();
     },
     
     resetToStartPosition: () => {
@@ -825,7 +856,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
               })),
               isAnalyzing: false,
               gameInformation: null,
-              boardOrientation: 'white' as const
+              boardOrientation: apiBoard.boardOrientation || 'white'
             };
           });
           
@@ -881,6 +912,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
           fen: currentBoard.game.fen(),
           gameState: currentBoard.gameState,
           pgn: '',
+          boardOrientation: currentBoard.boardOrientation,
         };
         console.log('📦 Sync data:', syncData);
 
@@ -924,6 +956,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
             fen: board.game.fen(),
             gameState: board.gameState,
             pgn: '',
+            boardOrientation: board.boardOrientation,
           };
 
           if (boardServerId) {

@@ -57,6 +57,7 @@ export interface ChessBoard {
     fen: string;
     timestamp: string;
   }>;
+  boardOrientation?: 'white' | 'black';
   createdAt: string;
   updatedAt: string;
 }

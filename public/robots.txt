@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://chess-next-move.vercel.app/sitemap.xml
+Sitemap: https://chess-next-move-1ykf.vercel.app/sitemap.xml
