@@ -1,4 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Temporarily hardcode for deployment testing
+const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (import.meta.env.PROD ? 'https://chess-backend-production-cb44.up.railway.app/api' : 'http://localhost:5000/api');
 
 // Debug: Log the API URL in both development and production to verify configuration
 console.log('🔗 API Base URL:', API_BASE_URL);
