@@ -16,6 +16,7 @@ export const BoardsManager: React.FC = () => {
   const [editName, setEditName] = useState('');
   const boardsListRef = useRef<HTMLDivElement>(null);
   const activeBoardRef = useRef<HTMLDivElement>(null);
+  const editInputRef = useRef<HTMLInputElement>(null);
 
   // Auto-scroll to active board when currentBoardId changes
   useEffect(() => {
@@ -43,10 +44,26 @@ export const BoardsManager: React.FC = () => {
     }
   }, [currentBoardId]);
 
+  // Select all text when editing starts
+  useEffect(() => {
+    if (editingBoardId && editInputRef.current) {
+      // Use setTimeout to ensure the input is rendered and focused
+      setTimeout(() => {
+        if (editInputRef.current) {
+          editInputRef.current.select();
+        }
+      }, 10);
+    }
+  }, [editingBoardId]);
+
   const handleAddBoard = () => {
     const newBoardName = `Board ${boards.length + 1}`;
     const newBoardId = addBoard(newBoardName);
     switchToBoard(newBoardId);
+    
+    // Start editing the new board immediately
+    setEditingBoardId(newBoardId);
+    setEditName(newBoardName);
   };
 
   const handleRemoveBoard = (boardId: string) => {
@@ -118,6 +135,7 @@ export const BoardsManager: React.FC = () => {
             >
               {editingBoardId === board.id ? (
                 <input
+                  ref={editInputRef}
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
