@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LogIn } from 'lucide-react';
 import ChessBoard from './components/ChessBoard';
 import BoardControls from './components/BoardControls';

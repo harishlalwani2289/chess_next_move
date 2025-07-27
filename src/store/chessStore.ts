@@ -22,7 +22,7 @@ interface BoardData {
 interface ChessStore {
   // Multiple boards state
   boards: BoardData[];
-  currentBoardId: string;
+  currentBoardId: string | null;
   
   // Global UI state
   boardTheme: BoardTheme;
@@ -40,7 +40,7 @@ interface ChessStore {
   lastSyncTime: Date | null;
   pendingChanges: boolean;
   autoSyncEnabled: boolean;
-  autoSyncInterval: NodeJS.Timeout | null;
+  autoSyncInterval: number | null;
   
   // Board management actions
   addBoard: (name?: string) => string;
@@ -795,10 +795,34 @@ export const useChessStore = create<ChessStore>((set, get) => {
               id: apiBoard._id, // Use server ID as local ID
               name: apiBoard.name,
               game,
-              gameState: apiBoard.gameState,
-              moveHistory: apiBoard.gameHistory,
+              gameState: {
+                fen: apiBoard.fen,
+                turn: apiBoard.gameState.turn,
+                castlingRights: {
+                  whiteKingSide: apiBoard.gameState.castling.includes('K'),
+                  whiteQueenSide: apiBoard.gameState.castling.includes('Q'),
+                  blackKingSide: apiBoard.gameState.castling.includes('k'),
+                  blackQueenSide: apiBoard.gameState.castling.includes('q'),
+                }
+              },
+              moveHistory: apiBoard.gameHistory.map((historyItem: any) => ({
+                fen: historyItem.fen,
+                turn: historyItem.fen.split(' ')[1] as 'w' | 'b',
+                castlingRights: {
+                  whiteKingSide: historyItem.fen.split(' ')[2].includes('K'),
+                  whiteQueenSide: historyItem.fen.split(' ')[2].includes('Q'),
+                  blackKingSide: historyItem.fen.split(' ')[2].includes('k'),
+                  blackQueenSide: historyItem.fen.split(' ')[2].includes('q'),
+                },
+                position: historyItem.fen
+              })),
               currentHistoryIndex: apiBoard.gameHistory.length - 1,
-              analysisResults: apiBoard.analysisResults,
+              analysisResults: apiBoard.analysisResults.map((result: any) => ({
+                bestMove: result.bestMove,
+                evaluation: result.evaluation.toString(),
+                principalVariation: result.principalVariation || '',
+                moveNumber: 1
+              })),
               isAnalyzing: false,
               gameInformation: null,
               boardOrientation: 'white' as const
@@ -813,6 +837,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
           
           set((state) => {
             const updatedState = { 
+              ...state,
               boards: restoredBoards,
               currentBoardId: restoredBoards[0]?.id || null,
               isSyncing: false, 
@@ -820,7 +845,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
               pendingChanges: false 
             };
             // Sync current board properties when loading from backend
-            syncCurrentBoardProperties({ ...state, ...updatedState });
+            syncCurrentBoardProperties(updatedState);
             return updatedState;
           });
         }

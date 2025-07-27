@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import apiService from '../services/api';
-import type { User, AuthResponse } from '../services/api';
+import type { User } from '../services/api';
 import { useChessStore } from './chessStore';
 
 interface AuthState {
@@ -21,7 +21,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       user: null,
       isAuthenticated: false,
       isLoading: false,
