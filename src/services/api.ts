@@ -133,6 +133,16 @@ class ApiService {
     });
   }
 
+  // OAuth endpoints
+  getGoogleAuthUrl(): string {
+    return `${API_BASE_URL}/oauth/google`;
+  }
+
+  getGitHubAuthUrl(): string {
+    return `${API_BASE_URL}/oauth/github`;
+  }
+
+
   // Chess board endpoints
   async getChessBoards(page = 1, limit = 10): Promise<ApiResponse<{
     chessBoards: ChessBoard[];

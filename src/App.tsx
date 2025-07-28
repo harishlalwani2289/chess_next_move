@@ -11,6 +11,7 @@ import MobileNavigation from './components/MobileNavigation';
 import MobileCalculateButton from './components/MobileCalculateButton';
 import AuthModal from './components/AuthModal';
 import UserProfile from './components/UserProfile';
+import OAuthCallback from './components/OAuthCallback';
 import { useAuthStore } from './store/authStore';
 import './App.css'
 
@@ -22,6 +23,28 @@ function App() {
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  // Check if this is an OAuth callback
+  const currentPath = window.location.pathname;
+  const isOAuthCallback = currentPath.startsWith('/oauth/callback/');
+  
+  if (isOAuthCallback) {
+    const provider = currentPath.split('/oauth/callback/')[1];
+    return (
+      <div className="app">
+        <header className="app-header">
+          <div className="header-content">
+            <div className="header-text">
+              <h1>Chess Position Analyzer</h1>
+            </div>
+          </div>
+        </header>
+        <main className="main-content">
+          <OAuthCallback provider={provider} />
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="app">
