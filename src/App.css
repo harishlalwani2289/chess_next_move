@@ -744,8 +744,8 @@
 .toggle-switch {
   position: relative;
   display: inline-block;
-  width: 50px;
-  height: 24px;
+  width: 35px;
+  height: 16.8px;
 }
 
 .toggle-switch input {
@@ -769,10 +769,10 @@
 .toggle-slider:before {
   position: absolute;
   content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
+  height: 12.6px;
+  width: 12.6px;
+  left: 2.1px;
+  bottom: 2.1px;
   background-color: white;
   transition: 0.4s;
   border-radius: 50%;
@@ -783,7 +783,7 @@ input:checked + .toggle-slider {
 }
 
 input:checked + .toggle-slider:before {
-  transform: translateX(26px);
+  transform: translateX(18.2px);
 }
 
 .analyze-btn {
@@ -815,6 +815,24 @@ input:checked + .toggle-slider:before {
   border-radius: 8px;
   padding: 1rem;
   background: #f8f9fa;
+}
+
+.best-move-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.best-move-header label {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.move-details {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .result-header {
@@ -880,6 +898,57 @@ input:checked + .toggle-slider:before {
 
 .make-move-icon-btn:disabled:hover {
   transform: none;
+}
+
+.make-move-icon-btn-small-green {
+  background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  color: white;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+  margin-left: 0.5rem;
+  margin-right: 10px;
+}
+
+.make-move-icon-btn-small-blue {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+  margin-left: 0.5rem;
+  margin-right: 10px;
+}
+
+.make-move-icon-btn-small-red {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  padding: 0.25rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  width: 24px;
+  height: 24px;
+  margin-left: 0.5rem;
+  margin-right: 10px;
 }
 
 /* Smaller play button for best move labels */

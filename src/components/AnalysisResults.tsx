@@ -247,6 +247,19 @@ export const AnalysisResults: React.FC = () => {
     explanationCache.current.clear();
   }, [analysisResults]);
 
+  const getMoveColorClass = (moveNumber: number) => {
+    switch (moveNumber) {
+      case 1:
+        return 'make-move-icon-btn-small-green';
+      case 2:
+        return 'make-move-icon-btn-small-blue';
+      case 3:
+        return 'make-move-icon-btn-small-red';
+      default:
+        return 'make-move-icon-btn-small';
+    }
+  };
+
   return (
     <div className="analysis-results">
       <div className="results-header">
@@ -274,44 +287,40 @@ export const AnalysisResults: React.FC = () => {
       <div className="results-list">
         {analysisResults.slice(0, 3).map((result, index) => (
           <div key={index} className="result-item">
-            <div className="result-header">
-              <div className="best-move-label">
-                <label>
-                  Best Move #{result.moveNumber}:
-                  <button
-                    ref={el => { iconRefs.current[index] = el; }}
-                    className="ai-info-icon"
-                    style={{ display: aiExplanationsEnabled ? 'inline' : 'none' }}
-                    title="Hover for AI explanation"
-                    onMouseEnter={() => handleIconHover(index, result)}
-                    onMouseLeave={() => handleIconLeave(index)}
-                  >
-                    <Info size={16} />
-                  </button>
-                </label>
-                <button 
-                  className="make-move-icon-btn-small"
-                  onClick={() => handleMakeMove(result.bestMove)}
-                  disabled={!result.bestMove}
-                  title="Make Move"
-                >
-                  <Play size={12} />
-                </button>
-              </div>
-              <div className="result-values">
-                <input 
-                  type="text" 
-                  value={result.bestMove} 
-                  readOnly 
-                  className="move-input"
-                />
-                <input 
-                  type="text" 
-                  value={result.evaluation} 
-                  readOnly 
-                  className="eval-input"
-                />
-              </div>
+            <div className="best-move-header">
+              <label>Best Move #{result.moveNumber}</label>
+              <button
+                ref={el => { iconRefs.current[index] = el; }}
+                className="ai-info-icon"
+                style={{ display: aiExplanationsEnabled ? 'inline' : 'none' }}
+                title="Hover for AI explanation"
+                onMouseEnter={() => handleIconHover(index, result)}
+                onMouseLeave={() => handleIconLeave(index)}
+              >
+                <Info size={16} />
+              </button>
+            </div>
+            <div className="move-details">
+              <button
+                className={getMoveColorClass(result.moveNumber)}
+                onClick={() => handleMakeMove(result.bestMove)}
+                disabled={!result.bestMove}
+                title="Make Move"
+              >
+                <Play size={12} />
+              </button>
+              <input
+                type="text"
+                value={result.bestMove}
+                readOnly
+                className="move-input"
+              />
+              <input
+                type="text"
+                value={result.evaluation}
+                readOnly
+                className="eval-input"
+              />
             </div>
 
             <div className="principal-variation">

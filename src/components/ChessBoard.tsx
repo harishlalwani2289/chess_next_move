@@ -157,7 +157,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
   useEffect(() => {
     if (!boardRef.current || !currentBoard?.gameState) return;
 
-
     const config = {
       fen: currentBoard.gameState.fen,
       orientation: boardOrientation as 'white' | 'black',
@@ -166,6 +165,17 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         free: false,
         color: 'both' as const,
         dests: new Map(),
+      },
+      premovable: {
+        enabled: true,
+      },
+      draggable: {
+        enabled: true,
+        lift: 0.5,
+      },
+      highlight: {
+        lastMove: true,
+        check: true,
       },
       events: {
         move: (orig: Key, dest: Key) => {
@@ -251,7 +261,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         chessgroundRef.current = null;
       }
     };
-  }, [currentBoard?.id, currentBoard?.gameState?.fen, boardOrientation, boardWidth]); // Re-initialize when switching boards, position changes, or board size changes
+  }, [boardWidth]); // Re-initialize only when board size changes
 
   // Update board when game state changes
   useEffect(() => {
@@ -303,11 +313,17 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       
       chessgroundRef.current.set({
         fen: gameState.fen,
+        orientation: boardOrientation as 'white' | 'black',
         turnColor: gameState.turn === 'w' ? 'white' : 'black',
         movable: {
           free: false,
           color: 'both',
           dests, // Legal destinations for both colors
+        },
+        animation: {
+          enabled: true,
+          duration: 600,
+          curve: [0.42, 0, 0.58, 1],
         },
       });
       

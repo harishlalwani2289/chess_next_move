@@ -93,7 +93,7 @@ export const useStockfish = () => {
       const piece = game?.get(fromSquare as any);
       
       if (piece) {
-        const pieceSymbol = piece.type === 'p' ? 'p' : piece.type.toUpperCase();
+        const pieceSymbol = piece.type === 'p' ? '' : piece.type.toUpperCase();
         return pieceSymbol + fromSquare + toSquare;
       }
       
