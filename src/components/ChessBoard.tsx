@@ -200,7 +200,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       },
       animation: {
         enabled: true,
-        duration: 3000, // 3 seconds for VERY visible movement
+        duration: 500, // 0.5 seconds for smooth movement
         curve: [0.25, 0.1, 0.25, 1],
       },
       drawable: {
@@ -327,8 +327,8 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         },
         animation: {
           enabled: true,
-          duration: 3000, // Match the initial configuration - 3 seconds
-          curve: [0.25, 0.1, 0.25, 1], // Smoother easing curve
+          duration: 500, // 0.5 seconds for smooth movement
+          curve: [0.25, 0.1, 0.25, 1],
         },
       });
       
@@ -340,70 +340,9 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       if (engineOptions.mode !== 'show') {
         chessgroundRef.current.setShapes([]);
       }
-      
-      // Also apply CSS-based highlighting as fallback
-      applyCSSHighlighting();
     }
   }, [gameState?.fen, gameState?.turn, currentBoard?.id, engineOptions.mode]);
 
-  // Apply CSS-based highlighting as fallback
-  const applyCSSHighlighting = () => {
-    if (!boardRef.current || analysisResults.length === 0) return;
-    
-    // Remove existing highlight classes
-    const squares = boardRef.current.querySelectorAll('.cg-board square');
-    squares.forEach(square => {
-      square.classList.remove('best-move-highlight', 'pv-highlight-1', 'pv-highlight-2', 'pv-highlight-3', 'pv-highlight-4');
-    });
-    
-    // Add highlighting for best moves
-    analysisResults.slice(0, 3).forEach((result, index) => {
-      if (result.bestMove && result.bestMove.length >= 4) {
-        let move = result.bestMove;
-        if (move.length > 4 && /^[a-zA-Z]/.test(move)) {
-          move = move.slice(1);
-        }
-        
-        const from = move.slice(0, 2);
-        const to = move.slice(2, 4);
-        
-        const fromSquare = boardRef.current?.querySelector(`square[data-key="${from}"]`);
-        const toSquare = boardRef.current?.querySelector(`square[data-key="${to}"]`);
-        
-        if (fromSquare) fromSquare.classList.add(`best-move-highlight-${index + 1}`);
-        if (toSquare) toSquare.classList.add(`best-move-highlight-${index + 1}`);
-      }
-    });
-    
-    // Add highlighting for PV moves
-    if (analysisResults.length > 0 && analysisResults[0].principalVariation) {
-      const pvMoves = analysisResults[0].principalVariation.split(' ').slice(0, 4);
-      
-      pvMoves.forEach((moveStr, index) => {
-        if (moveStr && moveStr.length >= 4) {
-          let move = moveStr;
-          if (move.length > 4 && /^[a-zA-Z]/.test(move)) {
-            move = move.slice(1);
-          }
-          
-          const from = move.slice(0, 2);
-          const to = move.slice(2, 4);
-          
-          const fromSquare = boardRef.current?.querySelector(`square[data-key="${from}"]`);
-          const toSquare = boardRef.current?.querySelector(`square[data-key="${to}"]`);
-          
-          if (fromSquare) {
-            fromSquare.classList.add(`pv-highlight-${index + 1}`);
-            fromSquare.setAttribute('data-move-number', (index + 1).toString());
-          }
-          if (toSquare) {
-            toSquare.classList.add(`pv-highlight-${index + 1}`);
-            toSquare.setAttribute('data-move-number', (index + 1).toString());
-          }
-        }
-      });
-    }
-  };
 
   // Update board orientation without re-initializing
   useEffect(() => {
@@ -698,32 +637,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
           boxSizing: 'border-box',
         }}
       />
-      {/* Inline styles to force animation settings with highest priority */}
-      <style dangerouslySetInnerHTML={{
-        __html: `
-          .chessground-board * {
-            transition: none !important;
-            animation: none !important;
-          }
-          .chessground-board .cg-wrap piece {
-            transition: none !important;
-            animation: none !important;
-          }
-          .chessground-board .cg-board piece {
-            transition: none !important;
-            animation: none !important;
-          }
-          .chessground-board cg-board piece {
-            transition: none !important;
-            animation: none !important;
-          }
-          /* Let Chessground handle its own animations completely */
-          piece.anim {
-            transition: none !important;
-            animation: none !important;
-          }
-        `
-      }} />
     </div>
   );
 };
