@@ -486,11 +486,33 @@ export const useChessStore = create<ChessStore>((set, get) => {
         return updatedState;
       });
       
-      // Mark pending changes to trigger sync for authenticated users
-      // Directly save to database if authenticated
+      // Directly save the renamed board to database if authenticated
       const authStore = useAuthStore.getState();
       if (authStore.isAuthenticated) {
-        await get().saveCurrentBoardToDatabase();
+        try {
+          const renamedBoard = get().boards.find(board => board.id === boardId);
+          if (renamedBoard) {
+            const boardServerId = get().getBoardServerId(boardId);
+            console.log('📝 Saving renamed board to database:', name, 'Server ID:', boardServerId);
+            
+            if (boardServerId) {
+              const saveData = {
+                name: renamedBoard.name,
+                fen: renamedBoard.game.fen(),
+                gameState: renamedBoard.gameState,
+                pgn: '',
+                boardOrientation: renamedBoard.boardOrientation,
+              };
+              
+              await apiService.updateChessBoard(boardServerId, saveData);
+              console.log('✅ Board name updated in database successfully');
+            } else {
+              console.warn('⚠️ No server ID found for board, cannot update database');
+            }
+          }
+        } catch (error) {
+          console.error('❌ Failed to save renamed board to database:', error);
+        }
       }
     },
     
