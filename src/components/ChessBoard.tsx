@@ -261,7 +261,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         chessgroundRef.current = null;
       }
     };
-  }, [boardWidth]); // Re-initialize only when board size changes
+  }, [currentBoard?.id, currentBoard?.gameState?.fen, boardOrientation, boardWidth]); // Re-initialize when switching boards, position changes, orientation changes, or board size changes
 
   // Update board when game state changes
   useEffect(() => {

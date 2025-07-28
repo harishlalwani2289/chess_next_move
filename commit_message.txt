@@ -1,0 +1,9 @@
+feat: Improve chess board and analysis results UI/UX
+
+This commit introduces several improvements to the chess board and analysis results:
+
+- Reduced the size of the toggle switch in analysis results for a more compact look.
+- Refactored the analysis results display to move the "Best Move #" label and AI info icon to a separate line, improving readability.
+- Corrected the piece notation for best moves, ensuring accurate display of piece types (e.g., 'N' for knight instead of 'p').
+- Synchronized the color of the "Play" button in analysis results with the corresponding SVG circle on the board for better visual consistency.
+- Implemented smoother piece movement animations on the chess board by adjusting animation duration and curve, and ensuring animation settings are applied consistently.
