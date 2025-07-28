@@ -42,8 +42,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const { login, register, loginWithOAuth, isLoading, error, clearError } = useAuthStore();
 
-  const handleOAuthLogin = (provider: 'google') => {
-    loginWithOAuth(provider);
+  const handleOAuthLogin = () => {
+    loginWithOAuth();
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -190,7 +190,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           <div className="oauth-buttons">
             <button
               type="button"
-              onClick={() => handleOAuthLogin('google')}
+              onClick={handleOAuthLogin}
               className="oauth-btn oauth-btn-google"
               disabled={isLoading}
             >

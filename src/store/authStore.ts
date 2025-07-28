@@ -13,7 +13,7 @@ interface AuthState {
   // Actions
   login: (email: string, password: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
-  loginWithOAuth: (provider: 'google') => void;
+  loginWithOAuth: () => void;
   logout: () => void;
   clearError: () => void;
   checkAuth: () => Promise<void>;
@@ -110,7 +110,7 @@ export const useAuthStore = create<AuthState>()(
         }
       },
 
-      loginWithOAuth: (provider: 'google') => {
+      loginWithOAuth: () => {
         const authUrl = apiService.getGoogleAuthUrl();
         
         // Store the current URL to redirect back after OAuth
