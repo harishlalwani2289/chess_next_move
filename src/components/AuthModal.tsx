@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { X, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 // Google Icon - Larger for better visibility

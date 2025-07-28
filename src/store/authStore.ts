@@ -176,7 +176,7 @@ export const useAuthStore = create<AuthState>()(
               error: null
             });
           }
-        } catch (error) {
+        } catch {
           // Token is invalid, remove it
           apiService.removeAuthToken();
           set({

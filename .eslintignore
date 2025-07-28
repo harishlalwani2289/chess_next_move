@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# External libraries
+chessground-*/
+*.d.ts
+
+# Generated files
+*.config.js
+vite.config.ts
