@@ -153,7 +153,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     });
   };
 
-  // Initialize/Update Chessground when board or game state changes
+  // Initialize Chessground when board ID changes or board size changes
   useEffect(() => {
     if (!boardRef.current || !currentBoard?.gameState) return;
 
@@ -266,7 +266,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         chessgroundRef.current = null;
       }
     };
-  }, [currentBoard?.id, currentBoard?.gameState?.fen, boardOrientation, boardWidth]); // Re-initialize when switching boards, position changes, orientation changes, or board size changes
+  }, [currentBoard?.id, boardWidth]); // Only re-initialize when switching boards or board size changes
 
   // Update board when game state changes
   useEffect(() => {
@@ -405,7 +405,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     }
   };
 
-  // Update board orientation
+  // Update board orientation without re-initializing
   useEffect(() => {
     if (chessgroundRef.current) {
       chessgroundRef.current.set({
@@ -413,6 +413,15 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       });
     }
   }, [boardOrientation]);
+
+  // Update position and FEN without re-initializing
+  useEffect(() => {
+    if (chessgroundRef.current && currentBoard?.gameState) {
+      chessgroundRef.current.set({
+        fen: currentBoard.gameState.fen,
+      });
+    }
+  }, [currentBoard?.gameState?.fen]);
 
   // Add DOM overlay numbers for PV arrows - following original vanilla JS approach
   const addArrowNumbers = (pvMoves: string[]) => {
