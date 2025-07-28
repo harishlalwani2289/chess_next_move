@@ -200,7 +200,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       },
       animation: {
         enabled: true,
-        duration: 1000, // 1 second for visible movement
+        duration: 3000, // 3 seconds for VERY visible movement
         curve: [0.25, 0.1, 0.25, 1],
       },
       drawable: {
@@ -327,7 +327,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
         },
         animation: {
           enabled: true,
-          duration: 1000, // Match the initial configuration
+          duration: 3000, // Match the initial configuration - 3 seconds
           curve: [0.25, 0.1, 0.25, 1], // Smoother easing curve
         },
       });
@@ -689,6 +689,32 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
           boxSizing: 'border-box',
         }}
       />
+      {/* Inline styles to force animation settings with highest priority */}
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .chessground-board * {
+            transition: none !important;
+            animation: none !important;
+          }
+          .chessground-board .cg-wrap piece {
+            transition: none !important;
+            animation: none !important;
+          }
+          .chessground-board .cg-board piece {
+            transition: none !important;
+            animation: none !important;
+          }
+          .chessground-board cg-board piece {
+            transition: none !important;
+            animation: none !important;
+          }
+          /* Let Chessground handle its own animations completely */
+          piece.anim {
+            transition: none !important;
+            animation: none !important;
+          }
+        `
+      }} />
     </div>
   );
 };
