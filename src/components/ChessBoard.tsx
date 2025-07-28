@@ -198,6 +198,11 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
           existingNumbers?.forEach(el => el.remove());
         },
       },
+      animation: {
+        enabled: true,
+        duration: 600,
+        curve: [0.42, 0, 0.58, 1],
+      },
       drawable: {
         enabled: true,
         visible: true,
