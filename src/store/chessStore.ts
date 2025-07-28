@@ -205,8 +205,23 @@ const loadPersistedState = (): Partial<ChessStore> => {
   const authStore = useAuthStore.getState();
   if (authStore.isAuthenticated) {
     console.log('User is authenticated, skipping localStorage load');
+    
+    // For authenticated users, still load currentBoardId from localStorage to preserve selection
+    let currentBoardId = null;
+    try {
+      const stored = localStorage.getItem(getStorageKey());
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        currentBoardId = parsed.currentBoardId;
+        console.log('💾 Loaded currentBoardId from localStorage for authenticated user:', currentBoardId);
+      }
+    } catch (error) {
+      console.warn('Failed to load currentBoardId from localStorage:', error);
+    }
+    
     return {
       // Only load UI preferences from localStorage for authenticated users
+      currentBoardId, // Preserve the last selected board
       engineOptions: loadUIPreferences().engineOptions,
       boardTheme: loadUIPreferences().boardTheme,
       pieceSet: loadUIPreferences().pieceSet,
@@ -987,8 +1002,17 @@ export const useChessStore = create<ChessStore>((set, get) => {
             // Sort boards alphabetically by name
             const sortedBoards = finalBoards.slice().sort((a, b) => a.name.localeCompare(b.name));
             
-            // Set current board to the first alphabetically sorted board
-            const newCurrentBoardId = sortedBoards[0]?.id || null;
+            // Preserve current board if it still exists, otherwise use first alphabetically
+            let newCurrentBoardId = state.currentBoardId;
+            const currentBoardExists = sortedBoards.some(board => board.id === state.currentBoardId);
+            
+            if (!currentBoardExists || !newCurrentBoardId) {
+              // Only switch to first board if current board doesn't exist or is null
+              newCurrentBoardId = sortedBoards[0]?.id || null;
+              console.log('🔄 Current board not found, switching to first board:', newCurrentBoardId);
+            } else {
+              console.log('✅ Preserving current board selection:', newCurrentBoardId);
+            }
 
             const updatedState = { 
               ...state,
