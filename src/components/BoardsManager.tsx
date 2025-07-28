@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Plus, X, Edit2, Check } from 'lucide-react';
+import { Plus, Trash2, Pencil, Check } from 'lucide-react';
 import { useChessStore } from '../store/chessStore';
 
 export const BoardsManager: React.FC = () => {
@@ -170,7 +170,7 @@ export const BoardsManager: React.FC = () => {
                   className="action-button edit"
                   title="Rename board"
                 >
-                  <Edit2 size={14} />
+                  <Pencil size={14} />
                 </button>
               )}
               
@@ -180,7 +180,7 @@ export const BoardsManager: React.FC = () => {
                   className="action-button remove"
                   title="Remove board"
                 >
-                  <X size={14} />
+                  <Trash2 size={14} />
                 </button>
               )}
             </div>

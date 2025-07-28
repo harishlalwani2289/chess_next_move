@@ -182,6 +182,11 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
             }
           }
         },
+        select: () => {
+          // Clear arrow numbers whenever a square is selected/clicked
+          const existingNumbers = boardRef.current?.querySelectorAll('.pv-arrow-number');
+          existingNumbers?.forEach(el => el.remove());
+        },
       },
       drawable: {
         enabled: true,
