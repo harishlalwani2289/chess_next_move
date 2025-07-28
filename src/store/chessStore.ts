@@ -135,9 +135,17 @@ const initialAISettings: AISettings = {
   groqApiKey: '',
 };
 
-// Create a storage key - use localStorage for persistence across refresh
+// Create a storage key - use sessionStorage for non-authenticated users (clears on browser close)
 const getStorageKey = () => {
   return 'chess-analyzer-state';
+};
+
+// Check if user is authenticated to determine storage type
+const getStorageType = () => {
+  const authStore = useAuthStore.getState();
+  // For non-authenticated users, use sessionStorage (clears when browser/tab closes)
+  // For authenticated users, don't use any local storage for boards
+  return authStore.isAuthenticated ? null : sessionStorage;
 };
 
 // Board ID mapping storage
@@ -201,10 +209,10 @@ const createInitialBoard = (id: string, name: string): BoardData => {
 
 // Load persisted state from localStorage (only for non-authenticated users)
 const loadPersistedState = (): Partial<ChessStore> => {
-  // Check if user is authenticated - if so, don't load from localStorage
+  // Check if user is authenticated - if so, don't load boards from local storage
   const authStore = useAuthStore.getState();
   if (authStore.isAuthenticated) {
-    console.log('User is authenticated, skipping localStorage load');
+    console.log('User is authenticated, loading only UI preferences from localStorage');
     
     // For authenticated users, still load currentBoardId from localStorage to preserve selection
     let currentBoardId = null;
@@ -227,11 +235,16 @@ const loadPersistedState = (): Partial<ChessStore> => {
       pieceSet: loadUIPreferences().pieceSet,
       showCoordinates: loadUIPreferences().showCoordinates,
       aiExplanationsEnabled: loadUIPreferences().aiExplanationsEnabled,
+      boards: [] // Don't load any boards from localStorage for authenticated users
     };
   }
 
   try {
-    const stored = localStorage.getItem(getStorageKey());
+    // For non-authenticated users, use sessionStorage
+    const storage = getStorageType();
+    if (!storage) return {};
+    
+    const stored = storage.getItem(getStorageKey());
     if (stored) {
       const parsed = JSON.parse(stored);
       
@@ -321,32 +334,48 @@ const loadUIPreferences = () => {
   };
 };
 
-// Save state to localStorage
+// Save state to appropriate storage
 const saveToStorage = (state: ChessStore) => {
   try {
-    // Prepare boards for serialization (without Chess instances)
-    const boardsForStorage = state.boards.map(board => ({
-      id: board.id,
-      name: board.name,
-      gameState: board.gameState,
-      moveHistory: board.moveHistory,
-      currentHistoryIndex: board.currentHistoryIndex,
-      analysisResults: [], // Don't persist analysis results
-      isAnalyzing: false,
-      gameInformation: board.gameInformation,
-      boardOrientation: board.boardOrientation
-    }));
+    const authStore = useAuthStore.getState();
+    const storage = getStorageType();
     
-    const stateToSave = {
-      boards: boardsForStorage,
-      currentBoardId: state.currentBoardId,
-      engineOptions: state.engineOptions,
-      boardTheme: state.boardTheme,
-      pieceSet: state.pieceSet,
-      showCoordinates: state.showCoordinates,
-      aiExplanationsEnabled: state.aiExplanationsEnabled,
-    };
-    localStorage.setItem(getStorageKey(), JSON.stringify(stateToSave));
+    if (!authStore.isAuthenticated && storage) {
+      // For non-authenticated users, save everything to sessionStorage
+      const boardsForStorage = state.boards.map(board => ({
+        id: board.id,
+        name: board.name,
+        gameState: board.gameState,
+        moveHistory: board.moveHistory,
+        currentHistoryIndex: board.currentHistoryIndex,
+        analysisResults: [], // Don't persist analysis results
+        isAnalyzing: false,
+        gameInformation: board.gameInformation,
+        boardOrientation: board.boardOrientation
+      }));
+      
+      const stateToSave = {
+        boards: boardsForStorage,
+        currentBoardId: state.currentBoardId,
+        engineOptions: state.engineOptions,
+        boardTheme: state.boardTheme,
+        pieceSet: state.pieceSet,
+        showCoordinates: state.showCoordinates,
+        aiExplanationsEnabled: state.aiExplanationsEnabled,
+      };
+      storage.setItem(getStorageKey(), JSON.stringify(stateToSave));
+    } else if (authStore.isAuthenticated) {
+      // For authenticated users, only save UI preferences to localStorage
+      const uiPrefs = {
+        currentBoardId: state.currentBoardId,
+        engineOptions: state.engineOptions,
+        boardTheme: state.boardTheme,
+        pieceSet: state.pieceSet,
+        showCoordinates: state.showCoordinates,
+        aiExplanationsEnabled: state.aiExplanationsEnabled,
+      };
+      localStorage.setItem(getStorageKey(), JSON.stringify(uiPrefs));
+    }
   } catch (error) {
     console.warn('Failed to save chess state:', error);
   }
@@ -943,9 +972,11 @@ export const useChessStore = create<ChessStore>((set, get) => {
       try {
         set({ isSyncing: true });
 
-        const response = await apiService.getChessBoards();
+        const response = await apiService.getChessBoards(1, 1000); // Load up to 1000 boards
+        console.log('📊 Backend response:', response);
         if (response.success && response.data) {
           const boardsFromBackend = response.data.chessBoards;
+          console.log(`📋 Loaded ${boardsFromBackend.length} boards from backend:`, boardsFromBackend.map(b => ({ id: b._id, name: b.name })));
           const restoredBoards = boardsFromBackend.map((apiBoard: ApiChessBoard) => {
             const game = new Chess();
             game.load(apiBoard.fen);
