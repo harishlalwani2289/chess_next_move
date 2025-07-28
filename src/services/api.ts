@@ -138,9 +138,10 @@ class ApiService {
     return `${API_BASE_URL}/oauth/google`;
   }
 
-  getGitHubAuthUrl(): string {
-    return `${API_BASE_URL}/oauth/github`;
-  }
+  // GitHub OAuth temporarily disabled
+  // getGitHubAuthUrl(): string {
+  //   return `${API_BASE_URL}/oauth/github`;
+  // }
 
 
   // Chess board endpoints
