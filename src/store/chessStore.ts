@@ -199,8 +199,22 @@ const createInitialBoard = (id: string, name: string): BoardData => {
   };
 };
 
-// Load persisted state from localStorage
+// Load persisted state from localStorage (only for non-authenticated users)
 const loadPersistedState = (): Partial<ChessStore> => {
+  // Check if user is authenticated - if so, don't load from localStorage
+  const authStore = useAuthStore.getState();
+  if (authStore.isAuthenticated) {
+    console.log('User is authenticated, skipping localStorage load');
+    return {
+      // Only load UI preferences from localStorage for authenticated users
+      engineOptions: loadUIPreferences().engineOptions,
+      boardTheme: loadUIPreferences().boardTheme,
+      pieceSet: loadUIPreferences().pieceSet,
+      showCoordinates: loadUIPreferences().showCoordinates,
+      aiExplanationsEnabled: loadUIPreferences().aiExplanationsEnabled,
+    };
+  }
+
   try {
     const stored = localStorage.getItem(getStorageKey());
     if (stored) {
@@ -264,6 +278,32 @@ const loadPersistedState = (): Partial<ChessStore> => {
     console.warn('Failed to load persisted chess state:', error);
   }
   return {};
+};
+
+// Load only UI preferences from localStorage
+const loadUIPreferences = () => {
+  try {
+    const stored = localStorage.getItem(getStorageKey());
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return {
+        engineOptions: parsed.engineOptions || initialEngineOptions,
+        boardTheme: parsed.boardTheme || 'brown',
+        pieceSet: parsed.pieceSet || 'cburnett',
+        showCoordinates: parsed.showCoordinates !== undefined ? parsed.showCoordinates : true,
+        aiExplanationsEnabled: parsed.aiExplanationsEnabled || false,
+      };
+    }
+  } catch (error) {
+    console.warn('Failed to load UI preferences:', error);
+  }
+  return {
+    engineOptions: initialEngineOptions,
+    boardTheme: 'brown' as BoardTheme,
+    pieceSet: 'cburnett' as PieceSet,
+    showCoordinates: true,
+    aiExplanationsEnabled: false,
+  };
 };
 
 // Save state to localStorage
