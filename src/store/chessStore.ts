@@ -47,7 +47,7 @@ interface ChessStore {
   addBoard: (name?: string) => string;
   removeBoard: (boardId: string) => Promise<void>;
   switchToBoard: (boardId: string) => void;
-  renameBoardNormal: (boardId: string, name: string) => void;
+  renameBoardNormal: (boardId: string, name: string) => Promise<void>;
   
   // Backend sync actions
   loadBoardsFromBackend: () => Promise<void>;
@@ -80,15 +80,15 @@ interface ChessStore {
   updateCurrentBoard: (updates: Partial<BoardData>) => void;
   
   // Actions (all operate on current board)
-  setGameState: (state: Partial<GameState>) => void;
+  setGameState: (state: Partial<GameState>) => Promise<void>;
   makeMove: (from: string, to: string, promotion?: string) => boolean;
-  setPosition: (fen: string) => void;
-  flipBoard: () => void;
-  resetToStartPosition: () => void;
-  clearBoard: () => void;
+  setPosition: (fen: string) => Promise<void>;
+  flipBoard: () => Promise<void>;
+  resetToStartPosition: () => Promise<void>;
+  clearBoard: () => Promise<void>;
   
   // History actions
-  addToHistory: () => void;
+  addToHistory: () => Promise<void>;
   navigateToPrevious: () => void;
   navigateToNext: () => void;
   restoreState: (state: HistoryState) => void;
@@ -435,7 +435,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
       });
     },
     
-    renameBoardNormal: (boardId, name) => {
+    renameBoardNormal: async (boardId, name) => {
       set((state) => {
         const updatedState = {
           boards: state.boards.map(board => 
@@ -559,7 +559,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
       return false;
     },
     
-    setPosition: (fen) => {
+    setPosition: async (fen) => {
       const currentBoard = get().getCurrentBoard();
       if (!currentBoard) return;
       
@@ -583,7 +583,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
       }
     },
     
-    flipBoard: () => {
+    flipBoard: async () => {
       const currentBoard = get().getCurrentBoard();
       if (!currentBoard) return;
       
@@ -596,7 +596,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
       }
     },
     
-    resetToStartPosition: () => {
+    resetToStartPosition: async () => {
       const currentBoard = get().getCurrentBoard();
       if (!currentBoard) return;
       
@@ -622,7 +622,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
       }
     },
     
-    clearBoard: () => {
+    clearBoard: async () => {
       const currentBoard = get().getCurrentBoard();
       if (!currentBoard) return;
       
@@ -644,7 +644,7 @@ export const useChessStore = create<ChessStore>((set, get) => {
     },
     
     // History actions
-    addToHistory: () => {
+    addToHistory: async () => {
       const currentBoard = get().getCurrentBoard();
       if (!currentBoard) return;
       
