@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
-// OAuth Provider Icons
+// Google Icon - Larger for better visibility
 const GoogleIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
     <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -88,82 +88,76 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay" onClick={handleClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <div className="modal-title">
-            <User size={24} />
-            <h3>{mode === 'login' ? 'Sign In' : 'Create Account'}</h3>
-          </div>
-          <button className="modal-close-btn" onClick={handleClose}>
-            <X size={20} />
+    <div className="auth-modal-overlay" onClick={handleClose}>
+      <div className="auth-modal-content" onClick={e => e.stopPropagation()}>
+        <button className="auth-modal-close" onClick={handleClose}>
+          <X size={18} />
+        </button>
+        
+        <div className="auth-modal-body">
+          <h2 className="auth-modal-title">
+            {mode === 'login' ? 'Welcome back' : 'Create account'}
+          </h2>
+          
+          {/* Google OAuth Button - First */}
+          <button
+            type="button"
+            onClick={handleOAuthLogin}
+            className="google-oauth-btn"
+            disabled={isLoading}
+            title="Continue with Google"
+          >
+            <GoogleIcon />
           </button>
-        </div>
+          
+          <div className="auth-divider">
+            <span>or</span>
+          </div>
 
-        <div className="modal-body">
           <form onSubmit={handleSubmit} className="auth-form">
             {mode === 'register' && (
-              <div className="form-group">
-                <label htmlFor="name">Full Name</label>
-                <div className="input-container">
-                  <User size={20} className="input-icon" />
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Enter your full name"
-                    required
-                    className="form-input"
-                  />
-                </div>
-              </div>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Full name"
+                required
+                className="auth-input"
+              />
             )}
 
-            <div className="form-group">
-              <label htmlFor="email">Email Address</label>
-              <div className="input-container">
-                <Mail size={20} className="input-icon" />
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter your email"
-                  required
-                  className="form-input"
-                />
-              </div>
-            </div>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleInputChange}
+              placeholder="Email address"
+              required
+              className="auth-input"
+            />
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <div className="input-container">
-                <Lock size={20} className="input-icon" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Enter your password"
-                  required
-                  className="form-input"
-                />
-                <button
-                  type="button"
-                  className="password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                </button>
-              </div>
+            <div className="password-input-wrapper">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                value={formData.password}
+                onChange={handleInputChange}
+                placeholder="Password"
+                required
+                className="auth-input"
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
             </div>
 
             {error && (
-              <div className="alert alert-error">
+              <div className="auth-error">
                 {error}
               </div>
             )}
@@ -171,58 +165,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="submit"
               disabled={isLoading}
-              className="btn btn-primary auth-submit-btn"
+              className="auth-submit-btn"
             >
-              {isLoading ? (
-                <span className="loading-spinner">Loading...</span>
-              ) : (
-                mode === 'login' ? 'Sign In' : 'Create Account'
-              )}
+              {isLoading ? 'Loading...' : (mode === 'login' ? 'Sign in' : 'Create account')}
             </button>
           </form>
 
-          {/* OAuth Divider */}
-          <div className="oauth-divider">
-            <span>or continue with</span>
-          </div>
-
-          {/* OAuth Buttons */}
-          <div className="oauth-buttons">
-            <button
-              type="button"
-              onClick={handleOAuthLogin}
-              className="oauth-btn oauth-btn-google"
-              disabled={isLoading}
-            >
-              <GoogleIcon />
-              <span>Google</span>
-            </button>
-            
-            {/* GitHub temporarily disabled - will enable after setting up GitHub OAuth app */}
-            {/*
-            <button
-              type="button"
-              onClick={() => handleOAuthLogin('github')}
-              className="oauth-btn oauth-btn-github"
-              disabled={isLoading}
-            >
-              <GitHubIcon />
-              <span>GitHub</span>
-            </button>
-            */}
-          </div>
-
           <div className="auth-switch">
-            <p>
-              {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
-              <button
-                type="button"
-                className="switch-mode-btn"
-                onClick={switchMode}
-              >
-                {mode === 'login' ? 'Sign up' : 'Sign in'}
-              </button>
-            </p>
+            {mode === 'login' ? "Don't have an account?" : "Already have an account?"}
+            <button
+              type="button"
+              className="auth-switch-btn"
+              onClick={switchMode}
+            >
+              {mode === 'login' ? 'Sign up' : 'Sign in'}
+            </button>
           </div>
         </div>
       </div>
