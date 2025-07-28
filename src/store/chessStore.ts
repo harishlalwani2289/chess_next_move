@@ -356,15 +356,22 @@ export const useChessStore = create<ChessStore>((set, get) => {
   // Load persisted state
   const persistedState = loadPersistedState();
   
-  // Initialize boards - use persisted boards or create default board
-  const initialBoards = persistedState.boards && persistedState.boards.length > 0 
-    ? persistedState.boards 
-    : [createInitialBoard('board-1', 'Main Board')];
+  // Check if user is authenticated to decide on initial boards
+  const authStore = useAuthStore.getState();
+  const isAuthenticated = authStore.isAuthenticated;
   
-  const initialCurrentBoardId = persistedState.currentBoardId || initialBoards[0].id;
+  // Initialize boards - for authenticated users, start with empty array (boards will be loaded from backend)
+  // For non-authenticated users, use persisted boards or create default board
+  const initialBoards = isAuthenticated 
+    ? [] // Start with empty array for authenticated users - boards will be loaded from backend
+    : (persistedState.boards && persistedState.boards.length > 0 
+       ? persistedState.boards 
+       : [createInitialBoard('board-1', 'Main Board')]);
+  
+  const initialCurrentBoardId = persistedState.currentBoardId || initialBoards[0]?.id || null;
   
   // Find initial current board
-  const initialCurrentBoard = initialBoards.find(board => board.id === initialCurrentBoardId) || initialBoards[0];
+  const initialCurrentBoard = initialBoards.find(board => board.id === initialCurrentBoardId) || initialBoards[0] || createInitialBoard('temp-board', 'Loading...');
 
     return {
     // Multiple boards state
@@ -972,15 +979,21 @@ export const useChessStore = create<ChessStore>((set, get) => {
           });
           
           set((state) => {
-            const boardsMap = new Map(state.boards.map(b => [b.id, b]));
-            restoredBoards.forEach(b => boardsMap.set(b.id, b));
-
-            const mergedBoards = Array.from(boardsMap.values());
+            // If no boards from backend, create a default Main Board only if needed
+            const finalBoards = restoredBoards.length > 0 
+              ? restoredBoards 
+              : [createInitialBoard('board-1', 'Main Board')];
+            
+            // Sort boards alphabetically by name
+            const sortedBoards = finalBoards.slice().sort((a, b) => a.name.localeCompare(b.name));
+            
+            // Set current board to the first alphabetically sorted board
+            const newCurrentBoardId = sortedBoards[0]?.id || null;
 
             const updatedState = { 
               ...state,
-              boards: mergedBoards,
-              currentBoardId: state.currentBoardId || restoredBoards[0]?.id || null,
+              boards: sortedBoards, // Replace boards completely, don't merge
+              currentBoardId: newCurrentBoardId,
               isSyncing: false, 
               lastSyncTime: new Date(), 
               pendingChanges: false 
