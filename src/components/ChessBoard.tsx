@@ -200,8 +200,8 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       },
       animation: {
         enabled: true,
-        duration: 1000, // Increased to 1 second for testing
-        curve: [0.25, 0.1, 0.25, 1], // Smoother easing curve
+        duration: 1000, // 1 second for visible movement
+        curve: [0.25, 0.1, 0.25, 1],
       },
       drawable: {
         enabled: true,

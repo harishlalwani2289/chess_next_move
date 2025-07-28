@@ -589,9 +589,49 @@
   height: 100% !important;
 }
 
-/* Make the board squares look better */
+/* Make the board squares look better - removed transition to allow JS animations */
 .chessground-board .cg-board square {
-  transition: all 0.2s ease;
+  /* transition removed to allow Chessground JS animations to work properly */
+}
+
+/* Ensure Chessground piece animations work properly */
+.chessground-board .cg-board piece {
+  /* Remove any conflicting transitions on pieces */
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Support for Chessground's own piece movement animations */
+.chessground-board .cg-board piece.moving {
+  transition: none !important;
+  z-index: 9 !important;
+}
+
+/* Ensure Chessground container supports animations */
+.chessground-board .cg-wrap {
+  /* Enable animation support */
+  overflow: visible;
+}
+
+/* Force disable all CSS animations/transitions that might interfere with Chessground */
+.chessground-board * {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Allow only Chessground's own piece animations */
+.chessground-board .cg-board piece {
+  /* Chessground will handle all piece animations */
+  animation: none !important;
+  transition: none !important;
+  transform-origin: center !important;
+}
+
+/* Ensure pieces can be animated by Chessground */
+.chessground-board .cg-board piece.anim {
+  /* This class is used by Chessground for animations */
+  animation: none !important;
+  transition: none !important;
 }
 
 .chessground-board .cg-board square.move-dest {
