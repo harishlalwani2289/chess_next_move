@@ -17,7 +17,7 @@ export const MobileCalculateButton: React.FC = () => {
     <button
       className={`mobile-calculate-button ${engineThinking ? 'thinking' : ''}`}
       onClick={handleAnalyze}
-      disabled={!isReady || engineThinking}
+      disabled={engineThinking}
       title="Analyze current position with Stockfish engine"
     >
       <Brain size={20} />

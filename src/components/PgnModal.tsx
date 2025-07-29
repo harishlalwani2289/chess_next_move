@@ -138,6 +138,7 @@ export const PgnModal: React.FC<PgnModalProps> = ({ isOpen, onClose }) => {
               placeholder="1. e4 e5 2. Nf3 Nc6 3. Bb5 a6..."
               className="pgn-textarea"
               rows={8}
+              spellCheck="false"
             />
           </div>
 

@@ -71,9 +71,10 @@ export const GameControls: React.FC = () => {
             value={fenInput}
             onChange={(e) => setFenInput(e.target.value)}
             onKeyPress={handleKeyPress}
-          onFocus={handleFenInputFocus}
-          placeholder="Enter FEN position..."
-          className="fen-input-field"
+            onFocus={handleFenInputFocus}
+            placeholder="Enter FEN position..."
+            className="fen-input-field"
+            spellCheck="false"
           />
           <button 
             onClick={handleSetFen}
@@ -119,7 +120,7 @@ export const GameControls: React.FC = () => {
             <button
               className={`btn-calculate-best-move ${engineThinking ? 'thinking' : ''}`}
               onClick={handleAnalyze}
-              disabled={!isReady || engineThinking}
+              disabled={engineThinking}
               title="Analyze current position with Stockfish engine"
             >
               <Brain size={16} />

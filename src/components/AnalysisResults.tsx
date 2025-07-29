@@ -350,6 +350,7 @@ export const AnalysisResults: React.FC = () => {
                 readOnly 
                 rows={2}
                 className="pv-textarea"
+                spellCheck="false"
               />
             </div>
 

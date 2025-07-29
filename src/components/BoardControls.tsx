@@ -49,7 +49,8 @@ export const BoardControls: React.FC = () => {
         </div>
       </div>
 
-      {!hasGameLoaded && (
+      {/* Position Navigation disabled - using main game navigation below board */}
+      {false && (
         <div className="control-group">
           <label>Position Navigation:</label>
           <div className="navigation-controls">
