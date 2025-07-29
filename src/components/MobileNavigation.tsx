@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Home, Grid } from 'lucide-react';
 import BoardsManager from './BoardsManager';
+import ThemeToggle from './ThemeToggle';
 
 export const MobileNavigation: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -107,6 +108,14 @@ export const MobileNavigation: React.FC = () => {
                 <div className="mobile-menu-item-header" onClick={closeMenu}>
                   <Home size={20} />
                   <span>Home</span>
+                </div>
+              </div>
+
+              {/* Theme Toggle Section */}
+              <div className="mobile-menu-item">
+                <div className="mobile-menu-item-header">
+                  <span>Theme</span>
+                  <ThemeToggle size="small" />
                 </div>
               </div>
 

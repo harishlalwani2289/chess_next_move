@@ -1,17 +1,19 @@
 .app {
   min-height: 100vh;
-  background: linear-gradient(135deg, #e2e8f0 0%, #f1f5f9 100%);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  color: #4a5568;
+  color: var(--text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .app-header {
   text-align: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
-  color: white;
+  background: var(--header-bg);
+  color: var(--header-text);
   margin-bottom: 2rem;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px var(--shadow-primary);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 .header-content {
@@ -61,14 +63,15 @@
 }
 
 .board-column {
-  background: white;
+  background: var(--bg-tertiary);
   padding: 10px;
   border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px var(--shadow-primary);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .board-section {
@@ -105,20 +108,22 @@
 }
 
 .controls-column {
-  background: white;
+  background: var(--bg-tertiary);
   padding: 10px;
   border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px var(--shadow-primary);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .results-column {
-  background: white;
+  background: var(--bg-tertiary);
   padding: 10px;
   border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px var(--shadow-primary);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .control-group {
@@ -129,8 +134,9 @@
   display: block;
   font-weight: 600;
   margin-bottom: 0.75rem;
-  color: #2d3748;
+  color: var(--text-primary);
   font-size: 0.95rem;
+  transition: color 0.3s ease;
 }
 
 .control-buttons, .navigation-controls {
@@ -153,10 +159,11 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: white;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   border: none;
-  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  box-shadow: 0 2px 8px var(--shadow-primary);
+  transition: all 0.3s ease;
 }
 
 .btn-primary:hover {
@@ -166,10 +173,11 @@
 }
 
 .btn-secondary {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  color: #475569;
-  border: 1px solid #cbd5e1;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border: 1px solid var(--border-primary);
+  box-shadow: 0 1px 3px var(--shadow-primary);
+  transition: all 0.3s ease;
 }
 
 .btn-secondary:hover {
@@ -203,12 +211,13 @@
 .fen-input-field {
   flex: 1;
   padding: 0.75rem;
-  border: 2px solid #e1e8ed;
+  border: 2px solid var(--border-secondary);
   border-radius: 8px;
   font-family: monospace;
   font-size: 0.9rem;
-  background: white;
-  transition: border-color 0.2s ease;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
 .fen-input-field:focus {
@@ -852,10 +861,11 @@ input:checked + .toggle-slider:before {
 }
 
 .result-item {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
   padding: 1rem;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
+  transition: all 0.3s ease;
 }
 
 .best-move-header {
@@ -867,7 +877,8 @@ input:checked + .toggle-slider:before {
 
 .best-move-header label {
   font-weight: 600;
-  color: #2d3748;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
 }
 
 .move-details {
@@ -890,10 +901,12 @@ input:checked + .toggle-slider:before {
 
 .move-input, .eval-input {
   padding: 0.5rem;
-  border: 1px solid #cbd5e0;
+  border: 1px solid var(--border-secondary);
   border-radius: 4px;
   font-family: monospace;
-  background: white;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
 }
 
 .move-input {
@@ -1060,12 +1073,14 @@ input:checked + .toggle-slider:before {
 .pv-textarea {
   width: 100%;
   padding: 0.5rem;
-  border: 1px solid #cbd5e0;
+  border: 1px solid var(--border-secondary);
   border-radius: 4px;
   font-family: monospace;
   font-size: 0.8rem;
-  background: white;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   resize: none;
+  transition: all 0.3s ease;
 }
 
 .analysis-progress {

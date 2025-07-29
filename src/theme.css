@@ -1,0 +1,56 @@
+/* src/theme.css */
+
+/* Define CSS variables for light and dark themes */
+:root {
+  --bg-primary: #e2e8f0;
+  --bg-secondary: #f8fafc;
+  --bg-tertiary: #ffffff;
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --border-primary: #cbd5e1;
+  --border-secondary: #e2e8f0;
+  --header-bg: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+  --header-text: #ffffff;
+  --btn-primary-bg: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --btn-secondary-text: #475569;
+  --shadow-primary: rgba(0, 0, 0, 0.1);
+}
+
+html.dark {
+  --bg-primary: #181a1b;
+  --bg-secondary: #252729;
+  --bg-tertiary: #343a40;
+  --text-primary: #e1e1e6;
+  --text-secondary: #a5a5a5;
+  --border-primary: #343a40;
+  --border-secondary: #444d56;
+  --header-bg: linear-gradient(135deg, #1f3947 0%, #2e3c4f 100%);
+  --header-text: #ffffff;
+  --btn-primary-bg: linear-gradient(135deg, #556cd6 0%, #3949ab 100%);
+  --btn-primary-text: #ffffff;
+  --btn-secondary-bg: linear-gradient(135deg, #3a3b3c 0%, #444d56 100%);
+  --btn-secondary-text: #e1e1e6;
+  --shadow-primary: rgba(0, 0, 0, 0.6);
+}
+
+/* Theme Toggle Button Styling */
+.theme-toggle-btn {
+  background-color: transparent;
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--bg-secondary);
+  border-color: var(--text-primary);
+  transform: scale(1.1) rotate(15deg);
+}
+
