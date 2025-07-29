@@ -1,5 +1,5 @@
 :root {
-  --header-height: 180px; /* 2rem padding top + 2rem padding bottom + content height + 2rem margin-bottom */
+  --header-total-height: 180px; /* app-header total height including padding and margin */
 }
 
 .app {
@@ -62,25 +62,26 @@
 }
 
 .boards-sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  margin-top: var(--header-height, 180px); /* Same spacing as main-content after header */
-  height: calc(100vh - var(--header-height, 180px)); /* Adjust height accordingly */
+  position: absolute;
+  left: 1rem;
+  top: 2rem; /* Match main-content padding to align vertical start */
+  height: auto; /* Let height be determined by content like board-column */
   z-index: 100;
-  background: var(--sidebar-bg);
-  border-radius: 0;
+  background: var(--bg-tertiary); /* Match board-column background */
+  border-radius: 15px; /* Match board-column border-radius */
   border-right: 1px solid var(--sidebar-border);
-  box-shadow: 2px 0 10px var(--shadow-primary);
+  box-shadow: 0 8px 25px var(--shadow-primary); /* Match board-column box-shadow */
   width: 224px;
   min-width: 224px;
   overflow-y: auto;
+  padding: 10px; /* Match board-column padding */
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Match board-column transition */
 }
 
 .main-content {
   max-width: 1800px;
   margin: 0 auto;
-  margin-left: 240px; /* Account for fixed sidebar width (224px) + some padding */
+  margin-left: 256px; /* Account for fixed sidebar width (224px) + left margin (16px) + padding (16px) */
   padding: 2rem;
   display: grid;
   grid-template-columns: 1.5fr 1.5fr 1fr;
@@ -282,7 +283,7 @@
 
 /* Boards Manager Styles */
 .boards-manager {
-  border: 1px solid var(--sidebar-bg);
+  border: none;
   border-radius: 16px;
   overflow: hidden;
   background: var(--sidebar-bg);
@@ -2710,11 +2711,11 @@ progress::-moz-progress-bar {
 }
 
 .mobile-menu-content {
-  background: white;
+  background: var(--bg-tertiary);
   width: 320px;
   height: 100vh;
   overflow-y: auto;
-  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 4px 0 20px var(--shadow-primary);
   animation: slideInLeft 0.3s ease-out;
 }
 
@@ -2732,9 +2733,9 @@ progress::-moz-progress-bar {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 1rem;
-  background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
-  color: white;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--header-bg);
+  color: var(--header-text);
+  border-bottom: 1px solid var(--border-secondary);
 }
 
 .mobile-menu-header h2 {
@@ -2765,7 +2766,7 @@ progress::-moz-progress-bar {
 }
 
 .mobile-menu-item {
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-secondary);
 }
 
 .mobile-menu-item-header {
@@ -2779,18 +2780,18 @@ progress::-moz-progress-bar {
 }
 
 .mobile-menu-item-header:hover {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .mobile-menu-item-header span {
   flex: 1;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .expand-icon {
   transition: transform 0.2s ease;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.8rem;
 }
 
@@ -2800,12 +2801,12 @@ progress::-moz-progress-bar {
 
 .mobile-boards-container {
   padding: 0 1rem 1rem 1rem;
-  background: #f8f9fa;
-  border-top: 1px solid #e2e8f0;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-secondary);
 }
 
 .mobile-boards-container .boards-manager {
-  background: white;
+  background: var(--bg-tertiary);
   border-radius: 8px;
   margin-top: 0.5rem;
 }
