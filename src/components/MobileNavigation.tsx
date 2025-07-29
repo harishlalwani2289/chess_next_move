@@ -23,25 +23,28 @@ export const MobileNavigation: React.FC = () => {
   useEffect(() => {
     const createOrUpdateButton = () => {
       const existingButton = document.getElementById('mobile-floating-menu');
-      if (window.innerWidth <= 768) {
+      if (window.innerWidth <= 1024) {
+        // Check if dark mode is active
+        const isDarkMode = document.documentElement.classList.contains('dark');
+        
         if (!existingButton) {
           const floatingButton = document.createElement('button');
           floatingButton.id = 'mobile-floating-menu';
           floatingButton.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>';
           
-          // Apply styles directly
+          // Apply styles directly with theme-aware colors
           Object.assign(floatingButton.style, {
             position: 'absolute',
             top: '0px',
             left: '0px',
             zIndex: '999999',
-            backgroundColor: '#64748b',
-            color: 'white',
-            border: 'none',
+            backgroundColor: isDarkMode ? '#1f3947' : '#64748b',
+            color: isDarkMode ? '#ffffff' : 'white',
+            border: isDarkMode ? '1px solid #2e3c4f' : 'none',
             borderRadius: '8px',
             padding: '12px',
             cursor: 'pointer',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            boxShadow: isDarkMode ? '0 4px 12px rgba(0, 0, 0, 0.6)' : '0 4px 12px rgba(0, 0, 0, 0.15)',
             display: isMenuOpen ? 'none' : 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -52,8 +55,13 @@ export const MobileNavigation: React.FC = () => {
           floatingButton.onclick = toggleMenu;
           document.body.appendChild(floatingButton);
         } else {
-          // Update existing button visibility based on menu state
+          // Update existing button visibility and theme colors
+          const isDarkMode = document.documentElement.classList.contains('dark');
           existingButton.style.display = isMenuOpen ? 'none' : 'flex';
+          existingButton.style.backgroundColor = isDarkMode ? '#1f3947' : '#64748b';
+          existingButton.style.color = isDarkMode ? '#ffffff' : 'white';
+          existingButton.style.border = isDarkMode ? '1px solid #2e3c4f' : 'none';
+          existingButton.style.boxShadow = isDarkMode ? '0 4px 12px rgba(0, 0, 0, 0.6)' : '0 4px 12px rgba(0, 0, 0, 0.15)';
         }
       } else if (existingButton) {
         existingButton.style.display = 'none';
@@ -64,7 +72,7 @@ export const MobileNavigation: React.FC = () => {
 
     const handleResize = () => {
       const button = document.getElementById('mobile-floating-menu');
-      if (button && window.innerWidth > 768) {
+      if (button && window.innerWidth > 1024) {
         button.style.display = 'none';
         // Close menu when switching to desktop view
         if (isMenuOpen) {
@@ -75,6 +83,26 @@ export const MobileNavigation: React.FC = () => {
       }
     };
 
+    // Listen for theme changes
+    const handleThemeChange = () => {
+      createOrUpdateButton();
+    };
+
+    // Create a MutationObserver to watch for class changes on the html element
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+          handleThemeChange();
+        }
+      });
+    });
+
+    // Start observing the html element for class changes
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+
     window.addEventListener('resize', handleResize);
     window.addEventListener('orientationchange', handleResize);
 
@@ -83,6 +111,7 @@ export const MobileNavigation: React.FC = () => {
       if (button) {
         button.remove();
       }
+      observer.disconnect();
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('orientationchange', handleResize);
     };

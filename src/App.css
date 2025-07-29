@@ -1,3 +1,7 @@
+:root {
+  --header-height: 180px; /* 2rem padding top + 2rem padding bottom + content height + 2rem margin-bottom */
+}
+
 .app {
   min-height: 100vh;
   background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
@@ -52,12 +56,34 @@
   font-weight: 300;
 }
 
+.app-layout {
+  position: relative;
+  width: 100%;
+}
+
+.boards-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  margin-top: var(--header-height, 180px); /* Same spacing as main-content after header */
+  height: calc(100vh - var(--header-height, 180px)); /* Adjust height accordingly */
+  z-index: 100;
+  background: var(--sidebar-bg);
+  border-radius: 0;
+  border-right: 1px solid var(--sidebar-border);
+  box-shadow: 2px 0 10px var(--shadow-primary);
+  width: 224px;
+  min-width: 224px;
+  overflow-y: auto;
+}
+
 .main-content {
   max-width: 1800px;
   margin: 0 auto;
+  margin-left: 240px; /* Account for fixed sidebar width (224px) + some padding */
   padding: 2rem;
   display: grid;
-  grid-template-columns: auto 1.5fr 1.5fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 1fr;
   gap: 2rem;
   align-items: start;
 }
@@ -143,6 +169,19 @@
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.control-buttons .btn {
+  font-size: 1rem;
+  font-weight: 600;
+  flex: 1;
+  min-width: 0;
 }
 
 .btn {
@@ -243,7 +282,7 @@
 
 /* Boards Manager Styles */
 .boards-manager {
-  border: none;
+  border: 1px solid var(--sidebar-bg);
   border-radius: 16px;
   overflow: hidden;
   background: var(--sidebar-bg);
@@ -1340,16 +1379,15 @@ input:checked + .toggle-slider:before {
   }
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1024px) {
   .main-content {
-    grid-template-columns: 1fr 1fr;
+    margin-left: 0; /* Remove sidebar margin for mobile screens */
+    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
   
   .boards-sidebar {
-    grid-column: 1 / -1;
-    width: 100%;
-    min-width: unset;
+    display: none; /* Hide sidebar on mobile screens */
   }
   
   .results-column {
@@ -2814,7 +2852,7 @@ progress::-moz-progress-bar {
   transform: none !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   * {
     box-sizing: border-box;
   }
@@ -2852,6 +2890,7 @@ progress::-moz-progress-bar {
   }
   
   .main-content {
+    margin-left: 0; /* Remove sidebar margin on mobile */
     grid-template-columns: 1fr;
     gap: 0.5rem;
     padding: 0.25rem;

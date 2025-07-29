@@ -117,7 +117,7 @@ export const PgnModal: React.FC<PgnModalProps> = ({ isOpen, onClose }) => {
         <div className="modal-header">
           <div className="modal-title">
             <FileText size={20} />
-            <h3>Load PGN Game</h3>
+            <h3>Load Game PGN</h3>
           </div>
           <button className="modal-close-btn" onClick={handleClose}>
             <X size={20} />

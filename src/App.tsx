@@ -79,12 +79,13 @@ function App() {
           </div>
         </header>
 
-        <main className="main-content">
+        <div className="app-layout">
           <div className="boards-sidebar">
             <BoardsManager />
           </div>
           
-          <div className="board-column">
+          <main className="main-content">
+            <div className="board-column">
             <div className="board-section">
               <ChessBoard />
             </div>
@@ -100,10 +101,11 @@ function App() {
             
           </div>
 
-          <div className="results-column">
-            <AnalysisResults />
-          </div>
-        </main>
+            <div className="results-column">
+              <AnalysisResults />
+            </div>
+          </main>
+        </div>
         
         <AuthModal 
           isOpen={showAuthModal} 

@@ -92,9 +92,9 @@ html.dark {
   --scrollbar-thumb-hover-bg: linear-gradient(135deg, #94a3b8, #cbd5e1);
   --hover-bg: rgba(59, 130, 246, 0.2);
   --link-color: #60a5fa;
-  --active-bg: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
-  --active-border: #3b82f6;
-  --active-shadow: rgba(59, 130, 246, 0.25);
+  --active-bg: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  --active-border: #475569;
+  --active-shadow: rgba(71, 85, 105, 0.25);
   --active-inset-shadow: rgba(255, 255, 255, 0.1);
   --active-text: #60a5fa;
   --text-shadow: rgba(0, 0, 0, 0.5);

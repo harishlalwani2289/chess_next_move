@@ -28,7 +28,7 @@ export const BoardControls: React.FC = () => {
             title="Reset to starting position"
           >
             <Grid3x3 size={16} />
-            Start Position
+            Start
           </button>
           <button 
             className="btn btn-secondary"
@@ -36,7 +36,7 @@ export const BoardControls: React.FC = () => {
             title="Clear all pieces"
           >
             <Square size={16} />
-            Clear Board
+            Clear
           </button>
           <button 
             className="btn btn-secondary"
@@ -44,7 +44,7 @@ export const BoardControls: React.FC = () => {
             title="Flip board orientation"
           >
             <RotateCcw size={16} />
-            Flip Board
+            Flip
           </button>
         </div>
       </div>
