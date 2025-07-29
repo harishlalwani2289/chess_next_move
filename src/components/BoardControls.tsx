@@ -15,7 +15,6 @@ export const BoardControls: React.FC = () => {
 
   const canNavigateBack = currentHistoryIndex > 0;
   const canNavigateForward = currentHistoryIndex < moveHistory.length - 1;
-  const hasGameLoaded = moveHistory.length > 1; // Hide position navigation when game is loaded
 
   return (
     <div className="board-controls">
