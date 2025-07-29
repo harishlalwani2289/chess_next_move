@@ -94,17 +94,17 @@
   display: block;
   font-weight: 500;
   margin-bottom: 0.5rem;
-  color: #5a6c7d;
+  color: var(--text-secondary);
 }
 
 .fen-input {
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid #e1e8ed;
+  border: 2px solid var(--border-secondary);
   border-radius: 8px;
   font-family: monospace;
   font-size: 0.9rem;
-  background: #f8f9fa;
+  background: var(--bg-secondary);
 }
 
 .controls-column {
@@ -167,9 +167,9 @@
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, #5855eb 0%, #7c3aed 100%);
+  background: var(--btn-primary-bg);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 4px 12px var(--shadow-primary);
 }
 
 .btn-secondary {
@@ -181,10 +181,10 @@
 }
 
 .btn-secondary:hover {
-  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
-  border-color: #94a3b8;
+  background: var(--btn-secondary-bg);
+  border-color: var(--border-primary);
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px var(--shadow-primary);
 }
 
 .btn:disabled {
@@ -232,12 +232,12 @@
 
 /* Boards Sidebar */
 .boards-sidebar {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  background: var(--sidebar-bg);
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(100, 116, 139, 0.1), 0 1px 8px rgba(100, 116, 139, 0.06);
+  box-shadow: 0 4px 20px var(--shadow-primary), 0 1px 8px var(--shadow-primary);
   width: 224px;
   min-width: 224px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid var(--sidebar-border);
   overflow: hidden;
 }
 
@@ -246,8 +246,8 @@
   border: none;
   border-radius: 16px;
   overflow: hidden;
-  background: linear-gradient(145deg, #fdfeff 0%, #f8fafc 100%);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: var(--sidebar-bg);
+  box-shadow: 0 10px 30px var(--shadow-primary), 0 2px 8px var(--shadow-primary);
   backdrop-filter: blur(20px);
 }
 
@@ -256,10 +256,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 8px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  background: var(--sidebar-header-bg);
+  border-bottom: 1px solid var(--sidebar-border);
   position: relative;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  box-shadow: inset 0 1px 0 var(--sidebar-header-shadow);
 }
 
 
@@ -267,7 +267,7 @@
   margin: 0;
   font-size: 0.8rem;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-primary);
   letter-spacing: -0.02em;
 }
 
@@ -277,13 +277,13 @@
   justify-content: center;
   width: 22px;
   height: 22px;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  color: #64748b;
-  border: 1px solid rgba(100, 116, 139, 0.3);
+  background: var(--btn-secondary-bg);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 3px;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 1px 3px rgba(100, 116, 139, 0.1);
+  box-shadow: 0 1px 3px var(--shadow-primary);
   position: relative;
   overflow: hidden;
 }
@@ -304,10 +304,10 @@
 }
 
 .add-board-button:hover {
-  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
-  color: white;
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(100, 116, 139, 0.25);
+  box-shadow: 0 2px 6px var(--shadow-primary);
 }
 
 .boards-list {
@@ -328,18 +328,18 @@
 }
 
 .boards-list::-webkit-scrollbar-track {
-  background: rgba(241, 245, 249, 0.8);
+  background: var(--scrollbar-track-bg);
   border-radius: 3px;
 }
 
 .boards-list::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+  background: var(--scrollbar-thumb-bg);
   border-radius: 3px;
   transition: all 0.2s ease;
 }
 
 .boards-list::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #94a3b8, #64748b);
+  background: var(--scrollbar-thumb-hover-bg);
 }
 
 .board-item {
@@ -347,13 +347,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 3px 6px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  border: 1px solid var(--border-secondary);
   border-radius: 3px;
   transition: all 0.2s ease;
   cursor: pointer;
   position: relative;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  box-shadow: 0 1px 3px rgba(100, 116, 139, 0.1);
+  background: var(--bg-secondary);
+  box-shadow: 0 1px 3px var(--shadow-primary);
   min-height: 20px;
 }
 
@@ -376,9 +376,9 @@
 
 .board-item:hover {
   transform: translateY(-1px);
-  box-shadow: 0 3px 12px rgba(100, 116, 139, 0.15);
-  border-color: rgba(100, 116, 139, 0.3);
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  box-shadow: 0 3px 12px var(--shadow-primary);
+  border-color: var(--border-primary);
+  background: var(--bg-tertiary);
 }
 
 .board-item:hover::before {
@@ -386,9 +386,9 @@
 }
 
 .board-item.active {
-  background: linear-gradient(135deg, #e0f2fe 0%, #e1f5fe 100%);
-  border: 2px solid #0ea5e9;
-  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  background: var(--active-bg);
+  border: 2px solid var(--active-border);
+  box-shadow: 0 2px 8px var(--active-shadow), inset 0 1px 0 var(--active-inset-shadow);
   transform: translateY(-1px);
 }
 
@@ -406,9 +406,9 @@
 
 .board-name {
   font-weight: 500;
-  color: #4b5563;
+  color: var(--text-primary);
   font-size: 0.75rem;
-  text-shadow: 0 1px 2px rgba(75, 85, 99, 0.1);
+  text-shadow: 0 1px 2px var(--text-shadow);
   transition: all 0.2s ease;
 }
 
@@ -420,13 +420,13 @@
 }
 
 .board-name.clickable:hover {
-  background-color: rgba(59, 130, 246, 0.1);
-  color: #2563eb;
+  background-color: var(--hover-bg);
+  color: var(--link-color);
   transform: scale(1.02);
 }
 
 .board-item.active .board-name {
-  color: #0369a1;
+  color: var(--active-text);
   font-weight: 600;
 }
 
@@ -478,49 +478,49 @@
 }
 
 .action-button.edit {
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .action-button.edit:hover {
-  color: #3b82f6;
-  background: rgba(59, 130, 246, 0.1);
+  color: var(--link-color);
+  background: var(--hover-bg);
   transform: scale(1.1);
 }
 
 .action-button.confirm {
-  color: #10b981;
+  color: var(--success-color);
 }
 
 .action-button.confirm:hover {
-  color: #059669;
-  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-hover-color);
+  background: var(--success-hover-bg);
   transform: scale(1.1);
 }
 
 .action-button.remove {
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .action-button.remove:hover {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
+  color: var(--error-color);
+  background: var(--error-hover-bg);
   transform: scale(1.1);
 }
 
 .boards-info {
   padding: 4px 8px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: var(--sidebar-header-bg);
   text-align: center;
-  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  border-top: 1px solid var(--sidebar-border);
   position: relative;
 }
 
 
 .boards-info small {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 0.65rem;
   font-weight: 500;
-  text-shadow: 0 1px 2px rgba(107, 114, 128, 0.1);
+  text-shadow: 0 1px 2px var(--text-shadow);
 }
 
 .fen-display-field {
@@ -782,7 +782,7 @@
 
 .results-header h3 {
   margin: 0;
-  color: #2d3748;
+  color: var(--text-primary);
 }
 
 .ai-toggle-container {
@@ -1361,9 +1361,9 @@ input:checked + .toggle-slider:before {
 .progress-bar-container {
   margin: 1rem 0;
   padding: 1rem;
-  background-color: #f8f9fa;
+  background-color: var(--progress-bg);
   border-radius: 6px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-secondary);
 }
 
 .progress-label {
@@ -1406,9 +1406,9 @@ progress::-moz-progress-bar {
   gap: 0.5rem;
   margin-bottom: 1rem;
   padding: 0.5rem;
-  background-color: #f8f9fa;
+  background-color: var(--engine-bg);
   border-radius: 4px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-secondary);
 }
 
 .btn-icon {
@@ -1457,9 +1457,9 @@ progress::-moz-progress-bar {
   flex-direction: column;
   gap: 1rem;
   padding: 1rem;
-  background-color: #f8f9fa;
+  background-color: var(--engine-bg);
   border-radius: 8px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--border-secondary);
 }
 
 /* Engine controls row layout */
@@ -1489,17 +1489,18 @@ progress::-moz-progress-bar {
 
 .think-time-select {
   padding: 0.5rem;
-  border: 1px solid #cbd5e0;
+  border: 1px solid var(--border-secondary);
   border-radius: 4px;
-  background: white;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
   font-size: 0.9rem;
   min-width: 60px;
 }
 
 .think-time-select:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: var(--focus-border);
+  box-shadow: 0 0 0 3px var(--focus-shadow);
 }
 
 /* PGN input controls */
@@ -1542,7 +1543,7 @@ progress::-moz-progress-bar {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: var(--modal-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1551,9 +1552,9 @@ progress::-moz-progress-bar {
 }
 
 .modal-content {
-  background: white;
+  background: var(--modal-bg);
   border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px var(--modal-shadow);
   max-width: 600px;
   width: 90%;
   max-height: 80vh;
@@ -1577,9 +1578,9 @@ progress::-moz-progress-bar {
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
-  background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
-  color: white;
+  border-bottom: 1px solid var(--border-secondary);
+  background: var(--header-bg);
+  color: var(--header-text);
 }
 
 .modal-title {
@@ -1625,17 +1626,18 @@ progress::-moz-progress-bar {
   display: block;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #2d3748;
+  color: var(--text-primary);
 }
 
 .pgn-textarea {
   width: 100%;
   padding: 0.75rem;
-  border: 2px solid #e1e8ed;
+  border: 2px solid var(--border-secondary);
   border-radius: 8px;
   font-family: 'Consolas', 'Monaco', monospace;
   font-size: 0.9rem;
-  background: #f8f9fa;
+  background: var(--textarea-bg);
+  color: var(--text-primary);
   resize: vertical;
   transition: border-color 0.2s ease;
   line-height: 1.5;
@@ -1643,9 +1645,9 @@ progress::-moz-progress-bar {
 
 .pgn-textarea:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-  background: white;
+  border-color: var(--focus-border);
+  box-shadow: 0 0 0 3px var(--focus-shadow);
+  background: var(--textarea-bg);
 }
 
 .pgn-textarea::placeholder {
@@ -1654,18 +1656,22 @@ progress::-moz-progress-bar {
 }
 
 .pgn-info {
-  background: #f0f4f8;
+  background: var(--info-bg);
   padding: 1rem;
   border-radius: 6px;
-  border-left: 4px solid #667eea;
+  border-left: 4px solid var(--info-border);
   margin-top: 1rem;
 }
 
 .pgn-info p {
   margin: 0;
   font-size: 0.9rem;
-  color: #4a5568;
+  color: var(--text-secondary);
   line-height: 1.5;
+}
+
+.pgn-info p strong {
+  color: var(--text-primary);
 }
 
 .modal-footer {
@@ -1673,8 +1679,8 @@ progress::-moz-progress-bar {
   justify-content: flex-end;
   gap: 0.75rem;
   padding: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  background: #f8f9fa;
+  border-top: 1px solid var(--border-secondary);
+  background: var(--modal-footer-bg);
 }
 
 /* Alert styles */
@@ -1742,9 +1748,9 @@ progress::-moz-progress-bar {
 .progress-bars-section-compact {
   margin-top: 0.5rem;
   padding: 0.5rem;
-  background-color: #f8f9fa;
+  background-color: var(--progress-bg);
   border-radius: 4px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-secondary);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -1761,7 +1767,7 @@ progress::-moz-progress-bar {
 .progress-label-compact {
   font-size: 0.75rem;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin-bottom: 0;
   line-height: 1;
 }
@@ -1773,22 +1779,22 @@ progress::-moz-progress-bar {
   appearance: none;
   border: none;
   border-radius: 4px;
-  background-color: #e9ecef;
+  background-color: var(--progress-bg);
 }
 
 .progress-compact::-webkit-progress-bar {
-  background-color: #e9ecef;
+  background-color: var(--progress-track-bg);
   border-radius: 4px;
 }
 
 .progress-compact::-webkit-progress-value {
-  background: linear-gradient(90deg, #28a745, #20c997);
+  background: var(--progress-fill-bg);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
 
 .progress-compact::-moz-progress-bar {
-  background: linear-gradient(90deg, #28a745, #20c997);
+  background: var(--progress-fill-bg);
   border-radius: 4px;
 }
 
@@ -1871,9 +1877,9 @@ progress::-moz-progress-bar {
 .game-information {
   margin-top: 0.5rem;
   padding: 0.5rem;
-  background: white;
+  background: var(--game-info-bg);
   border-radius: 6px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-secondary);
   width: 100%;
 }
 
@@ -1918,9 +1924,9 @@ progress::-moz-progress-bar {
 .game-navigation {
   margin-top: 1rem;
   padding: 1rem;
-  background: white;
+  background: var(--game-info-bg);
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-secondary);
   width: 90%; /* 10% less than full width */
   margin-left: auto;
   margin-right: auto;
@@ -1930,7 +1936,7 @@ progress::-moz-progress-bar {
   margin: 0 0 0.75rem 0;
   font-size: 1rem;
   font-weight: 600;
-  color: #2d3748;
+  color: var(--text-primary);
   text-align: center;
 }
 
@@ -2318,7 +2324,8 @@ progress::-moz-progress-bar {
 .ai-toggle-label {
   font-size: 0.9rem;
   font-weight: 500;
-  color: #4a5568;
+  color: var(--text-secondary);
+  transition: color 0.3s ease;
 }
 
 /* Header and Authentication Styles */
@@ -2768,9 +2775,9 @@ progress::-moz-progress-bar {
 /* Mobile-specific button positioning */
 .mobile-calculate-button {
   display: none;
-  width: 100%;
-  margin: 1rem 0;
-  padding: 1rem;
+  width: 70%; /* Reduced by 30% from 100% */
+  margin: 1rem auto; /* Added auto for centering */
+  padding: 0.5rem; /* Reduced from 1rem */
   background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
   color: white;
   border: none;
@@ -2779,7 +2786,7 @@ progress::-moz-progress-bar {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(107, 114, 128, 0.25);
-  font-size: 1rem;
+  font-size: 1.4875rem; /* Decreased by 15% from 1.75rem */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2903,9 +2910,9 @@ progress::-moz-progress-bar {
   /* Show mobile calculate button only on mobile */
   .mobile-calculate-button {
     display: flex !important;
-    padding: 0.75rem;
-    font-size: 0.9rem;
-    margin: 0.5rem 0;
+    padding: 0.375rem; /* Reduced from 0.75rem */
+    font-size: 1.33875rem; /* Decreased by 15% from 1.575rem */
+    margin: 0.5rem auto; /* Added auto for centering */
   }
   
   /* Hide desktop calculate button on mobile */

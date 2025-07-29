@@ -73,8 +73,8 @@ function App() {
                     Sign In
                   </button>
                 )}
-                <ThemeToggle size="medium" className="ml-3" />
               </div>
+              <ThemeToggle />
             </div>
           </div>
         </header>

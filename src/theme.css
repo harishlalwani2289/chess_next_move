@@ -16,6 +16,47 @@
   --btn-secondary-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   --btn-secondary-text: #475569;
   --shadow-primary: rgba(0, 0, 0, 0.1);
+  --input-bg: #ffffff;
+  --input-border: #e2e8f0;
+  --modal-bg: #ffffff;
+  --modal-overlay: rgba(0, 0, 0, 0.6);
+  --sidebar-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  --sidebar-border: rgba(148, 163, 184, 0.2);
+  --progress-bg: #f8f9fa;
+  --board-info-bg: #f8f9fa;
+  --game-info-bg: #ffffff;
+  
+  /* Additional sidebar variables */
+  --sidebar-header-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  --sidebar-header-shadow: rgba(255, 255, 255, 0.7);
+  --scrollbar-track-bg: rgba(241, 245, 249, 0.8);
+  --scrollbar-thumb-bg: linear-gradient(135deg, #cbd5e1, #94a3b8);
+  --scrollbar-thumb-hover-bg: linear-gradient(135deg, #94a3b8, #64748b);
+  --hover-bg: rgba(59, 130, 246, 0.1);
+  --link-color: #2563eb;
+  --active-bg: linear-gradient(135deg, #e0f2fe 0%, #e1f5fe 100%);
+  --active-border: #0ea5e9;
+  --active-shadow: rgba(14, 165, 233, 0.25);
+  --active-inset-shadow: rgba(255, 255, 255, 0.5);
+  --active-text: #0369a1;
+  --text-shadow: rgba(75, 85, 99, 0.1);
+  --success-color: #10b981;
+  --success-hover-color: #059669;
+  --success-hover-bg: rgba(16, 185, 129, 0.1);
+  --error-color: #ef4444;
+  --error-hover-bg: rgba(239, 68, 68, 0.1);
+  
+  /* Additional engine and modal variables */
+  --engine-bg: #f8f9fa;
+  --focus-border: #667eea;
+  --focus-shadow: rgba(102, 126, 234, 0.1);
+  --modal-shadow: rgba(0, 0, 0, 0.3);
+  --textarea-bg: #f8f9fa;
+  --modal-footer-bg: #f8f9fa;
+  --info-bg: #f0f4f8;
+  --info-border: #667eea;
+  --progress-track-bg: #e9ecef;
+  --progress-fill-bg: linear-gradient(90deg, #28a745, #20c997);
 }
 
 html.dark {
@@ -33,6 +74,47 @@ html.dark {
   --btn-secondary-bg: linear-gradient(135deg, #3a3b3c 0%, #444d56 100%);
   --btn-secondary-text: #e1e1e6;
   --shadow-primary: rgba(0, 0, 0, 0.6);
+  --input-bg: #2d3748;
+  --input-border: #4a5568;
+  --modal-bg: #2d3748;
+  --modal-overlay: rgba(0, 0, 0, 0.8);
+  --sidebar-bg: linear-gradient(135deg, #2d3748 0%, #374151 100%);
+  --sidebar-border: rgba(75, 85, 99, 0.3);
+  --progress-bg: #374151;
+  --board-info-bg: #374151;
+  --game-info-bg: #2d3748;
+  
+  /* Additional sidebar variables */
+  --sidebar-header-bg: linear-gradient(135deg, #334155 0%, #475569 100%);
+  --sidebar-header-shadow: rgba(255, 255, 255, 0.1);
+  --scrollbar-track-bg: rgba(51, 65, 85, 0.8);
+  --scrollbar-thumb-bg: linear-gradient(135deg, #64748b, #94a3b8);
+  --scrollbar-thumb-hover-bg: linear-gradient(135deg, #94a3b8, #cbd5e1);
+  --hover-bg: rgba(59, 130, 246, 0.2);
+  --link-color: #60a5fa;
+  --active-bg: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+  --active-border: #3b82f6;
+  --active-shadow: rgba(59, 130, 246, 0.25);
+  --active-inset-shadow: rgba(255, 255, 255, 0.1);
+  --active-text: #60a5fa;
+  --text-shadow: rgba(0, 0, 0, 0.5);
+  --success-color: #22c55e;
+  --success-hover-color: #16a34a;
+  --success-hover-bg: rgba(34, 197, 94, 0.2);
+  --error-color: #f87171;
+  --error-hover-bg: rgba(248, 113, 113, 0.2);
+  
+  /* Additional engine and modal variables */
+  --engine-bg: #374151;
+  --focus-border: #60a5fa;
+  --focus-shadow: rgba(96, 165, 250, 0.2);
+  --modal-shadow: rgba(0, 0, 0, 0.6);
+  --textarea-bg: #2d3748;
+  --modal-footer-bg: #374151;
+  --info-bg: #1e3a8a;
+  --info-border: #60a5fa;
+  --progress-track-bg: #4a5568;
+  --progress-fill-bg: linear-gradient(90deg, #22c55e, #16a34a);
 }
 
 /* Theme Toggle Button Styling */

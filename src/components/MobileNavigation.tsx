@@ -115,7 +115,7 @@ export const MobileNavigation: React.FC = () => {
               <div className="mobile-menu-item">
                 <div className="mobile-menu-item-header">
                   <span>Theme</span>
-                  <ThemeToggle size="small" />
+                  <ThemeToggle />
                 </div>
               </div>
 
