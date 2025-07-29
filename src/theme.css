@@ -1,62 +1,120 @@
 /* src/theme.css */
 
-/* Define CSS variables for light and dark themes */
+/* Professional Design System with GitHub-inspired colors */
 :root {
-  --bg-primary: #e2e8f0;
-  --bg-secondary: #f8fafc;
-  --bg-tertiary: #ffffff;
-  --text-primary: #1e293b;
-  --text-secondary: #475569;
-  --border-primary: #cbd5e1;
-  --border-secondary: #e2e8f0;
-  --header-bg: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+  /* Base colors - Professional neutral palette */
+  --bg-primary: #fafbfc;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f6f8fa;
+  --text-primary: #24292f;
+  --text-secondary: #57606a;
+  --text-muted: #8b949e;
+  --border-primary: #d1d9e0;
+  --border-secondary: #e1e4e8;
+  --border-subtle: #f1f3f4;
+  
+  /* Professional header - Clean and authoritative */
+  --header-bg: #24292f;
   --header-text: #ffffff;
-  --btn-primary-bg: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  
+  /* Professional buttons - Clean, modern */
+  --btn-primary-bg: #0969da;
   --btn-primary-text: #ffffff;
-  --btn-secondary-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  --btn-secondary-text: #475569;
-  --shadow-primary: rgba(0, 0, 0, 0.1);
+  --btn-primary-hover: #0860ca;
+  --btn-secondary-bg: #f6f8fa;
+  --btn-secondary-text: #24292f;
+  --btn-secondary-hover: #f3f4f6;
+  --btn-secondary-border: #d1d9e0;
+  
+  /* Refined shadows - Subtle and professional */
+  --shadow-primary: rgba(31, 35, 40, 0.12);
+  --shadow-subtle: rgba(31, 35, 40, 0.04);
+  --shadow-card: rgba(31, 35, 40, 0.08);
+  
+  /* Form elements - Clean and accessible */
   --input-bg: #ffffff;
-  --input-border: #e2e8f0;
+  --input-border: #d1d9e0;
+  --input-focus-border: #0969da;
+  --input-focus-shadow: rgba(9, 105, 218, 0.3);
+  
+  /* Modal system - Professional overlays */
   --modal-bg: #ffffff;
-  --modal-overlay: rgba(0, 0, 0, 0.6);
-  --sidebar-bg: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-  --sidebar-border: rgba(148, 163, 184, 0.2);
-  --progress-bg: #f8f9fa;
-  --board-info-bg: #f8f9fa;
+  --modal-overlay: rgba(31, 35, 40, 0.5);
+  --modal-shadow: rgba(31, 35, 40, 0.25);
+  
+  /* Sidebar - Clean and organized */
+  --sidebar-bg: #ffffff;
+  --sidebar-border: #d1d9e0;
+  --sidebar-header-bg: #f6f8fa;
+  
+  /* Progress and info sections */
+  --progress-bg: #f6f8fa;
+  --board-info-bg: #f6f8fa;
   --game-info-bg: #ffffff;
   
-  /* Additional sidebar variables */
-  --sidebar-header-bg: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  --sidebar-header-shadow: rgba(255, 255, 255, 0.7);
-  --scrollbar-track-bg: rgba(241, 245, 249, 0.8);
-  --scrollbar-thumb-bg: linear-gradient(135deg, #cbd5e1, #94a3b8);
-  --scrollbar-thumb-hover-bg: linear-gradient(135deg, #94a3b8, #64748b);
-  --hover-bg: rgba(59, 130, 246, 0.1);
-  --link-color: #2563eb;
-  --active-bg: linear-gradient(135deg, #e0f2fe 0%, #e1f5fe 100%);
-  --active-border: #0ea5e9;
-  --active-shadow: rgba(14, 165, 233, 0.25);
-  --active-inset-shadow: rgba(255, 255, 255, 0.5);
-  --active-text: #0369a1;
-  --text-shadow: rgba(75, 85, 99, 0.1);
-  --success-color: #10b981;
-  --success-hover-color: #059669;
-  --success-hover-bg: rgba(16, 185, 129, 0.1);
-  --error-color: #ef4444;
-  --error-hover-bg: rgba(239, 68, 68, 0.1);
+  /* Interactive states - Professional hover and active states */
+  --hover-bg: rgba(9, 105, 218, 0.08);
+  --link-color: #0969da;
+  --link-hover: #0860ca;
+  --active-bg: #f6f8fa;
+  --active-border: #0969da;
+  --active-shadow: rgba(9, 105, 218, 0.2);
+  --active-inset-shadow: rgba(255, 255, 255, 0.9);
+  --active-text: #0969da;
+  --text-shadow: rgba(0, 0, 0, 0.08);
   
-  /* Additional engine and modal variables */
-  --engine-bg: #f8f9fa;
-  --focus-border: #667eea;
-  --focus-shadow: rgba(102, 126, 234, 0.1);
-  --modal-shadow: rgba(0, 0, 0, 0.3);
-  --textarea-bg: #f8f9fa;
-  --modal-footer-bg: #f8f9fa;
-  --info-bg: #f0f4f8;
-  --info-border: #667eea;
-  --progress-track-bg: #e9ecef;
-  --progress-fill-bg: linear-gradient(90deg, #28a745, #20c997);
+  /* Status colors - Professional semantic colors */
+  --success-color: #1a7f37;
+  --success-hover-color: #116329;
+  --success-hover-bg: rgba(26, 127, 55, 0.08);
+  --success-bg: #dafbe1;
+  --warning-color: #bf8700;
+  --warning-bg: #fff8c5;
+  --error-color: #d1242f;
+  --error-hover-bg: rgba(209, 36, 47, 0.08);
+  --error-bg: #ffebe9;
+  
+  /* Scrollbar - Clean and minimal */
+  --scrollbar-track-bg: #f6f8fa;
+  --scrollbar-thumb-bg: #d1d9e0;
+  --scrollbar-thumb-hover-bg: #8b949e;
+  
+  /* Component backgrounds - Consistent and clean */
+  --engine-bg: #f6f8fa;
+  --focus-border: #0969da;
+  --focus-shadow: rgba(9, 105, 218, 0.3);
+  --textarea-bg: #ffffff;
+  --modal-footer-bg: #f6f8fa;
+  --info-bg: #ddf4ff;
+  --info-border: #0969da;
+  --progress-track-bg: #e1e4e8;
+  --progress-fill-bg: #1a7f37;
+  
+  /* Typography system */
+  --font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+  --font-family-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-lg: 16px;
+  --font-size-xl: 20px;
+  --font-size-2xl: 24px;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Spacing scale */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  
+  /* Border radius scale */
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
 }
 
 html.dark {

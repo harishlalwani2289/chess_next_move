@@ -297,6 +297,8 @@ export const AnalysisResults: React.FC = () => {
             className="btn btn-small" 
             title="Configure AI API Keys"
             onClick={() => setIsAiSettingsOpen(true)}
+            disabled={true}
+            style={{ display: 'none' }}
           >
             <Settings size={16} />
           </button>
