@@ -11,6 +11,7 @@ interface TooltipState {
   error: string;
   x: number;
   y: number;
+  isInitial: boolean;
 }
 
 export const AnalysisResults: React.FC = () => {
@@ -103,104 +104,114 @@ export const AnalysisResults: React.FC = () => {
     // Position tooltip
     positionTooltip(index);
 
-    // Show tooltip immediately
+    // Show initial tooltip immediately
     setTooltips(prev => ({
       ...prev,
       [index]: {
         ...prev[index],
         visible: true,
         loading: false,
-        explanation: '',
+        explanation: 'Hover over for AI Explanation',
         error: '',
         x: prev[index]?.x || 0,
-        y: prev[index]?.y || 0
+        y: prev[index]?.y || 0,
+        isInitial: true
       }
     }));
 
-    // Check cache first
-    const cacheKey = `${result.bestMove}_${result.evaluation}`;
-    if (explanationCache.current.has(cacheKey)) {
-      setTooltips(prev => ({
-        ...prev,
-        [index]: {
-          ...prev[index],
-          explanation: explanationCache.current.get(cacheKey) || '',
-          loading: false
-        }
-      }));
-      return;
-    }
-
-    // Check if AI explanations are enabled
-    if (!aiExplanationsEnabled) {
-      setTooltips(prev => ({
-        ...prev,
-        [index]: {
-          ...prev[index],
-          explanation: 'Enable AI explanations to get move analysis',
-          loading: false
-        }
-      }));
-      return;
-    }
-
-    if (!result.bestMove) {
-      setTooltips(prev => ({
-        ...prev,
-        [index]: {
-          ...prev[index],
-          explanation: 'No move available to explain',
-          loading: false
-        }
-      }));
-      return;
-    }
-
-    // Start loading
-    setTooltips(prev => ({
-      ...prev,
-      [index]: {
-        ...prev[index],
-        loading: true,
-        explanation: '',
-        error: ''
+    // Switch to actual explanation after 2 seconds
+    hoverTimeouts.current[index] = setTimeout(() => {
+      // Check cache first
+      const cacheKey = `${result.bestMove}_${result.evaluation}`;
+      if (explanationCache.current.has(cacheKey)) {
+        setTooltips(prev => ({
+          ...prev,
+          [index]: {
+            ...prev[index],
+            explanation: explanationCache.current.get(cacheKey) || '',
+            loading: false,
+            isInitial: false
+          }
+        }));
+        return;
       }
-    }));
 
-    // Fetch explanation
-    if (!gameState?.fen) return;
-    
-    aiService.getExplanation({
-      position: gameState.fen,
-      bestMove: result.bestMove,
-      evaluation: result.evaluation,
-      principalVariation: result.principalVariation,
-    })
-    .then((explanation) => {
-      // Cache the explanation
-      explanationCache.current.set(cacheKey, explanation.explanation);
-      
+      // Check if AI explanations are enabled
+      if (!aiExplanationsEnabled) {
+        setTooltips(prev => ({
+          ...prev,
+          [index]: {
+            ...prev[index],
+            explanation: 'Enable AI explanations to get move analysis',
+            loading: false,
+            isInitial: false
+          }
+        }));
+        return;
+      }
+
+      if (!result.bestMove) {
+        setTooltips(prev => ({
+          ...prev,
+          [index]: {
+            ...prev[index],
+            explanation: 'No move available to explain',
+            loading: false,
+            isInitial: false
+          }
+        }));
+        return;
+      }
+
+      // Start loading
       setTooltips(prev => ({
         ...prev,
         [index]: {
           ...prev[index],
-          explanation: explanation.explanation,
-          loading: false,
-          error: ''
-        }
-      }));
-    })
-    .catch(() => {
-      setTooltips(prev => ({
-        ...prev,
-        [index]: {
-          ...prev[index],
+          loading: true,
           explanation: '',
-          loading: false,
-          error: 'Unable to generate explanation at this time'
+          error: '',
+          isInitial: false
         }
       }));
-    });
+
+      // Fetch explanation
+      if (!gameState?.fen) return;
+      
+      aiService.getExplanation({
+        position: gameState.fen,
+        bestMove: result.bestMove,
+        evaluation: result.evaluation,
+        principalVariation: result.principalVariation,
+      })
+      .then((explanation) => {
+        // Cache the explanation
+        explanationCache.current.set(cacheKey, explanation.explanation);
+        
+        setTooltips(prev => ({
+          ...prev,
+          [index]: {
+            ...prev[index],
+            explanation: explanation.explanation,
+            loading: false,
+            error: '',
+            isInitial: false
+          }
+        }));
+      })
+      .catch(() => {
+        setTooltips(prev => ({
+          ...prev,
+          [index]: {
+            ...prev[index],
+            explanation: '',
+            loading: false,
+            error: 'Unable to generate explanation at this time',
+            isInitial: false
+          }
+        }));
+      });
+    }, 2000);
   };
 
   const handleIconLeave = (index: number) => {
@@ -242,9 +253,16 @@ export const AnalysisResults: React.FC = () => {
     }));
   };
 
-  // Clear explanations cache when analysis results change
+  // Clear explanations cache and tooltips when analysis results change
   useEffect(() => {
     explanationCache.current.clear();
+    // Clear all tooltips
+    setTooltips({});
+    // Clear all timeouts
+    Object.values(hoverTimeouts.current).forEach(timeout => {
+      if (timeout) clearTimeout(timeout);
+    });
+    hoverTimeouts.current = {};
   }, [analysisResults]);
 
   const getMoveColorClass = (moveNumber: number) => {
@@ -293,7 +311,6 @@ export const AnalysisResults: React.FC = () => {
                 ref={el => { iconRefs.current[index] = el; }}
                 className="ai-info-icon"
                 style={{ display: aiExplanationsEnabled ? 'inline' : 'none' }}
-                title="Hover for AI explanation"
                 onMouseEnter={() => handleIconHover(index, result)}
                 onMouseLeave={() => handleIconLeave(index)}
               >
