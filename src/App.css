@@ -1998,25 +1998,14 @@ progress::-moz-progress-bar {
   font-size: 14px;
   line-height: 1.4;
   pointer-events: none;
+  /* Position tooltip exactly at icon position */
+  transform: translateX(20px) translateY(-5px);
 }
 
 .ai-tooltip.visible {
   opacity: 1 !important;
   visibility: visible !important;
-  transform: translateY(0);
   pointer-events: auto;
-}
-
-.ai-tooltip::before {
-  content: '';
-  position: absolute;
-  top: 15px;
-  left: -8px;
-  width: 0;
-  height: 0;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-right: 8px solid #2c3e50;
 }
 
 .ai-tooltip .ai-loading {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Home, Grid } from 'lucide-react';
+import { X, Home, Grid } from 'lucide-react';
 import BoardsManager from './BoardsManager';
 
 export const MobileNavigation: React.FC = () => {

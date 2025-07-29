@@ -54,8 +54,9 @@ export const AnalysisResults: React.FC = () => {
     if (!icon) return;
 
     const iconRect = icon.getBoundingClientRect();
-    const tooltipLeft = iconRect.right + 5;
-    const tooltipTop = iconRect.top - 5;
+    // Position tooltip exactly at the icon position
+    const tooltipLeft = iconRect.left;
+    const tooltipTop = iconRect.top;
     
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
@@ -67,7 +68,7 @@ export const AnalysisResults: React.FC = () => {
     
     // Adjust if tooltip would go off-screen to the right
     if (tooltipLeft + tooltipWidth > viewportWidth) {
-      finalLeft = iconRect.left - tooltipWidth - 5;
+      finalLeft = iconRect.right - tooltipWidth;
     }
     
     // Adjust if tooltip would go off-screen at the top
@@ -77,7 +78,7 @@ export const AnalysisResults: React.FC = () => {
     
     // Adjust if tooltip would go off-screen at the bottom
     if (finalTop + tooltipHeight > viewportHeight) {
-      finalTop = iconRect.top - tooltipHeight - 5;
+      finalTop = iconRect.top - tooltipHeight;
     }
     
     // Ensure tooltip doesn't go off-screen to the left
