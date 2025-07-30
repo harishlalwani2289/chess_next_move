@@ -81,6 +81,17 @@ export const GameControls: React.FC = () => {
             className="btn btn-secondary"
             disabled={!fenInput.trim()}
           >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="4" height="4" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <rect x="10" y="3" width="4" height="4" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <rect x="17" y="3" width="4" height="4" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <rect x="3" y="10" width="4" height="4" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <rect x="10" y="10" width="4" height="4" stroke="currentColor" strokeWidth="1.5" fill="currentColor" fillOpacity="0.3"/>
+              <rect x="17" y="10" width="4" height="4" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <rect x="3" y="17" width="4" height="4" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <rect x="10" y="17" width="4" height="4" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+              <rect x="17" y="17" width="4" height="4" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+            </svg>
             Set Position
           </button>
         </div>
