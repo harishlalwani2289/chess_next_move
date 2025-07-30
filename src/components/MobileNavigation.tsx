@@ -22,7 +22,7 @@ export const MobileNavigation: React.FC = () => {
   useEffect(() => {
     const createOrUpdateButton = () => {
       const existingButton = document.getElementById('mobile-floating-menu');
-      if (window.innerWidth <= 1024) {
+      if (window.innerWidth <= 1200) {
         // Check if dark mode is active
         const isDarkMode = document.documentElement.classList.contains('dark');
         
@@ -71,7 +71,7 @@ export const MobileNavigation: React.FC = () => {
 
     const handleResize = () => {
       const button = document.getElementById('mobile-floating-menu');
-      if (button && window.innerWidth > 1024) {
+      if (button && window.innerWidth > 1200) {
         button.style.display = 'none';
         // Close menu when switching to desktop view
         if (isMenuOpen) {
