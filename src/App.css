@@ -3045,6 +3045,77 @@ progress::-moz-progress-bar {
   transform: none !important;
 }
 
+/* Tablet styles (768px - 1200px) */
+@media (max-width: 1200px) and (min-width: 769px) {
+  .boards-sidebar {
+    display: none;
+  }
+  
+  .main-content {
+    margin-left: 0;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+  }
+  
+  .board-column {
+    grid-column: 1 / -1;
+    max-width: 100%;
+    margin: 0 auto;
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .board-section {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .chess-board-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .chessground-board {
+    width: 80vw !important;
+    height: 80vw !important;
+    max-width: 80vw !important;
+    max-height: 80vw !important;
+    min-width: 80vw !important;
+    min-height: 80vw !important;
+  }
+  
+  /* Ensure the chessground internal elements scale properly */
+  .chessground-board .cg-wrap {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  .chessground-board .cg-board {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  
+  .controls-column, .results-column {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .mobile-menu-button {
+    display: block !important;
+    position: fixed !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    z-index: 1001 !important;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    contain: layout style paint;
+  }
+}
+
+/* Mobile styles with improved tablet handling */
 @media (max-width: 1024px) {
   * {
     box-sizing: border-box;
