@@ -10,7 +10,8 @@ export const GameControls: React.FC = () => {
     gameState, 
     engineOptions,
     setEngineOptions,
-    engineThinking
+    engineThinking,
+    analysisResults
   } = useChessStore();
   const [fenInput, setFenInput] = useState(gameState?.fen || '');
   const [isPgnModalOpen, setIsPgnModalOpen] = useState(false);
@@ -137,6 +138,9 @@ export const GameControls: React.FC = () => {
               <Brain size={16} />
               {engineThinking ? 'Analyzing...' : 'Calculate Best Move'}
             </button>
+            {analysisResults?.[0]?.bestMove && (
+              <span className="best-move-value">{analysisResults[0].bestMove}</span>
+            )}
           </div>
           
           {/* Compact Progress bars */}
