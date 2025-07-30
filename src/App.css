@@ -2758,6 +2758,14 @@ progress::-moz-progress-bar {
   height: 48px;
 }
 
+/* Mobile floating menu button width increase for mobile devices */
+@media (max-width: 768px) {
+  .mobile-floating-menu-btn {
+    width: 57.6px; /* Increased by 20% from 48px (48 * 1.2 = 57.6) */
+    height: 57.6px; /* Increased by 20% from 48px (48 * 1.2 = 57.6) */
+  }
+}
+
 /* Mobile Navigation Styles */
 .mobile-menu-button {
   background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
@@ -3772,10 +3780,10 @@ progress::-moz-progress-bar {
   }
   
   .chessground-board {
-    width: min(85vw, calc(100vw - 2rem)) !important;
-    height: min(85vw, calc(100vw - 2rem)) !important;
-    max-width: min(85vw, calc(100vw - 2rem)) !important;
-    max-height: min(85vw, calc(100vw - 2rem)) !important;
+    width: min(88.4vw, calc(104vw - 2rem)) !important; /* Increased by 4% from 85vw */
+    height: min(88.4vw, calc(104vw - 2rem)) !important; /* Increased by 4% from 85vw */
+    max-width: min(88.4vw, calc(104vw - 2rem)) !important; /* Increased by 4% from 85vw */
+    max-height: min(88.4vw, calc(104vw - 2rem)) !important; /* Increased by 4% from 85vw */
     min-width: unset !important;
     min-height: unset !important;
   }
@@ -3982,9 +3990,9 @@ progress::-moz-progress-bar {
     right: 0.5rem !important;
     margin-top: 0 !important;
     z-index: 1000;
-    max-width: 30%;
-    font-size: 0.64rem; /* 20% reduction from 0.8rem */
-    padding: 0.4rem; /* 20% reduction from 0.5rem */
+    max-width: 36%;
+    font-size: 0.736rem; /* 15% increase from 0.64rem */
+    padding: 0.46rem; /* 15% increase from 0.4rem */
   }
   
   /* Hide SVG icon in login button on mobile */
