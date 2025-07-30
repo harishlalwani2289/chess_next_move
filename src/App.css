@@ -2738,6 +2738,26 @@ progress::-moz-progress-bar {
   text-decoration: underline;
 }
 
+/* Mobile Floating Menu Button */
+.mobile-floating-menu-btn {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 999999;
+  background-color: var(--header-bg);
+  color: var(--header-text);
+  border: none;
+  border-radius: var(--border-radius-md);
+  padding: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px var(--shadow-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+}
+
 /* Mobile Navigation Styles */
 .mobile-menu-button {
   background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
