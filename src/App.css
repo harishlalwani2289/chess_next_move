@@ -2859,7 +2859,6 @@ progress::-moz-progress-bar {
 
 /* Mobile Navigation Styles */
 .mobile-menu-button {
-  display: block;
   background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
   color: white;
   border: none;
@@ -2884,12 +2883,32 @@ progress::-moz-progress-bar {
   display: flex;
   align-items: center;
   justify-content: center;
+  /* Hidden by default, shown only on mobile/tablet */
+  display: none;
 }
 
-/* Hide mobile menu button on desktop (screens wider than 1200px) */
-@media (min-width: 1201px) {
+/* Show mobile menu button on all screens 1200px and below */
+@media (max-width: 1200px) {
   .mobile-menu-button {
+    display: flex !important;
+    position: fixed !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    z-index: 1001 !important;
+    will-change: transform;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    contain: layout style paint;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .boards-sidebar {
     display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
   }
 }
 
@@ -3056,51 +3075,15 @@ progress::-moz-progress-bar {
   transform: none !important;
 }
 
-/* Force mobile menu button visibility on all tablet and mobile screens */
-@media (max-width: 1200px) {
-  .mobile-menu-button {
-    display: block !important;
-    position: fixed !important;
-    top: 1rem !important;
-    left: 1rem !important;
-    z-index: 1001 !important;
-    will-change: transform;
-    transform: translate3d(0, 0, 0) !important;
-    -webkit-transform: translate3d(0, 0, 0) !important;
-    contain: layout style paint;
-    visibility: visible !important;
-    opacity: 1 !important;
-  }
-
-  .boards-sidebar {
-    display: none !important;
-  }
-
-  .main-content {
-    margin-left: 0 !important;
-  }
-}
 
 /* Tablet styles (768px - 1200px) */
 @media (max-width: 1200px) and (min-width: 769px) {
-  .mobile-menu-button {
-    display: block !important;
-    position: fixed !important;
-    top: 1rem !important;
-    left: 1rem !important;
-    z-index: 1001 !important;
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0);
-    contain: layout style paint;
-  }
-
   .main-content {
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     padding: 2rem 1rem;
   }
-  
+
   .board-column {
     grid-column: 1 / -1;
     max-width: 100%;
@@ -3108,18 +3091,18 @@ progress::-moz-progress-bar {
     width: 100%;
     min-width: auto;
   }
-  
+
   .board-section {
     width: 100%;
     max-width: 100%;
   }
-  
+
   .chess-board-container {
     width: 100%;
     display: flex;
     justify-content: center;
   }
-  
+
   .chessground-board {
     width: 80vw !important;
     height: 80vw !important;
@@ -3128,24 +3111,24 @@ progress::-moz-progress-bar {
     min-width: 80vw !important;
     min-height: 80vw !important;
   }
-  
+
   /* Ensure the chessground internal elements scale properly */
   .chessground-board .cg-wrap {
     width: 100% !important;
     height: 100% !important;
   }
-  
+
   .chessground-board .cg-board {
     width: 100% !important;
     height: 100% !important;
   }
-  
-  .controls-column, .results-column {
+
+  .controls-column,
+  .results-column {
     width: 100%;
     max-width: 100%;
   }
 }
-
 /* Mobile styles with improved tablet handling */
 @media (max-width: 1024px) {
   * {
