@@ -22,7 +22,7 @@
   transition: all 0.3s ease;
   border-bottom: 3px solid #4299e1;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .header-content {
@@ -2543,7 +2543,7 @@ progress::-moz-progress-bar {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 25px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  z-index: 1000;
+  z-index: 9999;
   animation: dropdownSlideIn 0.2s ease-out;
 }
 
