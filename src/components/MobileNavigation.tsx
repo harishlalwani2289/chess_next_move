@@ -36,9 +36,6 @@ export const MobileNavigation: React.FC = () => {
       const shouldShowMobileMenu = window.innerWidth <= 1200 || isTablet;
       
       if (shouldShowMobileMenu) {
-        // Check if dark mode is active
-        const isDarkMode = document.documentElement.classList.contains('dark');
-        
         if (!existingButton) {
           const floatingButton = document.createElement('button');
           floatingButton.id = 'mobile-floating-menu';
