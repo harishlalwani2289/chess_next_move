@@ -1468,125 +1468,6 @@ input:checked + .toggle-slider:before {
   z-index: 1;
 }
 
-@media (max-width: 1400px) {
-  .main-content {
-    grid-template-columns: auto 1fr 1fr;
-    gap: 1.5rem;
-  }
-  
-  .results-column {
-    grid-column: 1 / -1;
-  }
-}
-
-@media (max-width: 1024px) {
-  .main-content {
-    margin-left: 0; /* Remove sidebar margin for mobile screens */
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1rem;
-  }
-  
-  .boards-sidebar {
-    display: none; /* Hide sidebar on mobile screens */
-  }
-  
-  .board-column, .controls-column, .results-column {
-    width: 100%;
-    max-width: 100%;
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    margin-left: 0;
-    grid-template-columns: 1fr;
-    gap: 0.75rem;
-    padding: 0.5rem;
-  }
-  
-  .boards-sidebar {
-    display: none;
-  }
-  
-  .board-column {
-    min-width: auto; /* Remove minimum width constraint */
-    width: 100%;
-    padding: 0.5rem;
-  }
-  
-  .board-section {
-    width: 100%; /* Full width of board-column */
-  }
-  
-  .chess-board-container {
-    width: 100%; /* Full width of board-section */
-    margin-bottom: 0.5rem;
-  }
-  
-  .chessground-board {
-    width: 90vw !important; /* 90% of viewport width */
-    max-width: 90vw !important;
-    height: 90vw !important; /* Square aspect ratio */
-    min-width: 90vw !important;
-    min-height: 90vw !important;
-  }
-  
-  /* Target the actual Chessground container directly */
-  .chessground-board cg-container {
-    width: 90vw !important;
-    height: 90vw !important;
-    max-width: 90vw !important;
-    max-height: 90vw !important;
-    min-width: 90vw !important;
-    min-height: 90vw !important;
-  }
-  
-  /* Override any inline styles on cg-container */
-  cg-container {
-    width: 90vw !important;
-    height: 90vw !important;
-    max-width: 90vw !important;
-    max-height: 90vw !important;
-    min-width: 90vw !important;
-    min-height: 90vw !important;
-  }
-  
-  .controls-column, .results-column {
-    padding: 0.75rem;
-  }
-  
-  /* Compact button styles for mobile */
-  .btn {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .control-buttons .btn {
-    font-size: 0.85rem;
-  }
-  
-  /* Smaller input fields */
-  .fen-input-field, .move-input, .eval-input {
-    font-size: 0.85rem;
-    padding: 0.6rem;
-  }
-  
-  /* Compact results */
-  .result-item {
-    padding: 0.75rem;
-  }
-  
-  .pv-textarea {
-    font-size: 0.8rem;
-  }
-  
-  /* Hide desktop navigation, show mobile menu */
-  .professional-nav {
-    display: none;
-  }
-}
 
 /* Progress bar container */
 .progress-bar-container {
@@ -2857,8 +2738,7 @@ progress::-moz-progress-bar {
   text-decoration: underline;
 }
 
-/* Mobile Navigation Styles - ULTIMATE SOLUTION */
-/* Base mobile menu button - hide by default on very large screens only */
+/* Mobile Navigation Styles */
 .mobile-menu-button {
   background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
   color: white;
@@ -2868,122 +2748,17 @@ progress::-moz-progress-bar {
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  /* Mobile positioning - use fixed positioning */
-  position: fixed !important;
-  top: 1rem !important;
-  left: 1rem !important;
-  z-index: 1001 !important;
-  /* Prevent any interference */
-  margin: 0 !important;
-  /* Force compositing layer */
-  will-change: transform;
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1001;
   width: 48px;
   height: 48px;
+  display: flex;
   align-items: center;
   justify-content: center;
-  /* Hide only on desktop screens larger than 1200px */
+  /* Hide by default, show only on tablet/mobile */
   display: none;
-}
-
-/* ULTIMATE FORCE VISIBILITY - Multiple approaches for maximum compatibility */
-
-/* Method 1: Standard media query with high specificity */
-@media screen and (max-width: 1200px) {
-  html body .app .mobile-menu-button,
-  body .app .mobile-menu-button,
-  .app .mobile-menu-button,
-  .mobile-menu-button {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: fixed !important;
-    top: 1rem !important;
-    left: 1rem !important;
-    z-index: 1001 !important;
-    /* Force render layer */
-    transform: translate3d(0, 0, 0) !important;
-    -webkit-transform: translate3d(0, 0, 0) !important;
-    will-change: transform !important;
-    contain: layout style paint !important;
-    pointer-events: auto !important;
-    /* Ensure it's actually rendered */
-    width: 48px !important;
-    height: 48px !important;
-    min-width: 48px !important;
-    min-height: 48px !important;
-    max-width: 48px !important;
-    max-height: 48px !important;
-  }
-}
-
-/* Method 2: Specific range targeting the problem area */
-@media screen and (min-width: 1024px) and (max-width: 1200px) {
-  .mobile-menu-button {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: fixed !important;
-    top: 1rem !important;
-    left: 1rem !important;
-    z-index: 1001 !important;
-    transform: translate3d(0, 0, 0) !important;
-    -webkit-transform: translate3d(0, 0, 0) !important;
-    will-change: transform !important;
-    contain: layout style paint !important;
-    pointer-events: auto !important;
-    background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 8px !important;
-    padding: 0.75rem !important;
-    cursor: pointer !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-    width: 48px !important;
-    height: 48px !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
-}
-
-/* Method 3: Tablet-specific targeting */
-@media screen and (min-width: 768px) and (max-width: 1024px) {
-  .mobile-menu-button {
-    display: flex !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    position: fixed !important;
-    top: 1rem !important;
-    left: 1rem !important;
-    z-index: 1001 !important;
-  }
-}
-
-/* Method 4: Fallback for any screen 1200px and below */
-@media (max-width: 1200px) {
-  .mobile-menu-button {
-    display: flex !important;
-    position: fixed !important;
-    top: 1rem !important;
-    left: 1rem !important;
-    z-index: 1001 !important;
-    will-change: transform !important;
-    transform: translate3d(0, 0, 0) !important;
-    -webkit-transform: translate3d(0, 0, 0) !important;
-    contain: layout style paint !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-  }
-
-  .boards-sidebar {
-    display: none !important;
-  }
-
-  .main-content {
-    margin-left: 0 !important;
-  }
 }
 
 .mobile-menu-button:hover {
@@ -3797,6 +3572,381 @@ progress::-moz-progress-bar {
   
   .auth-modal-title {
     font-size: 20px;
+  }
+}
+
+/* ===============================================
+   CONSOLIDATED RESPONSIVE DESIGN MEDIA QUERIES
+   =============================================== */
+
+/* Show mobile menu button on devices smaller than 1200px */
+@media (max-width: 1200px) {
+  .mobile-menu-button {
+    display: flex !important;
+  }
+
+  .boards-sidebar {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
+
+/* Large tablets (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .main-content {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    padding: 2rem 1rem;
+  }
+
+  .board-column {
+    grid-column: 1 / -1;
+    max-width: 100%;
+    margin: 0 auto;
+    width: 100%;
+    min-width: auto;
+  }
+
+  .chessground-board {
+    width: 70vw !important;
+    height: 70vw !important;
+    max-width: 70vw !important;
+    max-height: 70vw !important;
+    min-width: 70vw !important;
+    min-height: 70vw !important;
+  }
+}
+
+/* Small tablets and mobile devices (up to 768px) */
+@media (max-width: 768px) {
+  * {
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    font-size: 14px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .app {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .main-content {
+    margin: 0;
+    margin-left: 0;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    padding-top: 4rem;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+  
+  .app-header {
+    padding: 0.5rem;
+    padding-top: 4rem;
+    margin: 0;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  
+  .app-header h1 {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+  
+  .board-column, .controls-column, .results-column {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.75rem;
+    margin: 0 0 0.5rem 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    /* Force contain wide content */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Fix board column specific sizing */
+  .board-column {
+    width: 100%;
+    min-width: unset;
+    max-width: 100%;
+  }
+  
+  .board-section {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  .chess-board-container {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    box-sizing: border-box;
+  }
+  
+  .chessground-board {
+    width: min(85vw, calc(100vw - 2rem)) !important;
+    height: min(85vw, calc(100vw - 2rem)) !important;
+    max-width: min(85vw, calc(100vw - 2rem)) !important;
+    max-height: min(85vw, calc(100vw - 2rem)) !important;
+    min-width: unset !important;
+    min-height: unset !important;
+  }
+  
+  /* Fix turn indicator overflow */
+  .turn-indicator {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    flex-wrap: wrap;
+  }
+  
+  .turn-badge {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    min-width: 45%;
+    height: auto;
+    flex: 1;
+  }
+  
+  /* Fix FEN display overflow */
+  .fen-display {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
+  
+  .fen-input, .fen-input-field, .fen-display-field {
+    width: 100%;
+    max-width: 100%;
+    font-size: 0.7rem;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    word-break: break-all;
+    overflow-wrap: break-word;
+  }
+  
+  /* Show mobile calculate button only on mobile */
+  .mobile-calculate-button {
+    display: flex !important;
+    width: 90%;
+    max-width: 90%;
+    margin: 0.5rem auto;
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    box-sizing: border-box;
+  }
+  
+  /* Hide desktop calculate button on mobile */
+  .btn-calculate-best-move {
+    display: none !important;
+  }
+  
+  /* Fix navigation overflow */
+  .game-navigation {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .navigation-buttons {
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    flex-wrap: nowrap;
+  }
+  
+  .btn-nav {
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0.3rem;
+    font-size: 0.7rem;
+    flex: 1;
+    margin: 0 1px;
+  }
+  
+  .move-indicator {
+    min-width: 40px;
+    max-width: 35%;
+    font-size: 0.65rem;
+    padding: 0 0.1rem;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Fix form elements overflow */
+  .btn {
+    width: 100%;
+    max-width: 100%;
+    justify-content: center;
+    padding: 0.5rem;
+    font-size: 0.8rem;
+    box-sizing: border-box;
+    word-wrap: break-word;
+  }
+  
+  /* Reduce Set Position button width by 58% and keep centered - exclude small buttons */
+  .btn.btn-secondary:not(.btn-small) {
+    width: 42%; /* 58% reduction from 100% (original 40% + additional 30% of 60%) */
+    max-width: 42%;
+    margin: 0 auto; /* Center the button */
+    display: block; /* Ensure margin auto works */
+  }
+  
+  .control-group {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 0.75rem;
+  }
+  
+  .control-group label {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    word-wrap: break-word;
+  }
+  
+  .fen-input-container {
+    width: 100%;
+    max-width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  /* Fix results column overflow */
+  .results-column {
+    padding: 0.5rem;
+  }
+  
+  .result-item {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.5rem;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  
+  .move-input, .eval-input {
+    width: 60px;
+    max-width: 60px;
+    padding: 0.3rem;
+    font-size: 0.75rem;
+    box-sizing: border-box;
+  }
+  
+  .pv-textarea {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.4rem;
+    font-size: 0.7rem;
+    box-sizing: border-box;
+    word-break: break-word;
+  }
+  
+  /* Fix modal overflow */
+  .modal-content {
+    width: 95%;
+    max-width: 95vw;
+    margin: 1rem auto;
+    box-sizing: border-box;
+  }
+  
+  .modal-header, .modal-body, .modal-footer {
+    padding: 0.75rem;
+    box-sizing: border-box;
+  }
+  
+  /* Position login button absolutely in header */
+  /* Reduce toggle switch size by 40% on mobile */
+  .toggle-switch {
+    width: 21px; /* 35px * 0.6 */
+    height: 10.08px; /* 16.8px * 0.6 */
+  }
+
+  .toggle-slider:before {
+    height: 7.56px; /* 12.6px * 0.6 */
+    width: 7.56px; /* 12.6px * 0.6 */
+    left: 1.26px; /* 2.1px * 0.6 */
+    bottom: 1.26px; /* 2.1px * 0.6 */
+  }
+
+  input:checked + .toggle-slider:before {
+    transform: translateX(10.92px); /* 18.2px * 0.6 */
+  }
+
+  .login-button {
+    position: absolute !important;
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+    margin-top: 0 !important;
+    z-index: 1000;
+    max-width: 30%;
+    font-size: 0.64rem; /* 20% reduction from 0.8rem */
+    padding: 0.4rem; /* 20% reduction from 0.5rem */
+  }
+  
+  /* Hide SVG icon in login button on mobile */
+  .login-button svg {
+    display: none;
+  }
+}
+
+/* Extra small mobile devices (up to 480px) */
+@media (max-width: 480px) {
+  .app-header h1 {
+    font-size: 1rem;
+  }
+  
+  .chessground-board {
+    width: 90vw !important;
+    height: 90vw !important;
+    max-width: 90vw !important;
+    max-height: 90vw !important;
+    min-width: 90vw !important;
+    min-height: 90vw !important;
+  }
+  
+  .mobile-calculate-button {
+    width: 80%;
+    font-size: 1.2rem;
+  }
+  
+  .btn-nav {
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0.3rem;
+    font-size: 0.7rem;
+  }
+  
+  .move-indicator {
+    min-width: 40px;
+    font-size: 0.65rem;
   }
 }
 

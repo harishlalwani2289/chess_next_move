@@ -142,7 +142,31 @@ input:checked + .slider:hover:before {
   }
 }
 
-/* Ensure proper z-index stacking */
+@media (max-width: 768px) {
+  .theme-switch {
+    width: 36px;
+    height: 20.4px;
+  }
+
+  .slider {
+    border-radius: 20.4px;
+  }
+
+  .slider:before {
+    height: 15.6px;
+    width: 15.6px;
+    left: 2.4px;
+    bottom: 2.4px;
+  }
+
+  input:checked + .slider:before {
+    transform: translateX(15.6px);
+  }
+
+  .slider.round {
+    border-radius: 20.4px;
+  }
+}
 .theme-switch {
   z-index: 10;
 }
