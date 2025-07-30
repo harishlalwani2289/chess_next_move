@@ -720,7 +720,7 @@
 
 /* Chessground Board Styling */
 .chessground-board {
-  border-radius: 12px;
+  border-radius: 0;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   width: 90%;
@@ -3933,6 +3933,11 @@ progress::-moz-progress-bar {
   
   /* Hide SVG icon in login button on mobile */
   .login-button svg {
+    display: none;
+  }
+  
+  /* Hide Board Controls label on mobile */
+  .board-controls .control-group label {
     display: none;
   }
 }
