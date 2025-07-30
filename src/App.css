@@ -2859,7 +2859,7 @@ progress::-moz-progress-bar {
 
 /* Mobile Navigation Styles */
 .mobile-menu-button {
-  display: none;
+  display: block;
   background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
   color: white;
   border: none;
@@ -2868,18 +2868,29 @@ progress::-moz-progress-bar {
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  /* Mobile positioning - use absolute with transform for mobile */
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  transform: translate(16px, 16px) !important;
-  z-index: 2147483647 !important;
+  /* Mobile positioning - use fixed positioning */
+  position: fixed !important;
+  top: 1rem !important;
+  left: 1rem !important;
+  z-index: 1001 !important;
   /* Prevent any interference */
   margin: 0 !important;
   /* Force compositing layer */
   will-change: transform;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hide mobile menu button on desktop (screens wider than 1200px) */
+@media (min-width: 1201px) {
+  .mobile-menu-button {
+    display: none !important;
+  }
 }
 
 .mobile-menu-button:hover {
@@ -3045,14 +3056,46 @@ progress::-moz-progress-bar {
   transform: none !important;
 }
 
+/* Force mobile menu button visibility on all tablet and mobile screens */
+@media (max-width: 1200px) {
+  .mobile-menu-button {
+    display: block !important;
+    position: fixed !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    z-index: 1001 !important;
+    will-change: transform;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    contain: layout style paint;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  .boards-sidebar {
+    display: none !important;
+  }
+
+  .main-content {
+    margin-left: 0 !important;
+  }
+}
+
 /* Tablet styles (768px - 1200px) */
 @media (max-width: 1200px) and (min-width: 769px) {
-  .boards-sidebar {
-    display: none;
+  .mobile-menu-button {
+    display: block !important;
+    position: fixed !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    z-index: 1001 !important;
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    contain: layout style paint;
   }
-  
+
   .main-content {
-    margin-left: 0;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
     padding: 2rem 1rem;
@@ -3101,18 +3144,6 @@ progress::-moz-progress-bar {
     width: 100%;
     max-width: 100%;
   }
-  
-  .mobile-menu-button {
-    display: block !important;
-    position: fixed !important;
-    top: 1rem !important;
-    left: 1rem !important;
-    z-index: 1001 !important;
-    will-change: transform;
-    transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0);
-    contain: layout style paint;
-  }
 }
 
 /* Mobile styles with improved tablet handling */
@@ -3136,11 +3167,6 @@ progress::-moz-progress-bar {
   }
   
   .mobile-menu-button {
-    display: block !important;
-    position: fixed !important;
-    top: 1rem !important;
-    left: 1rem !important;
-    z-index: 1001 !important;
     /* Force GPU acceleration and ensure fixed positioning works */
     will-change: transform;
     transform: translate3d(0, 0, 0);
