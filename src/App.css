@@ -2857,7 +2857,8 @@ progress::-moz-progress-bar {
   text-decoration: underline;
 }
 
-/* Mobile Navigation Styles */
+/* Mobile Navigation Styles - ULTIMATE SOLUTION */
+/* Base mobile menu button - hide by default on very large screens only */
 .mobile-menu-button {
   background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
   color: white;
@@ -2882,13 +2883,18 @@ progress::-moz-progress-bar {
   height: 48px;
   align-items: center;
   justify-content: center;
-  /* Default hidden state for desktop only */
+  /* Hide only on desktop screens larger than 1200px */
   display: none;
 }
 
-/* Force show mobile menu button on desktop screens 1200px and below - highest specificity */
+/* ULTIMATE FORCE VISIBILITY - Multiple approaches for maximum compatibility */
+
+/* Method 1: Standard media query with high specificity */
 @media screen and (max-width: 1200px) {
-  body .app .mobile-menu-button {
+  html body .app .mobile-menu-button,
+  body .app .mobile-menu-button,
+  .app .mobile-menu-button,
+  .mobile-menu-button {
     display: flex !important;
     visibility: visible !important;
     opacity: 1 !important;
@@ -2897,14 +2903,64 @@ progress::-moz-progress-bar {
     left: 1rem !important;
     z-index: 1001 !important;
     /* Force render layer */
-    transform: translate3d(0, 0, 0);
-    -webkit-transform: translate3d(0, 0, 0);
-    will-change: transform;
-    contain: layout style paint;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    will-change: transform !important;
+    contain: layout style paint !important;
+    pointer-events: auto !important;
+    /* Ensure it's actually rendered */
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    max-width: 48px !important;
+    max-height: 48px !important;
   }
 }
 
-/* Show mobile menu button on all screens 1200px and below */
+/* Method 2: Specific range targeting the problem area */
+@media screen and (min-width: 1024px) and (max-width: 1200px) {
+  .mobile-menu-button {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    z-index: 1001 !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    will-change: transform !important;
+    contain: layout style paint !important;
+    pointer-events: auto !important;
+    background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0.75rem !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    width: 48px !important;
+    height: 48px !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* Method 3: Tablet-specific targeting */
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+  .mobile-menu-button {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    z-index: 1001 !important;
+  }
+}
+
+/* Method 4: Fallback for any screen 1200px and below */
 @media (max-width: 1200px) {
   .mobile-menu-button {
     display: flex !important;
@@ -2912,12 +2968,13 @@ progress::-moz-progress-bar {
     top: 1rem !important;
     left: 1rem !important;
     z-index: 1001 !important;
-    will-change: transform;
+    will-change: transform !important;
     transform: translate3d(0, 0, 0) !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
-    contain: layout style paint;
+    contain: layout style paint !important;
     visibility: visible !important;
     opacity: 1 !important;
+    pointer-events: auto !important;
   }
 
   .boards-sidebar {
