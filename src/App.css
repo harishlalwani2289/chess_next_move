@@ -2880,11 +2880,28 @@ progress::-moz-progress-bar {
   backface-visibility: hidden;
   width: 48px;
   height: 48px;
-  display: flex;
   align-items: center;
   justify-content: center;
-  /* Hidden by default, shown only on mobile/tablet */
+  /* Default hidden state for desktop only */
   display: none;
+}
+
+/* Force show mobile menu button on desktop screens 1200px and below - highest specificity */
+@media screen and (max-width: 1200px) {
+  body .app .mobile-menu-button {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: fixed !important;
+    top: 1rem !important;
+    left: 1rem !important;
+    z-index: 1001 !important;
+    /* Force render layer */
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    will-change: transform;
+    contain: layout style paint;
+  }
 }
 
 /* Show mobile menu button on all screens 1200px and below */
