@@ -3172,7 +3172,7 @@ progress::-moz-progress-bar {
   .fen-input-field {
     width: 100%;
     font-size: 0.75rem;
-    padding: 0.5rem;
+    padding: 0.575rem; /* Increased by 15% from 0.5rem */
   }
   
   .btn {
