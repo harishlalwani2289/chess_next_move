@@ -3763,7 +3763,7 @@ progress::-moz-progress-bar {
     width: 100%;
     max-width: 100%;
     font-size: 0.7rem;
-    padding: 0.5rem;
+    padding: 0.66125rem; /* Increased by 32.25% from original 0.5rem base */
     box-sizing: border-box;
     word-break: break-all;
     overflow-wrap: break-word;
