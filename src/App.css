@@ -1483,15 +1483,108 @@ input:checked + .toggle-slider:before {
   .main-content {
     margin-left: 0; /* Remove sidebar margin for mobile screens */
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
+    padding: 1rem;
   }
   
   .boards-sidebar {
     display: none; /* Hide sidebar on mobile screens */
   }
   
-  .results-column {
-    grid-column: 1 / -1;
+  .board-column, .controls-column, .results-column {
+    width: 100%;
+    max-width: 100%;
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 0.5rem;
+  }
+  
+  .boards-sidebar {
+    display: none;
+  }
+  
+  .board-column {
+    min-width: auto; /* Remove minimum width constraint */
+    width: 100%;
+    padding: 0.5rem;
+  }
+  
+  .board-section {
+    width: 100%; /* Full width of board-column */
+  }
+  
+  .chess-board-container {
+    width: 100%; /* Full width of board-section */
+    margin-bottom: 0.5rem;
+  }
+  
+  .chessground-board {
+    width: 90vw !important; /* 90% of viewport width */
+    max-width: 90vw !important;
+    height: 90vw !important; /* Square aspect ratio */
+    min-width: 90vw !important;
+    min-height: 90vw !important;
+  }
+  
+  /* Target the actual Chessground container directly */
+  .chessground-board cg-container {
+    width: 90vw !important;
+    height: 90vw !important;
+    max-width: 90vw !important;
+    max-height: 90vw !important;
+    min-width: 90vw !important;
+    min-height: 90vw !important;
+  }
+  
+  /* Override any inline styles on cg-container */
+  cg-container {
+    width: 90vw !important;
+    height: 90vw !important;
+    max-width: 90vw !important;
+    max-height: 90vw !important;
+    min-width: 90vw !important;
+    min-height: 90vw !important;
+  }
+  
+  .controls-column, .results-column {
+    padding: 0.75rem;
+  }
+  
+  /* Compact button styles for mobile */
+  .btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .control-buttons .btn {
+    font-size: 0.85rem;
+  }
+  
+  /* Smaller input fields */
+  .fen-input-field, .move-input, .eval-input {
+    font-size: 0.85rem;
+    padding: 0.6rem;
+  }
+  
+  /* Compact results */
+  .result-item {
+    padding: 0.75rem;
+  }
+  
+  .pv-textarea {
+    font-size: 0.8rem;
+  }
+  
+  /* Hide desktop navigation, show mobile menu */
+  .professional-nav {
+    display: none;
   }
 }
 
