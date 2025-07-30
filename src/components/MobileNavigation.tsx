@@ -22,7 +22,20 @@ export const MobileNavigation: React.FC = () => {
   useEffect(() => {
     const createOrUpdateButton = () => {
       const existingButton = document.getElementById('mobile-floating-menu');
-      if (window.innerWidth <= 1200) {
+      
+      // Smart device detection for consistent tablet experience
+      const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+      const isTablet = isTouch && (
+        // Screen size indicators for tablets
+        (window.innerWidth >= 768 && window.innerWidth <= 1400) ||
+        // Device pixel ratio indicators (high-DPI tablets)
+        (window.devicePixelRatio >= 1.5 && window.innerWidth <= 1600) ||
+        // User agent detection for known tablets
+        /iPad|Android.*Tablet|Surface/i.test(navigator.userAgent)
+      );
+      const shouldShowMobileMenu = window.innerWidth <= 1200 || isTablet;
+      
+      if (shouldShowMobileMenu) {
         // Check if dark mode is active
         const isDarkMode = document.documentElement.classList.contains('dark');
         
