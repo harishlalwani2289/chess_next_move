@@ -3146,8 +3146,13 @@ progress::-moz-progress-bar {
     border: none !important; /* Remove border for tablets */
     border-radius: 0 !important; /* Make pointy border for tablets */
     background: transparent; /* Make background transparent for tablets */
-    padding-top: 15px; /* Add top padding for tablets */
-    gap: 0.3rem; /* Reduce gap to 20% of original 1.5rem for tablets */
+    padding-top: 0; /* Remove top padding for tablets */
+    gap: 4px; /* Reduce gap to 4px for tablets */
+    height: 100% !important; /* Match controls-column height */
+    align-self: stretch !important; /* Stretch to match tallest column */
+    min-height: 100% !important; /* Ensure minimum height matching */
+    display: flex !important; /* Enable flexbox for internal layout */
+    flex-direction: column !important; /* Stack content vertically */
   }
 
   .controls-column {
@@ -3158,6 +3163,11 @@ progress::-moz-progress-bar {
     padding: 1.2rem 0.8rem; /* 20% smaller padding */
     border: none !important; /* Remove border for tablets */
     border-radius: 0 !important; /* Make pointy border for tablets */
+    height: 100% !important; /* Match board-column height */
+    align-self: stretch !important; /* Stretch to match tallest column */
+    min-height: 100% !important; /* Ensure minimum height matching */
+    display: flex !important; /* Enable flexbox for internal layout */
+    flex-direction: column !important; /* Stack content vertically */
   }
 
   /* Scale down all elements inside controls column by 20% */
@@ -3394,6 +3404,21 @@ progress::-moz-progress-bar {
   /* Decrease vertical gap between game navigation and chess board by 88% total */
   .game-navigation {
     margin-top: 0.12rem; /* Additional 60% decrease from 0.3rem (0.3rem * 0.4 = 0.12rem) */
+    padding: 0 !important; /* Remove all padding for tablets */
+    width: 60% !important; /* Set width to 60% of board-column for tablets */
+    max-width: 60% !important; /* Set max-width to 60% of board-column for tablets */
+    margin-left: auto !important; /* Center horizontally */
+    margin-right: auto !important; /* Center horizontally */
+    border: none !important; /* Remove border for tablets */
+    background: transparent !important; /* Remove background for tablets */
+  }
+
+  /* Reduce button sizes inside game navigation for tablets */
+  .game-navigation .btn-nav {
+    padding: 0.5rem !important; /* Reduced from default tablet button padding */
+    min-width: 32px !important; /* Reduced from 36px */
+    min-height: 32px !important; /* Reduced from 36px */
+    font-size: 0.7rem !important; /* Reduced from 0.8rem */
   }
 }
 
