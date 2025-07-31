@@ -22,6 +22,8 @@
     max-width: 100% !important;
     min-width: auto !important;
     gap: 5px !important; /* Reduce gutter size inside board-column */
+    border: none !important; /* Remove border */
+    border-radius: 0 !important; /* Make pointy border */
   }
 
   .controls-column {
@@ -31,6 +33,19 @@
     max-width: 100% !important;
     height: 100% !important;
     align-self: stretch !important;
+    min-height: 100% !important;
+    border: none !important; /* Remove border */
+    border-radius: 0 !important; /* Make pointy border */
+  }
+
+  /* Ensure both columns have equal height - use the taller one */
+  .board-column,
+  .controls-column {
+    align-self: stretch !important;
+    height: 100% !important;
+    min-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .results-column {
@@ -38,6 +53,8 @@
     grid-row: 2;
     width: 100% !important;
     max-width: 100% !important;
+    border: none !important; /* Remove border */
+    border-radius: 0 !important; /* Make pointy border */
   }
 
   .chessground-board {
