@@ -4,10 +4,70 @@ import { useChessStore } from '../store/chessStore';
 import { PgnModal } from './PgnModal';
 import { useStockfish } from '../hooks/useStockfish';
 
+// Utility function to get piece information from a move
+const getPieceInfo = (move: string, gameState: any) => {
+  if (!move || !gameState) return { piece: '', description: move };
+  
+  try {
+    // Try to get piece information from the current game state
+    const game = gameState.game || gameState;
+    if (game && typeof game.get === 'function') {
+      // Handle both raw moves (e.g. "b8c6") and formatted moves (e.g. "Nb8c6")
+      let fromSquare: string;
+      
+      // Check if move starts with a piece symbol (capital letter)
+      if (move.length >= 5 && /^[NBRQK]/.test(move)) {
+        // Formatted move like "Nb8c6" - extract the from square after the piece symbol
+        fromSquare = move.substring(1, 3);
+      } else if (move.length >= 4) {
+        // Raw move like "b8c6" - first two characters are the from square
+        fromSquare = move.substring(0, 2);
+      } else {
+        return { piece: '', description: move };
+      }
+      
+      const piece = game.get(fromSquare);
+      
+      if (piece) {
+        const pieceNames: Record<string, string> = {
+          'p': 'Pawn',
+          'P': 'Pawn',
+          'r': 'Rook',
+          'R': 'Rook', 
+          'n': 'Knight',
+          'N': 'Knight',
+          'b': 'Bishop',
+          'B': 'Bishop',
+          'q': 'Queen',
+          'Q': 'Queen',
+          'k': 'King',
+          'K': 'King'
+        };
+        
+        const pieceName = pieceNames[piece.type] || piece.type.toUpperCase();
+        const color = piece.color === 'w' ? 'White' : 'Black';
+        
+        // Extract the actual move part (without piece symbol if present)
+        const cleanMove = /^[NBRQK]/.test(move) ? move.substring(1) : move;
+        
+        return {
+          piece: pieceName,
+          description: `${color} ${pieceName} ${cleanMove}`
+        };
+      }
+    }
+  } catch (error) {
+    console.log('Could not get piece info:', error);
+  }
+  
+  return { piece: '', description: move };
+};
+
 export const GameControls: React.FC = () => {
   const { 
     setPosition, 
-    gameState, 
+    gameState,
+    game,
     engineOptions,
     setEngineOptions,
     engineThinking,
@@ -138,9 +198,22 @@ export const GameControls: React.FC = () => {
               <Brain size={16} />
               {engineThinking ? 'Analyzing...' : 'Calculate Best Move'}
             </button>
-            {analysisResults?.[0]?.bestMove && (
-              <span className="best-move-value">{analysisResults[0].bestMove}</span>
-            )}
+            {analysisResults?.[0]?.bestMove && (() => {
+              const bestMove = analysisResults[0].bestMove;
+              const pieceInfo = getPieceInfo(bestMove, game);
+              
+              // Extract clean move (remove piece symbol if present)
+              const cleanMove = /^[NBRQK]/.test(bestMove) ? bestMove.substring(1) : bestMove;
+              
+              return (
+                <span 
+                  className="best-move-value" 
+                  title={pieceInfo.description !== bestMove ? pieceInfo.description : undefined}
+                >
+                  {pieceInfo.piece ? `${pieceInfo.piece}: ${cleanMove}` : bestMove}
+                </span>
+              );
+            })()}
           </div>
           
           {/* Compact Progress bars */}

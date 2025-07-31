@@ -18,38 +18,6 @@ export const useStockfish = () => {
     game
   } = useChessStore();
 
-  // Initialize Stockfish worker
-  useEffect(() => {
-    const initWorker = () => {
-      try {
-        // Load Stockfish from public directory
-        workerRef.current = new Worker('/stockfish.asm.js');
-        
-        workerRef.current.onmessage = (event: StockfishMessage) => {
-          handleEngineMessage(event.data);
-        };
-        
-        workerRef.current.onerror = (error) => {
-          console.error('Stockfish worker error:', error);
-        };
-        
-        // Initialize UCI
-        workerRef.current.postMessage('uci');
-        console.log('Stockfish initialized successfully');
-      } catch (error) {
-        console.error('Failed to initialize Stockfish:', error);
-      }
-    };
-
-    initWorker();
-
-    return () => {
-      if (workerRef.current) {
-        workerRef.current.terminate();
-      }
-    };
-  }, []);
-
   // Parse evaluation score
   const parseEvaluation = (line: string): string => {
     const cpMatch = line.match(/cp (-?\d+)/);
@@ -191,6 +159,38 @@ export const useStockfish = () => {
     }
   }, [gameState?.turn, setAnalysisResults, setEngineThinking, updateProgressBars]);
   
+  // Initialize Stockfish worker (must come after handleEngineMessage is defined)
+  useEffect(() => {
+    const initWorker = () => {
+      try {
+        // Load Stockfish from public directory
+        workerRef.current = new Worker('/stockfish.asm.js');
+        
+        workerRef.current.onmessage = (event: StockfishMessage) => {
+          handleEngineMessage(event.data);
+        };
+        
+        workerRef.current.onerror = (error) => {
+          console.error('Stockfish worker error:', error);
+        };
+        
+        // Initialize UCI
+        workerRef.current.postMessage('uci');
+        console.log('Stockfish initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize Stockfish:', error);
+      }
+    };
+
+    initWorker();
+
+    return () => {
+      if (workerRef.current) {
+        workerRef.current.terminate();
+      }
+    };
+  }, [handleEngineMessage]);
+
   // Start analysis
   const analyzePosition = useCallback(() => {
     if (!workerRef.current) {
@@ -202,8 +202,6 @@ export const useStockfish = () => {
       console.error('No position available for analysis');
       return;
     }
-    
-    console.log('Starting analysis for position:', gameState.fen);
     
     clearAnalysisResults();
     setEngineThinking(true);
