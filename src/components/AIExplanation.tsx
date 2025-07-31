@@ -86,6 +86,9 @@ export const AIExplanation: React.FC = () => {
           principalVariation: firstResult.principalVariation,
         })
         .then((explanation) => {
+          console.log('AI Explanation received:', explanation);
+          console.log('Explanation text:', explanation.explanation);
+          console.log('Setting tooltip with explanation:', explanation.explanation);
           // Cache the explanation
           explanationCache.current.set(cacheKey, explanation.explanation);
           
@@ -99,7 +102,8 @@ export const AIExplanation: React.FC = () => {
             isInitial: false
           });
         })
-        .catch(() => {
+        .catch((error) => {
+          console.log('AI Explanation error:', error);
           setTooltip({
             visible: true,
             loading: false,
@@ -132,7 +136,11 @@ export const AIExplanation: React.FC = () => {
         </div>
       ) : (
         <div className="ai-explanation-content">
-          {tooltip.explanation || tooltip.error || 'Explanation will appear here if available'}
+          {(() => {
+            console.log('Rendering explanation - tooltip.explanation:', tooltip.explanation);
+            console.log('Rendering explanation - tooltip.error:', tooltip.error);
+            return tooltip.explanation || tooltip.error || 'Explanation will appear here if available';
+          })()}
         </div>
       )}
     </div>
