@@ -2,68 +2,73 @@
 /* Medium-large screens (1200px - 1600px) */
 @media (min-width: 1201px) and (max-width: 1600px) {
   .main-content {
-    max-width: 80%; /* Limit to 80% of available width */
-    margin: 0 auto;
-    margin-left: calc(250px + 10%); /* Sidebar width + 10% left margin */
-    margin-right: 10%; /* 10% right margin to center the 80% content */
-    padding: 1.2rem 0.8rem; /* Reduced by 60% from 3rem and 2rem (3 * 0.4 = 1.2, 2 * 0.4 = 0.8) */
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr; /* 2:1:1 ratio - board gets 2 units (50%), controls spans 2 units (50%) */
-    grid-template-rows: auto auto; /* Two rows */
-    gap: 0.25rem; /* Reduced by 90% from 2.5rem (2.5 * 0.1 = 0.25) */
-    align-items: start;
-    background: var(--bg-primary);
-    min-height: calc(100vh - 180px);
+    max-width: 96% !important;
+    margin: 0 auto !important;
+    margin-left: calc(250px + 2%) !important;
+    margin-right: 2% !important;
+    padding: 1.2rem 0.8rem !important;
+    display: grid !important;
+    grid-template-columns: 1.2fr 0.8fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 0.25rem !important;
+    align-items: start !important;
+    background: var(--bg-primary) !important;
+    min-height: calc(100vh - 180px) !important;
   }
 
   .board-column {
-    grid-column: 1; /* First column (2fr = 50%) */
-    grid-row: 1; /* First row */
+    grid-column: 1;
+    grid-row: 1;
   }
 
   .controls-column {
-    grid-column: 2 / 4; /* Span columns 2 and 3 (1fr + 1fr = 50%) */
-    grid-row: 1; /* First row */
+    grid-column: 2;
+    grid-row: 1;
+    height: 100% !important;
+    align-self: stretch !important;
   }
 
   .results-column {
-    grid-column: 1 / -1; /* Span across all three columns */
-    grid-row: 2; /* Second row */
+    grid-column: 1 / 3;
+    grid-row: 2;
   }
 
   .board-column {
-    width: 595px !important; /* Decreased by 30% from 850px (850 * 0.7 = 595) */
-    min-width: 595px !important; /* Decreased by 30% from 850px (850 * 0.7 = 595) */
-    gap: 0.15rem !important; /* Decreased by 90% from 1.5rem (1.5 * 0.1 = 0.15) */
+    width: auto !important;
+    min-width: auto !important;
+    max-width: 100% !important;
+    height: 80% !important;
+    gap: 0.15rem !important;
+    aspect-ratio: 1 / 1 !important;
+    box-sizing: border-box !important;
   }
 
-  /* Scale down all elements inside board-column by 30% */
   .board-column .board-section {
-    width: 95% !important; /* Keep original percentage */
+    width: 95% !important;
   }
 
   .board-column .chess-board-container {
-    width: 95% !important; /* Keep original percentage */
-    margin-bottom: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+    width: 95% !important;
+    margin-bottom: 0.7rem !important;
   }
 
   .board-column .chessground-board {
-    width: 95% !important; /* Occupies 95% of the board-column width */
-    height: auto !important; /* Maintain aspect ratio */
+    width: 95% !important;
+    height: auto !important;
     max-width: 95% !important;
     aspect-ratio: 1 / 1 !important;
   }
 
   .board-column .turn-indicator {
-    gap: 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
+    gap: 0.35rem !important;
   }
 
   .board-column .turn-badge {
-    padding: 0.525rem 1.05rem !important; /* Decreased by 30% from 0.75rem 1.5rem */
-    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
-    min-width: 56px !important; /* Decreased by 30% from 80px (80 * 0.7 = 56) */
-    height: 31.5px !important; /* Decreased by 30% from 45px (45 * 0.7 = 31.5) */
-    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
+    padding: 0.525rem 1.05rem !important;
+    font-size: 0.84rem !important;
+    min-width: 56px !important;
+    height: 31.5px !important;
+    border-radius: 5.6px !important;
   }
 
   .board-column .fen-display {
@@ -71,155 +76,55 @@
   }
 
   .board-column .fen-display label {
-    font-size: 0.7rem !important; /* Decreased by 30% from 1rem (assuming base font) */
-    margin-bottom: 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
+    font-size: 0.7rem !important;
+    margin-bottom: 0.35rem !important;
   }
 
   .board-column .fen-input,
   .board-column .fen-display-field {
-    padding: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
-    font-size: 0.63rem !important; /* Decreased by 30% from 0.9rem (0.9 * 0.7 = 0.63) */
-    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
+    padding: 0.525rem !important;
+    font-size: 0.63rem !important;
+    border-radius: 5.6px !important;
   }
 
   .board-column .game-navigation {
-    padding: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
-    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
-    width: 63% !important; /* Decreased by 30% from 90% (90 * 0.7 = 63) */
-    margin-top: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+    padding: 0.7rem !important;
+    border-radius: 5.6px !important;
+    width: 63% !important;
+    margin-top: 0.7rem !important;
   }
 
   .board-column .game-navigation h3 {
-    font-size: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
-    margin-bottom: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
+    font-size: 0.7rem !important;
+    margin-bottom: 0.525rem !important;
   }
 
   .board-column .btn-nav {
-    padding: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
-    min-width: 33.6px !important; /* Decreased by 30% from 48px (48 * 0.7 = 33.6) */
-    min-height: 33.6px !important; /* Decreased by 30% from 48px (48 * 0.7 = 33.6) */
-    border-radius: 4.2px !important; /* Decreased by 30% from 6px (6 * 0.7 = 4.2) */
-    margin: 0 1.4px !important; /* Decreased by 30% from 2px (2 * 0.7 = 1.4) */
+    padding: 0.525rem !important;
+    min-width: 33.6px !important;
+    min-height: 33.6px !important;
+    border-radius: 4.2px !important;
+    margin: 0 1.4px !important;
   }
 
   .board-column .move-indicator {
-    font-size: 0.595rem !important; /* Decreased by 30% from 0.85rem (0.85 * 0.7 = 0.595) */
-    padding: 0 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
-    min-width: 56px !important; /* Decreased by 30% from 80px (80 * 0.7 = 56) */
+    font-size: 0.595rem !important;
+    padding: 0 0.35rem !important;
+    min-width: 56px !important;
   }
 
   .board-column .best-move-display {
-    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
-    padding: 0.35rem 0.525rem !important; /* Decreased by 30% from 0.5rem 0.75rem */
-    border-radius: 4.2px !important; /* Decreased by 30% from 6px (6 * 0.7 = 4.2) */
+    display: none !important;
   }
 
   .board-column .best-move-label,
   .board-column .best-move-value {
-    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
+    font-size: 0.84rem !important;
   }
 
-  /* Scale SVG icons inside board-column */
-  .board-column svg {
-    width: 11.2px !important; /* Decreased by 30% from 16px (16 * 0.7 = 11.2) */
-    height: 11.2px !important; /* Decreased by 30% from 16px (16 * 0.7 = 11.2) */
-  }
-}
-
-/* Large screens (wider than 1600px) */
-@media (min-width: 1601px) {
-  .board-column {
-    width: 595px !important; /* Decreased by 30% from 850px (850 * 0.7 = 595) */
-    min-width: 595px !important; /* Decreased by 30% from 850px (850 * 0.7 = 595) */
-    gap: 0.15rem !important; /* Decreased by 90% from 1.5rem (1.5 * 0.1 = 0.15) */
-  }
-
-  /* Scale down all elements inside board-column by 30% */
-  .board-column .board-section {
-    width: 95% !important; /* Keep original percentage */
-  }
-
-  .board-column .chess-board-container {
-    width: 95% !important; /* Keep original percentage */
-    margin-bottom: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
-  }
-
-  .board-column .chessground-board {
-    width: 95% !important; /* Occupies 95% of the board-column width */
-    height: auto !important; /* Maintain aspect ratio */
-    max-width: 95% !important;
-    aspect-ratio: 1 / 1 !important;
-  }
-
-  .board-column .turn-indicator {
-    gap: 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
-  }
-
-  .board-column .turn-badge {
-    padding: 0.525rem 1.05rem !important; /* Decreased by 30% from 0.75rem 1.5rem */
-    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
-    min-width: 56px !important; /* Decreased by 30% from 80px (80 * 0.7 = 56) */
-    height: 31.5px !important; /* Decreased by 30% from 45px (45 * 0.7 = 31.5) */
-    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
-  }
-
-  .board-column .fen-display {
-    width: 100% !important;
-  }
-
-  .board-column .fen-display label {
-    font-size: 0.7rem !important; /* Decreased by 30% from 1rem (assuming base font) */
-    margin-bottom: 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
-  }
-
-  .board-column .fen-input,
-  .board-column .fen-display-field {
-    padding: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
-    font-size: 0.63rem !important; /* Decreased by 30% from 0.9rem (0.9 * 0.7 = 0.63) */
-    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
-  }
-
-  .board-column .game-navigation {
-    padding: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
-    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
-    width: 63% !important; /* Decreased by 30% from 90% (90 * 0.7 = 63) */
-    margin-top: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
-  }
-
-  .board-column .game-navigation h3 {
-    font-size: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
-    margin-bottom: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
-  }
-
-  .board-column .btn-nav {
-    padding: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
-    min-width: 33.6px !important; /* Decreased by 30% from 48px (48 * 0.7 = 33.6) */
-    min-height: 33.6px !important; /* Decreased by 30% from 48px (48 * 0.7 = 33.6) */
-    border-radius: 4.2px !important; /* Decreased by 30% from 6px (6 * 0.7 = 4.2) */
-    margin: 0 1.4px !important; /* Decreased by 30% from 2px (2 * 0.7 = 1.4) */
-  }
-
-  .board-column .move-indicator {
-    font-size: 0.595rem !important; /* Decreased by 30% from 0.85rem (0.85 * 0.7 = 0.595) */
-    padding: 0 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
-    min-width: 56px !important; /* Decreased by 30% from 80px (80 * 0.7 = 56) */
-  }
-
-  .board-column .best-move-display {
-    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
-    padding: 0.35rem 0.525rem !important; /* Decreased by 30% from 0.5rem 0.75rem */
-    border-radius: 4.2px !important; /* Decreased by 30% from 6px (6 * 0.7 = 4.2) */
-  }
-
-  .board-column .best-move-label,
-  .board-column .best-move-value {
-    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
-  }
-
-  /* Scale SVG icons inside board-column */
-  .board-column svg {
-    width: 11.2px !important; /* Decreased by 30% from 16px (16 * 0.7 = 11.2) */
-    height: 11.2px !important; /* Decreased by 30% from 16px (16 * 0.7 = 11.2) */
+  .board-column svg:not(.cg-shapes svg):not(.cg-shapes *) {
+    width: 11.2px !important;
+    height: 11.2px !important;
   }
 }
 
@@ -2226,52 +2131,6 @@ progress::-moz-progress-bar {
   box-shadow: 0 2px 8px rgba(107, 114, 128, 0.25) !important;
 }
 
-/* Game Information styling */
-.game-information {
-  margin-top: 0.5rem;
-  padding: 0.5rem;
-  background: var(--game-info-bg);
-  border-radius: 6px;
-  border: 1px solid var(--border-secondary);
-  width: 100%;
-}
-
-.game-information h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #2d3748;
-}
-
-.game-info-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.players {
-  font-size: 0.85rem;
-  text-align: center;
-  padding: 0.3rem;
-  background: #f8f9fa;
-  border-radius: 3px;
-}
-
-.game-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.2rem 0;
-}
-
-.game-event, .game-date, .game-result {
-  font-size: 0.75rem;
-  color: #666;
-  text-align: center;
-  flex: 1;
-  padding: 0.1rem;
-}
 
 /* Game Navigation styling */
 .game-navigation {
@@ -3482,10 +3341,6 @@ progress::-moz-progress-bar {
     display: none !important;
   }
 
-  /* Hide game information for tablet devices */
-  .game-information {
-    display: none !important;
-  }
 
   /* Set Position button specific styling for tablets - target by button text content */
   .controls-column .btn.btn-secondary:has(svg rect[fill="none"]):not(.btn-small) {

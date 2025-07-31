@@ -3,7 +3,6 @@ import { LogIn } from 'lucide-react';
 import ChessBoard from './components/ChessBoard';
 import BoardControls from './components/BoardControls';
 import GameControls from './components/GameControls';
-import { GameInformation } from './components/GameInformation';
 import GameNavigation from './components/GameNavigation';
 import AnalysisResults from './components/AnalysisResults';
 import AIExplanation from './components/AIExplanation';
@@ -92,7 +91,6 @@ function App() {
             </div>
             <MobileCalculateButton />
             <GameNavigation />
-            <GameInformation />
           </div>
 
           <div className="controls-column">
