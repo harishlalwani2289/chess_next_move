@@ -3861,8 +3861,18 @@ progress::-moz-progress-bar {
     min-height: 90vw !important;
   }
   
+  .mobile-calculate-section {
+    width: 60%; /* Set to 60% overall */
+    max-width: 60%;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
   .mobile-calculate-button {
-    width: 80%;
+    width: 105.8%; /* Increased by additional 15% from 92% (92% * 1.15 = 105.8%) */
     font-size: 1.2rem;
   }
   
