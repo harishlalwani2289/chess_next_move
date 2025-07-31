@@ -9,7 +9,7 @@
     margin: 0 auto !important;
     margin-left: calc(250px + 2%) !important;
     margin-right: 2% !important;
-    padding: 1.5rem !important;
+    padding: 10px !important;
     align-items: start !important;
     background: var(--bg-primary) !important;
     min-height: calc(100vh - 180px) !important;
