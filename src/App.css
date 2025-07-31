@@ -3129,7 +3129,7 @@ progress::-moz-progress-bar {
 @media (max-width: 1200px) and (min-width: 769px) {
   .main-content {
     grid-template-columns: 1fr 0.67fr;
-    gap: 1.5rem;
+    gap: 5px !important; /* Reduce gutter size to 5px */
     padding: 2rem 1rem;
     max-width: 100vw;
     overflow-x: hidden;
@@ -3143,7 +3143,8 @@ progress::-moz-progress-bar {
     min-width: auto;
     overflow: hidden;
     box-sizing: border-box;
-    border: none; /* Remove border for tablets */
+    border: none !important; /* Remove border for tablets */
+    border-radius: 0 !important; /* Make pointy border for tablets */
     background: transparent; /* Make background transparent for tablets */
     padding-top: 15px; /* Add top padding for tablets */
     gap: 0.3rem; /* Reduce gap to 20% of original 1.5rem for tablets */
@@ -3155,6 +3156,8 @@ progress::-moz-progress-bar {
     overflow: hidden;
     box-sizing: border-box;
     padding: 1.2rem 0.8rem; /* 20% smaller padding */
+    border: none !important; /* Remove border for tablets */
+    border-radius: 0 !important; /* Make pointy border for tablets */
   }
 
   /* Scale down all elements inside controls column by 20% */
@@ -3325,6 +3328,8 @@ progress::-moz-progress-bar {
     grid-column: 1 / -1;
     width: 100%;
     max-width: 100%;
+    border: none !important; /* Remove border for tablets */
+    border-radius: 0 !important; /* Make pointy border for tablets */
   }
 
   .board-section {
