@@ -65,6 +65,31 @@
     box-sizing: border-box !important;
     font-size: 1.2rem !important;
   }
+
+  /* FEN input field styling */
+  .fen-input-field {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* FEN input container styling */
+  .fen-input-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Set Position button styling - 60% width and centered */
+  .fen-input-container .btn-secondary {
+    width: 60% !important;
+    max-width: 60% !important;
+    margin: 0 auto !important;
+    align-self: center !important;
+    box-sizing: border-box !important;
+  }
 }
 
 :root {
