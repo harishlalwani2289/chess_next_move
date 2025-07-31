@@ -6,6 +6,7 @@ import GameControls from './components/GameControls';
 import { GameInformation } from './components/GameInformation';
 import GameNavigation from './components/GameNavigation';
 import AnalysisResults from './components/AnalysisResults';
+import AIExplanation from './components/AIExplanation';
 import BoardsManager from './components/BoardsManager';
 import MobileNavigation from './components/MobileNavigation';
 import MobileCalculateButton from './components/MobileCalculateButton';
@@ -99,6 +100,7 @@ function App() {
             
             <GameControls />
             
+            <AIExplanation />
           </div>
 
             <div className="results-column">

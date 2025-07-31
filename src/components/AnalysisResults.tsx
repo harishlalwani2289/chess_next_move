@@ -200,18 +200,18 @@ export const AnalysisResults: React.FC = () => {
           }
         }));
       })
-      .catch(() => {
-        setTooltips(prev => ({
-          ...prev,
-          [index]: {
-            ...prev[index],
-            explanation: '',
-            loading: false,
-            error: 'Unable to generate explanation at this time',
-            isInitial: false
-          }
-        }));
-      });
+        .catch(() => {
+          setTooltips(prev => ({
+            ...prev,
+            [index]: {
+              ...prev[index],
+              explanation: '',
+              loading: false,
+              error: 'Explanation will appear here if available',
+              isInitial: false
+            }
+          }));
+        });
     }, 2000);
   };
 
@@ -254,7 +254,7 @@ export const AnalysisResults: React.FC = () => {
     }));
   };
 
-  // Clear explanations cache and tooltips when analysis results change
+  // Auto-trigger AI explanation for first best move and clear cache when results change
   useEffect(() => {
     explanationCache.current.clear();
     // Clear all tooltips
@@ -264,7 +264,83 @@ export const AnalysisResults: React.FC = () => {
       if (timeout) clearTimeout(timeout);
     });
     hoverTimeouts.current = {};
-  }, [analysisResults]);
+
+    // Auto-trigger AI explanation for first best move when AI is enabled and engine is done thinking
+    const firstBestMove = analysisResults[0]?.bestMove;
+    
+    if (firstBestMove && aiExplanationsEnabled && !engineThinking) {
+      const firstResult = analysisResults[0];
+      if (firstResult && firstResult.bestMove && gameState?.fen) {
+        const cacheKey = `${firstResult.bestMove}_${firstResult.evaluation}`;
+
+        // Check cache first
+        if (explanationCache.current.has(cacheKey)) {
+          setTooltips(prev => ({
+            ...prev,
+            [0]: {
+              visible: true,
+              loading: false,
+              explanation: explanationCache.current.get(cacheKey) || '',
+              error: '',
+              x: 0,
+              y: 0,
+              isInitial: false
+            }
+          }));
+          return;
+        }
+
+        // Set loading state for first best move
+        setTooltips(prev => ({
+          ...prev,
+          [0]: {
+            visible: true,
+            loading: true,
+            explanation: '',
+            error: '',
+            x: 0,
+            y: 0,
+            isInitial: false
+          }
+        }));
+
+        // Fetch explanation
+        aiService.getExplanation({
+          position: gameState.fen,
+          bestMove: firstResult.bestMove,
+          evaluation: firstResult.evaluation,
+          principalVariation: firstResult.principalVariation,
+        })
+        .then((explanation) => {
+          // Cache the explanation
+          explanationCache.current.set(cacheKey, explanation.explanation);
+          
+          setTooltips(prev => ({
+            ...prev,
+            [0]: {
+              ...prev[0],
+              explanation: explanation.explanation,
+              loading: false,
+              error: '',
+              isInitial: false
+            }
+          }));
+        })
+        .catch(() => {
+          setTooltips(prev => ({
+            ...prev,
+            [0]: {
+              ...prev[0],
+              explanation: '',
+              loading: false,
+              error: 'Explanation will appear here if available',
+              isInitial: false
+            }
+          }));
+        });
+      }
+    }
+  }, [analysisResults, aiExplanationsEnabled, gameState?.fen, engineThinking]);
 
   const getMoveColorClass = (moveNumber: number) => {
     switch (moveNumber) {
@@ -342,6 +418,7 @@ export const AnalysisResults: React.FC = () => {
                 className="eval-input"
               />
             </div>
+
 
             <div className="principal-variation">
               <label>Principal Variation:</label>

@@ -232,7 +232,7 @@
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -341,7 +341,7 @@
 
 /* Game Controls */
 .game-controls {
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .fen-input-container {
@@ -2429,6 +2429,51 @@ progress::-moz-progress-bar {
   font-size: 0.9rem;
   line-height: 1.4;
   color: #4a5568;
+}
+
+/* Inline AI Explanation Styles */
+.ai-explanation-inline {
+  margin-top: 0.75rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #e8f5e8 0%, #f0f8ff 100%);
+  border-radius: 6px;
+  border-left: 4px solid #28a745;
+  border: 1px solid #d4e8d4;
+}
+
+.ai-explanation-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.ai-explanation-header label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
+  color: #2d5016;
+}
+
+.ai-explanation-icon {
+  color: #28a745;
+  flex-shrink: 0;
+}
+
+.ai-explanation-loading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.ai-explanation-content {
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #4a5568;
+  margin: 0;
 }
 
 .loading-icon {
