@@ -298,7 +298,8 @@
 .boards-sidebar {
   position: absolute;
   left: 1rem;
-  top: 2rem; /* Match main-content padding to align vertical start */
+  top: 0; /* Remove top positioning to rely on margin */
+  margin-top: 1.2rem; /* Match main-content top padding */
   height: auto; /* Let height be determined by content like board-column */
   z-index: 100;
   background: var(--bg-tertiary); /* Match board-column background */
@@ -308,7 +309,7 @@
   width: 224px;
   min-width: 224px;
   overflow-y: auto;
-  padding: 10px; /* Match board-column padding */
+  padding: 1.2rem 0.8rem; /* Match main-content padding exactly */
   transition: background 0.3s ease, box-shadow 0.3s ease; /* Match board-column transition */
 }
 
