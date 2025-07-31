@@ -1,3 +1,228 @@
+
+/* Medium-large screens (1200px - 1600px) */
+@media (min-width: 1201px) and (max-width: 1600px) {
+  .main-content {
+    max-width: 80%; /* Limit to 80% of available width */
+    margin: 0 auto;
+    margin-left: calc(250px + 10%); /* Sidebar width + 10% left margin */
+    margin-right: 10%; /* 10% right margin to center the 80% content */
+    padding: 1.2rem 0.8rem; /* Reduced by 60% from 3rem and 2rem (3 * 0.4 = 1.2, 2 * 0.4 = 0.8) */
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr; /* 2:1:1 ratio - board gets 2 units (50%), controls spans 2 units (50%) */
+    grid-template-rows: auto auto; /* Two rows */
+    gap: 0.25rem; /* Reduced by 90% from 2.5rem (2.5 * 0.1 = 0.25) */
+    align-items: start;
+    background: var(--bg-primary);
+    min-height: calc(100vh - 180px);
+  }
+
+  .board-column {
+    grid-column: 1; /* First column (2fr = 50%) */
+    grid-row: 1; /* First row */
+  }
+
+  .controls-column {
+    grid-column: 2 / 4; /* Span columns 2 and 3 (1fr + 1fr = 50%) */
+    grid-row: 1; /* First row */
+  }
+
+  .results-column {
+    grid-column: 1 / -1; /* Span across all three columns */
+    grid-row: 2; /* Second row */
+  }
+
+  .board-column {
+    width: 595px !important; /* Decreased by 30% from 850px (850 * 0.7 = 595) */
+    min-width: 595px !important; /* Decreased by 30% from 850px (850 * 0.7 = 595) */
+    gap: 0.15rem !important; /* Decreased by 90% from 1.5rem (1.5 * 0.1 = 0.15) */
+  }
+
+  /* Scale down all elements inside board-column by 30% */
+  .board-column .board-section {
+    width: 95% !important; /* Keep original percentage */
+  }
+
+  .board-column .chess-board-container {
+    width: 95% !important; /* Keep original percentage */
+    margin-bottom: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+  }
+
+  .board-column .chessground-board {
+    width: 95% !important; /* Occupies 95% of the board-column width */
+    height: auto !important; /* Maintain aspect ratio */
+    max-width: 95% !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  .board-column .turn-indicator {
+    gap: 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
+  }
+
+  .board-column .turn-badge {
+    padding: 0.525rem 1.05rem !important; /* Decreased by 30% from 0.75rem 1.5rem */
+    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
+    min-width: 56px !important; /* Decreased by 30% from 80px (80 * 0.7 = 56) */
+    height: 31.5px !important; /* Decreased by 30% from 45px (45 * 0.7 = 31.5) */
+    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
+  }
+
+  .board-column .fen-display {
+    width: 100% !important;
+  }
+
+  .board-column .fen-display label {
+    font-size: 0.7rem !important; /* Decreased by 30% from 1rem (assuming base font) */
+    margin-bottom: 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
+  }
+
+  .board-column .fen-input,
+  .board-column .fen-display-field {
+    padding: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
+    font-size: 0.63rem !important; /* Decreased by 30% from 0.9rem (0.9 * 0.7 = 0.63) */
+    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
+  }
+
+  .board-column .game-navigation {
+    padding: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
+    width: 63% !important; /* Decreased by 30% from 90% (90 * 0.7 = 63) */
+    margin-top: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+  }
+
+  .board-column .game-navigation h3 {
+    font-size: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+    margin-bottom: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
+  }
+
+  .board-column .btn-nav {
+    padding: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
+    min-width: 33.6px !important; /* Decreased by 30% from 48px (48 * 0.7 = 33.6) */
+    min-height: 33.6px !important; /* Decreased by 30% from 48px (48 * 0.7 = 33.6) */
+    border-radius: 4.2px !important; /* Decreased by 30% from 6px (6 * 0.7 = 4.2) */
+    margin: 0 1.4px !important; /* Decreased by 30% from 2px (2 * 0.7 = 1.4) */
+  }
+
+  .board-column .move-indicator {
+    font-size: 0.595rem !important; /* Decreased by 30% from 0.85rem (0.85 * 0.7 = 0.595) */
+    padding: 0 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
+    min-width: 56px !important; /* Decreased by 30% from 80px (80 * 0.7 = 56) */
+  }
+
+  .board-column .best-move-display {
+    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
+    padding: 0.35rem 0.525rem !important; /* Decreased by 30% from 0.5rem 0.75rem */
+    border-radius: 4.2px !important; /* Decreased by 30% from 6px (6 * 0.7 = 4.2) */
+  }
+
+  .board-column .best-move-label,
+  .board-column .best-move-value {
+    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
+  }
+
+  /* Scale SVG icons inside board-column */
+  .board-column svg {
+    width: 11.2px !important; /* Decreased by 30% from 16px (16 * 0.7 = 11.2) */
+    height: 11.2px !important; /* Decreased by 30% from 16px (16 * 0.7 = 11.2) */
+  }
+}
+
+/* Large screens (wider than 1600px) */
+@media (min-width: 1601px) {
+  .board-column {
+    width: 595px !important; /* Decreased by 30% from 850px (850 * 0.7 = 595) */
+    min-width: 595px !important; /* Decreased by 30% from 850px (850 * 0.7 = 595) */
+    gap: 0.15rem !important; /* Decreased by 90% from 1.5rem (1.5 * 0.1 = 0.15) */
+  }
+
+  /* Scale down all elements inside board-column by 30% */
+  .board-column .board-section {
+    width: 95% !important; /* Keep original percentage */
+  }
+
+  .board-column .chess-board-container {
+    width: 95% !important; /* Keep original percentage */
+    margin-bottom: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+  }
+
+  .board-column .chessground-board {
+    width: 95% !important; /* Occupies 95% of the board-column width */
+    height: auto !important; /* Maintain aspect ratio */
+    max-width: 95% !important;
+    aspect-ratio: 1 / 1 !important;
+  }
+
+  .board-column .turn-indicator {
+    gap: 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
+  }
+
+  .board-column .turn-badge {
+    padding: 0.525rem 1.05rem !important; /* Decreased by 30% from 0.75rem 1.5rem */
+    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
+    min-width: 56px !important; /* Decreased by 30% from 80px (80 * 0.7 = 56) */
+    height: 31.5px !important; /* Decreased by 30% from 45px (45 * 0.7 = 31.5) */
+    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
+  }
+
+  .board-column .fen-display {
+    width: 100% !important;
+  }
+
+  .board-column .fen-display label {
+    font-size: 0.7rem !important; /* Decreased by 30% from 1rem (assuming base font) */
+    margin-bottom: 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
+  }
+
+  .board-column .fen-input,
+  .board-column .fen-display-field {
+    padding: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
+    font-size: 0.63rem !important; /* Decreased by 30% from 0.9rem (0.9 * 0.7 = 0.63) */
+    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
+  }
+
+  .board-column .game-navigation {
+    padding: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+    border-radius: 5.6px !important; /* Decreased by 30% from 8px (8 * 0.7 = 5.6) */
+    width: 63% !important; /* Decreased by 30% from 90% (90 * 0.7 = 63) */
+    margin-top: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+  }
+
+  .board-column .game-navigation h3 {
+    font-size: 0.7rem !important; /* Decreased by 30% from 1rem (1 * 0.7 = 0.7) */
+    margin-bottom: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
+  }
+
+  .board-column .btn-nav {
+    padding: 0.525rem !important; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
+    min-width: 33.6px !important; /* Decreased by 30% from 48px (48 * 0.7 = 33.6) */
+    min-height: 33.6px !important; /* Decreased by 30% from 48px (48 * 0.7 = 33.6) */
+    border-radius: 4.2px !important; /* Decreased by 30% from 6px (6 * 0.7 = 4.2) */
+    margin: 0 1.4px !important; /* Decreased by 30% from 2px (2 * 0.7 = 1.4) */
+  }
+
+  .board-column .move-indicator {
+    font-size: 0.595rem !important; /* Decreased by 30% from 0.85rem (0.85 * 0.7 = 0.595) */
+    padding: 0 0.35rem !important; /* Decreased by 30% from 0.5rem (0.5 * 0.7 = 0.35) */
+    min-width: 56px !important; /* Decreased by 30% from 80px (80 * 0.7 = 56) */
+  }
+
+  .board-column .best-move-display {
+    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
+    padding: 0.35rem 0.525rem !important; /* Decreased by 30% from 0.5rem 0.75rem */
+    border-radius: 4.2px !important; /* Decreased by 30% from 6px (6 * 0.7 = 4.2) */
+  }
+
+  .board-column .best-move-label,
+  .board-column .best-move-value {
+    font-size: 0.84rem !important; /* Decreased by 30% from 1.2rem (1.2 * 0.7 = 0.84) */
+  }
+
+  /* Scale SVG icons inside board-column */
+  .board-column svg {
+    width: 11.2px !important; /* Decreased by 30% from 16px (16 * 0.7 = 11.2) */
+    height: 11.2px !important; /* Decreased by 30% from 16px (16 * 0.7 = 11.2) */
+  }
+}
+
 :root {
   --header-total-height: 180px; /* app-header total height including padding and margin */
 }
@@ -158,11 +383,11 @@
 .main-content {
   max-width: 1800px;
   margin: 0 auto;
-  margin-left: 320px;
-  padding: 3rem 2rem;
+  margin-left: 250px;
+  padding: 1.2rem 0.8rem; /* Reduced by 60% from 3rem and 2rem (3 * 0.4 = 1.2, 2 * 0.4 = 0.8) */
   display: grid;
   grid-template-columns: 1.5fr 1.5fr 1fr;
-  gap: 2.5rem;
+  gap: 0.25rem; /* Reduced by 90% from 2.5rem (2.5 * 0.1 = 0.25) */
   align-items: start;
   background: var(--bg-primary);
   min-height: calc(100vh - 180px);
