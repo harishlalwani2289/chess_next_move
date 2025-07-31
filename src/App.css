@@ -3165,12 +3165,12 @@ progress::-moz-progress-bar {
   }
 
   .chessground-board {
-    width: 52vw !important;
-    height: 52vw !important;
-    max-width: 52vw !important;
-    max-height: 52vw !important;
-    min-width: 52vw !important;
-    min-height: 52vw !important;
+    width: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
+    height: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
+    max-width: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
+    max-height: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
+    min-width: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
+    min-height: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
   }
 
   /* Ensure the chessground internal elements scale properly */
@@ -3204,6 +3204,11 @@ progress::-moz-progress-bar {
     align-items: center !important;
     font-size: 0.936rem !important; /* 30% increase from 0.72rem (0.72 * 1.3 = 0.936rem) */
     padding: 0.48rem 0.64rem !important; /* Decreased padding: 20% less than 0.6rem/0.8rem */
+  }
+
+  /* Center Chess Position Analyzer h1 horizontally for tablets */
+  .app-header h1 {
+    text-align: center !important;
   }
 
   /* Decrease vertical gap between game navigation and chess board by 88% total */
