@@ -3,6 +3,7 @@ import { FileText, Brain, Clock } from 'lucide-react';
 import { useChessStore } from '../store/chessStore';
 import { PgnModal } from './PgnModal';
 import { useStockfish } from '../hooks/useStockfish';
+import AIExplanation from './AIExplanation';
 
 // Utility function to get piece information from a move
 const getPieceInfo = (move: string, gameState: any) => {
@@ -215,6 +216,8 @@ export const GameControls: React.FC = () => {
               );
             })()}
           </div>
+          
+          <AIExplanation />
           
           {/* Compact Progress bars */}
           <div className="progress-bars-section-compact">
