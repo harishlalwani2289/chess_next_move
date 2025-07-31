@@ -303,7 +303,7 @@
   z-index: 100;
   background: var(--bg-tertiary); /* Match board-column background */
   border-radius: 15px; /* Match board-column border-radius */
-  border-right: 1px solid var(--sidebar-border);
+  border: none; /* Remove border */
   box-shadow: 0 8px 25px var(--shadow-primary); /* Match board-column box-shadow */
   width: 224px;
   min-width: 224px;
@@ -531,23 +531,24 @@
 
 /* Boards Sidebar */
 .boards-sidebar {
-  background: var(--sidebar-bg);
-  border-radius: 12px;
-  box-shadow: 0 4px 20px var(--shadow-primary), 0 1px 8px var(--shadow-primary);
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
   width: 224px;
   min-width: 224px;
-  border: 1px solid var(--sidebar-border);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
+  backdrop-filter: blur(8px);
 }
 
 /* Boards Manager Styles */
 .boards-manager {
   border: none;
-  border-radius: 16px;
+  border-radius: 0;
   overflow: hidden;
-  background: var(--sidebar-bg);
-  box-shadow: 0 10px 30px var(--shadow-primary), 0 2px 8px var(--shadow-primary);
-  backdrop-filter: blur(20px);
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .boards-header {
