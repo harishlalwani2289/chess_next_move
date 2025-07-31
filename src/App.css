@@ -1,6 +1,6 @@
 
 /* Medium-large screens (1200px - 1600px) */
-@media (min-width: 1201px) and (max-width: 1600px) {
+/* @media (min-width: 1201px) and (max-width: 1600px) {
   .main-content {
     max-width: 96% !important;
     margin: 0 auto !important;
@@ -133,7 +133,7 @@
     width: 11.2px !important;
     height: 11.2px !important;
   }
-}
+} */
 
 :root {
   --header-total-height: 180px; /* app-header total height including padding and margin */
