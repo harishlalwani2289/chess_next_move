@@ -1660,12 +1660,14 @@ progress::-moz-progress-bar {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--modal-overlay);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
-  backdrop-filter: blur(4px);
+  z-index: 9999;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: modalOverlayFadeIn 0.3s ease-out;
 }
 
 .modal-content {
@@ -1677,6 +1679,15 @@ progress::-moz-progress-bar {
   max-height: 80vh;
   overflow: hidden;
   animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalOverlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes modalSlideIn {

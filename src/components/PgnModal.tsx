@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Upload, Trash2, FileText } from 'lucide-react';
 import { useChessStore } from '../store/chessStore';
 import type { GameInformation } from '../types/chess';
@@ -116,7 +117,7 @@ export const PgnModal: React.FC<PgnModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  return (
+  const modalContent = (
     <div className="modal-overlay" onClick={handleOverlayClick}>
       <div className="modal-content pgn-modal">
         <div className="modal-header">
@@ -197,6 +198,9 @@ export const PgnModal: React.FC<PgnModalProps> = ({ isOpen, onClose }) => {
       </div>
     </div>
   );
+
+  // Use createPortal to render the modal at the document body level
+  return createPortal(modalContent, document.body);
 };
 
 export default PgnModal;
