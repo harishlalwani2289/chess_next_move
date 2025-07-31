@@ -2243,7 +2243,7 @@ progress::-moz-progress-bar {
 }
 
 .ai-tooltip {
-  position: fixed;
+  position: absolute;
   background: #2c3e50 !important;
   color: white !important;
   padding: 12px 16px;
@@ -2251,6 +2251,7 @@ progress::-moz-progress-bar {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 250px;
   max-width: 400px;
+  width: 350px;
   z-index: 9999 !important;
   opacity: 0;
   visibility: hidden;
@@ -2258,8 +2259,22 @@ progress::-moz-progress-bar {
   font-size: 14px;
   line-height: 1.4;
   pointer-events: none;
-  /* Position tooltip exactly at icon position */
-  transform: translateX(20px) translateY(-5px);
+  /* Position tooltip to the right of the icon */
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+/* Adjust tooltip position if it would go off-screen */
+@media (max-width: 768px) {
+  .ai-tooltip {
+    left: auto;
+    right: calc(100% + 8px);
+    width: 280px;
+    min-width: 280px;
+  }
 }
 
 .ai-tooltip.visible {

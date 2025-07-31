@@ -254,93 +254,25 @@ export const AnalysisResults: React.FC = () => {
     }));
   };
 
-  // Auto-trigger AI explanation for first best move and clear cache when results change
-  useEffect(() => {
-    explanationCache.current.clear();
-    // Clear all tooltips
-    setTooltips({});
-    // Clear all timeouts
-    Object.values(hoverTimeouts.current).forEach(timeout => {
-      if (timeout) clearTimeout(timeout);
-    });
-    hoverTimeouts.current = {};
+// Clear cache and tooltips when results change
+useEffect(() => {
+  explanationCache.current.clear();
+  // Clear all tooltips
+  setTooltips({});
+  // Clear all timeouts
+  Object.values(hoverTimeouts.current).forEach(timeout => {
+    if (timeout) clearTimeout(timeout);
+  });
+  hoverTimeouts.current = {};
 
-    // Auto-trigger AI explanation for first best move when AI is enabled and engine is done thinking
-    const firstBestMove = analysisResults[0]?.bestMove;
-    
-    if (firstBestMove && aiExplanationsEnabled && !engineThinking) {
-      const firstResult = analysisResults[0];
-      if (firstResult && firstResult.bestMove && gameState?.fen) {
-        const cacheKey = `${firstResult.bestMove}_${firstResult.evaluation}`;
-
-        // Check cache first
-        if (explanationCache.current.has(cacheKey)) {
-          setTooltips(prev => ({
-            ...prev,
-            [0]: {
-              visible: true,
-              loading: false,
-              explanation: explanationCache.current.get(cacheKey) || '',
-              error: '',
-              x: 0,
-              y: 0,
-              isInitial: false
-            }
-          }));
-          return;
-        }
-
-        // Set loading state for first best move
-        setTooltips(prev => ({
-          ...prev,
-          [0]: {
-            visible: true,
-            loading: true,
-            explanation: '',
-            error: '',
-            x: 0,
-            y: 0,
-            isInitial: false
-          }
-        }));
-
-        // Fetch explanation
-        aiService.getExplanation({
-          position: gameState.fen,
-          bestMove: firstResult.bestMove,
-          evaluation: firstResult.evaluation,
-          principalVariation: firstResult.principalVariation,
-        })
-        .then((explanation) => {
-          // Cache the explanation
-          explanationCache.current.set(cacheKey, explanation.explanation);
-          
-          setTooltips(prev => ({
-            ...prev,
-            [0]: {
-              ...prev[0],
-              explanation: explanation.explanation,
-              loading: false,
-              error: '',
-              isInitial: false
-            }
-          }));
-        })
-        .catch(() => {
-          setTooltips(prev => ({
-            ...prev,
-            [0]: {
-              ...prev[0],
-              explanation: '',
-              loading: false,
-              error: 'Explanation will appear here if available',
-              isInitial: false
-            }
-          }));
-        });
-      }
-    }
-  }, [analysisResults, aiExplanationsEnabled, gameState?.fen, engineThinking]);
+  // Auto-trigger AI explanation for first best move when AI is enabled and engine is done thinking
+  const firstBestMove = analysisResults[0]?.bestMove;
+  
+  if (firstBestMove && aiExplanationsEnabled && !engineThinking) {
+    // Possibly schedule an explanation loading if needed
+    // But do not set it visible immediately
+  }
+}, [analysisResults, aiExplanationsEnabled, gameState?.fen, engineThinking]);
 
   const getMoveColorClass = (moveNumber: number) => {
     switch (moveNumber) {
@@ -386,15 +318,37 @@ export const AnalysisResults: React.FC = () => {
           <div key={index} className="result-item">
             <div className="best-move-header">
               <label>Best Move #{result.moveNumber}</label>
-              <button
-                ref={el => { iconRefs.current[index] = el; }}
-                className="ai-info-icon"
-                style={{ display: aiExplanationsEnabled ? 'inline' : 'none' }}
-                onMouseEnter={() => handleIconHover(index, result)}
-                onMouseLeave={() => handleIconLeave(index)}
-              >
-                <Info size={16} />
-              </button>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                <button
+                  ref={el => { iconRefs.current[index] = el; }}
+                  className="ai-info-icon"
+                  style={{ display: aiExplanationsEnabled ? 'inline' : 'none' }}
+                  onMouseEnter={() => handleIconHover(index, result)}
+                  onMouseLeave={() => handleIconLeave(index)}
+                >
+                  <Info size={16} />
+                </button>
+                {/* AI Tooltip positioned relative to icon */}
+                {tooltips[index]?.visible && (
+                  <div 
+                    ref={el => { tooltipRefs.current[index] = el; }}
+                    className="ai-tooltip visible"
+                  >
+                    {tooltips[index].loading ? (
+                      <div className="ai-loading">
+                        <Loader size={16} className="spin" />
+                        <span>Loading...</span>
+                      </div>
+                    ) : (
+                      <div className="ai-content">
+                        <div className="ai-text">
+                          {tooltips[index].explanation || tooltips[index].error || 'Hover to get AI explanation'}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             <div className="move-details">
               <button
@@ -430,35 +384,6 @@ export const AnalysisResults: React.FC = () => {
                 spellCheck="false"
               />
             </div>
-
-            {/* AI Tooltip */}
-            {tooltips[index]?.visible && (
-              <div 
-                ref={el => { tooltipRefs.current[index] = el; }}
-                className="ai-tooltip visible"
-                style={{
-                  position: 'fixed',
-                  left: `${tooltips[index].x}px`,
-                  top: `${tooltips[index].y}px`,
-                  zIndex: 9999
-                }}
-                onMouseEnter={() => handleTooltipEnter(index)}
-                onMouseLeave={() => handleTooltipLeave(index)}
-              >
-                {tooltips[index].loading ? (
-                  <div className="ai-loading">
-                    <Loader size={16} className="spin" />
-                    <span>Loading...</span>
-                  </div>
-                ) : (
-                  <div className="ai-content">
-                    <div className="ai-text">
-                      {tooltips[index].explanation || tooltips[index].error || 'Hover to get AI explanation'}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         ))}
       </div>
