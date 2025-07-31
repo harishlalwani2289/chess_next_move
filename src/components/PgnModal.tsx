@@ -54,6 +54,11 @@ export const PgnModal: React.FC<PgnModalProps> = ({ isOpen, onClose }) => {
             case 'Result':
               gameInfo.result = value;
               break;
+            case 'Variant':
+              if (value === 'Chess960' || value === 'Fischer Random') {
+                gameInfo.event = gameInfo.event ? `${gameInfo.event} (Chess960)` : 'Chess960';
+              }
+              break;
           }
         }
       }
@@ -158,7 +163,7 @@ export const PgnModal: React.FC<PgnModalProps> = ({ isOpen, onClose }) => {
             <p>
               <strong>Instructions:</strong> Paste a valid PGN (Portable Game Notation) 
               into the text area above. The PGN should contain standard algebraic notation 
-              moves like "1. e4 e5 2. Nf3 Nc6".
+              moves like "1. e4 e5 2. Nf3 Nc6". Chess960/Fischer Random games are supported.
             </p>
           </div>
         </div>

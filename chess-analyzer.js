@@ -1838,7 +1838,14 @@ stockfish.postMessage('setoption name MultiPV value 3');
     function displayGameInfo(headers) {
         $('#gameWhite').text(headers.White || 'Unknown');
         $('#gameBlack').text(headers.Black || 'Unknown');
-        $('#gameEvent').text(headers.Event || '');
+        
+        // Handle Chess960 events
+        let eventText = headers.Event || '';
+        if (headers.Variant === 'Chess960' || headers.Variant === 'Fischer Random') {
+            eventText += ' (Chess960)';
+        }
+        $('#gameEvent').text(eventText);
+        
         $('#gameDate').text(headers.Date || '');
         $('#gameResult').text(headers.Result || '');
     }

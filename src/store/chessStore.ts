@@ -6,6 +6,91 @@ import { useAuthStore } from './authStore';
 import type { GameState, HistoryState, AnalysisResult, EngineOptions, BoardTheme, PieceSet, GameInformation } from '../types/chess';
 import type { AISettings } from '../services/aiService';
 
+// Helper function to convert Chess960 castling rights to standard notation
+const convertChess960FenToStandard = (fen: string): string => {
+  const fenParts = fen.split(' ');
+  if (fenParts.length < 6) return fen;
+  
+  const castlingRights = fenParts[2];
+  
+  // If castling rights contain file letters (Chess960), convert to standard
+  if (/[A-Ha-h]/.test(castlingRights)) {
+    let standardCastling = '';
+    
+    // Convert Chess960 castling rights to standard KQkq notation
+    // In Chess960, castling rights are represented by the file of the rook
+    // We need to convert them to standard notation based on whether they're kingside or queenside
+    
+    for (const char of castlingRights) {
+      if (char >= 'E' && char <= 'H') {
+        // White kingside (files E-H, where E is minimum for king position)
+        standardCastling += 'K';
+      } else if (char >= 'A' && char <= 'D') {
+        // White queenside (files A-D)
+        standardCastling += 'Q';
+      } else if (char >= 'e' && char <= 'h') {
+        // Black kingside (files e-h)
+        standardCastling += 'k';
+      } else if (char >= 'a' && char <= 'd') {
+        // Black queenside (files a-d)
+        standardCastling += 'q';
+      }
+    }
+    
+    // Remove duplicates and ensure correct order (KQkq)
+    const hasWhiteKing = standardCastling.includes('K');
+    const hasWhiteQueen = standardCastling.includes('Q');
+    const hasBlackKing = standardCastling.includes('k');
+    const hasBlackQueen = standardCastling.includes('q');
+    
+    standardCastling = '';
+    if (hasWhiteKing) standardCastling += 'K';
+    if (hasWhiteQueen) standardCastling += 'Q';
+    if (hasBlackKing) standardCastling += 'k';
+    if (hasBlackQueen) standardCastling += 'q';
+    
+    if (standardCastling === '') standardCastling = '-';
+    
+    fenParts[2] = standardCastling;
+    return fenParts.join(' ');
+  }
+  
+  return fen;
+};
+
+// Helper function to convert Chess960 PGN to standard by converting FEN in SetUp games
+const convertChess960PgnToStandard = (pgnText: string): string => {
+  const lines = pgnText.split('\n');
+  let convertedLines: string[] = [];
+  let isChess960 = false;
+  
+  for (const line of lines) {
+    const trimmedLine = line.trim();
+    
+    // Check if this is a Chess960 game
+    if (trimmedLine.includes('[Variant "Chess960"]') || 
+        trimmedLine.includes('[Variant "Fischer Random"]')) {
+      isChess960 = true;
+    }
+    
+    // Convert FEN header if this is a Chess960 game
+    if (isChess960 && trimmedLine.startsWith('[FEN ')) {
+      const fenMatch = trimmedLine.match(/\[FEN "([^"]+)"\]/);
+      if (fenMatch) {
+        const originalFen = fenMatch[1];
+        const convertedFen = convertChess960FenToStandard(originalFen);
+        const convertedLine = trimmedLine.replace(originalFen, convertedFen);
+        convertedLines.push(convertedLine);
+        continue;
+      }
+    }
+    
+    convertedLines.push(line);
+  }
+  
+  return convertedLines.join('\n');
+};
+
 interface BoardData {
   id: string;
   name: string;
@@ -678,7 +763,9 @@ export const useChessStore = create<ChessStore>((set, get) => {
       
       const { game } = currentBoard;
       try {
-        game.load(fen);
+        // Convert Chess960 FEN to standard if needed
+        const standardFen = convertChess960FenToStandard(fen);
+        game.load(standardFen);
         const updatedGameState = {
           ...currentBoard.gameState,
           fen: game.fen(),
@@ -897,13 +984,38 @@ export const useChessStore = create<ChessStore>((set, get) => {
     try {
       // Create a temporary game to parse the PGN
       const tempGame = new Chess();
-      tempGame.loadPgn(pgnText);
+      const convertedPgn = convertChess960PgnToStandard(pgnText);
+      
+      // Check if this PGN has a FEN header (for Chess960/custom starting position)
+      let initialFen: string | null = null;
+      const lines = convertedPgn.split('\n');
+      for (const line of lines) {
+        const trimmedLine = line.trim();
+        if (trimmedLine.startsWith('[FEN ')) {
+          const fenMatch = trimmedLine.match(/\[FEN "([^"]+)"\]/);
+          if (fenMatch) {
+            initialFen = fenMatch[1];
+            break;
+          }
+        }
+      }
+      
+      // If there's a custom starting position, load it first
+      if (initialFen) {
+        tempGame.load(initialFen);
+      }
+      
+      tempGame.loadPgn(convertedPgn);
       
       // Get the history of moves
       const moveHistory = tempGame.history({ verbose: true });
       
       // Reset the main game and build up the history
-      game.reset();
+      if (initialFen) {
+        game.load(initialFen);
+      } else {
+        game.reset();
+      }
       
       // Create history array starting with initial position
       const historyStates: HistoryState[] = [{

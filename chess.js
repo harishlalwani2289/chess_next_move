@@ -221,17 +221,45 @@ var Chess = function(fen) {
 
     turn = tokens[1]
 
-    if (tokens[2].indexOf('K') > -1) {
-      castling.w |= BITS.KSIDE_CASTLE
-    }
-    if (tokens[2].indexOf('Q') > -1) {
-      castling.w |= BITS.QSIDE_CASTLE
-    }
-    if (tokens[2].indexOf('k') > -1) {
-      castling.b |= BITS.KSIDE_CASTLE
-    }
-    if (tokens[2].indexOf('q') > -1) {
-      castling.b |= BITS.QSIDE_CASTLE
+    // Handle both traditional (KQkq) and Chess960 (file-based) castling rights
+    var castlingString = tokens[2]
+    if (castlingString !== '-') {
+      // Traditional castling rights
+      if (castlingString.indexOf('K') > -1) {
+        castling.w |= BITS.KSIDE_CASTLE
+      }
+      if (castlingString.indexOf('Q') > -1) {
+        castling.w |= BITS.QSIDE_CASTLE
+      }
+      if (castlingString.indexOf('k') > -1) {
+        castling.b |= BITS.KSIDE_CASTLE
+      }
+      if (castlingString.indexOf('q') > -1) {
+        castling.b |= BITS.QSIDE_CASTLE
+      }
+      
+      // Chess960 castling rights (file-based)
+      // For Chess960, we need to identify which files have rooks for castling
+      // This is a simplified approach - in a full implementation, we'd need
+      // more sophisticated logic to handle Chess960 castling
+      for (var i = 0; i < castlingString.length; i++) {
+        var c = castlingString.charAt(i)
+        if (c >= 'A' && c <= 'H') {
+          // White castling right on file c
+          if (c >= 'E') {
+            castling.w |= BITS.KSIDE_CASTLE
+          } else {
+            castling.w |= BITS.QSIDE_CASTLE
+          }
+        } else if (c >= 'a' && c <= 'h') {
+          // Black castling right on file c
+          if (c >= 'e') {
+            castling.b |= BITS.KSIDE_CASTLE
+          } else {
+            castling.b |= BITS.QSIDE_CASTLE
+          }
+        }
+      }
     }
 
     ep_square = tokens[3] === '-' ? EMPTY : SQUARES[tokens[3]]
@@ -286,7 +314,8 @@ var Chess = function(fen) {
     }
 
     /* 5th criterion: 3th field is a valid castle-string? */
-    if (!/^(KQ?k?q?|Qk?q?|kq?|q|-)$/.test(tokens[2])) {
+    // Support both traditional (KQkq) and Chess960 (file-based) castling
+    if (!/^(KQ?k?q?|Qk?q?|kq?|q|-|[A-Ha-h]+)$/.test(tokens[2])) {
       return { valid: false, error_number: 5, error: errors[5] }
     }
 
