@@ -1,16 +1,15 @@
-
-/* Medium-large screens (1200px - 1600px) */
-/* @media (min-width: 1201px) and (max-width: 1600px) {
+/* Medium-large screens (1200px - 1600px) - 2x2 Grid Layout */
+@media (min-width: 1201px) and (max-width: 1600px) {
   .main-content {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: 1fr 1fr !important;
+    gap: 1rem !important;
     max-width: 96% !important;
     margin: 0 auto !important;
     margin-left: calc(250px + 2%) !important;
     margin-right: 2% !important;
-    padding: 1.2rem 0.8rem !important;
-    display: grid !important;
-    grid-template-columns: 1.2fr 0.8fr !important;
-    grid-template-rows: 1fr 1fr !important;
-    gap: 0.25rem !important;
+    padding: 1.5rem !important;
     align-items: start !important;
     background: var(--bg-primary) !important;
     min-height: calc(100vh - 180px) !important;
@@ -19,121 +18,54 @@
   .board-column {
     grid-column: 1;
     grid-row: 1;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: auto !important;
   }
 
   .controls-column {
     grid-column: 2;
     grid-row: 1;
+    width: 100% !important;
+    max-width: 100% !important;
     height: 100% !important;
     align-self: stretch !important;
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
-  }
-
-  .controls-column .fen-input-field {
-    width: 100% !important;
   }
 
   .results-column {
     grid-column: 1 / 3;
     grid-row: 2;
-  }
-
-  .board-column {
-    width: auto !important;
-    min-width: auto !important;
+    width: 100% !important;
     max-width: 100% !important;
-    height: 80% !important;
-    gap: 0.15rem !important;
-    aspect-ratio: 1 / 1 !important;
-    box-sizing: border-box !important;
   }
 
-  .board-column .board-section {
-    width: 95% !important;
-  }
-
-  .board-column .chess-board-container {
-    width: 95% !important;
-    margin-bottom: 0.7rem !important;
-  }
-
-  .board-column .chessground-board {
+  .chessground-board {
     width: 95% !important;
     height: auto !important;
     max-width: 95% !important;
     aspect-ratio: 1 / 1 !important;
   }
 
-  .board-column .turn-indicator {
-    gap: 0.35rem !important;
+  .mobile-calculate-section {
+    width: 60% !important;
+    max-width: 60% !important;
+    margin: 2% auto !important; /* 2% margin on all sides */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    box-sizing: border-box !important;
   }
 
-  .board-column .turn-badge {
-    padding: 0.525rem 1.05rem !important;
-    font-size: 0.84rem !important;
-    min-width: 56px !important;
-    height: 31.5px !important;
-    border-radius: 5.6px !important;
+  .mobile-calculate-button {
+    display: flex !important;
+    width: 100% !important; /* Full width of the container */
+    max-width: 100% !important;
+    margin: 0 !important; /* No additional margin since container handles spacing */
+    box-sizing: border-box !important;
+    font-size: 1.2rem !important;
   }
-
-  .board-column .fen-display {
-    width: 100% !important;
-  }
-
-  .board-column .fen-display label {
-    font-size: 0.7rem !important;
-    margin-bottom: 0.35rem !important;
-  }
-
-  .board-column .fen-input,
-  .board-column .fen-display-field {
-    padding: 0.525rem !important;
-    font-size: 0.63rem !important;
-    border-radius: 5.6px !important;
-  }
-
-  .board-column .game-navigation {
-    padding: 0.7rem !important;
-    border-radius: 5.6px !important;
-    width: 63% !important;
-    margin-top: 0.7rem !important;
-  }
-
-  .board-column .game-navigation h3 {
-    font-size: 0.7rem !important;
-    margin-bottom: 0.525rem !important;
-  }
-
-  .board-column .btn-nav {
-    padding: 0.525rem !important;
-    min-width: 33.6px !important;
-    min-height: 33.6px !important;
-    border-radius: 4.2px !important;
-    margin: 0 1.4px !important;
-  }
-
-  .board-column .move-indicator {
-    font-size: 0.595rem !important;
-    padding: 0 0.35rem !important;
-    min-width: 56px !important;
-  }
-
-  .board-column .best-move-display {
-    display: none !important;
-  }
-
-  .board-column .best-move-label,
-  .board-column .best-move-value {
-    font-size: 0.84rem !important;
-  }
-
-  .board-column svg:not(.cg-shapes svg):not(.cg-shapes *) {
-    width: 11.2px !important;
-    height: 11.2px !important;
-  }
-} */
+}
 
 :root {
   --header-total-height: 180px; /* app-header total height including padding and margin */
