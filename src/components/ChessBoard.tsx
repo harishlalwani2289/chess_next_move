@@ -419,23 +419,35 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       
       // Use inline styles with nice colors - reduced diameter by 25%
       numberElement.style.cssText = `
-        position: absolute;
-        left: ${midX - 12}px;
-        top: ${midY - 12}px;
-        width: 24px;
-        height: 24px;
-        background: ${colors[index] || '#4CAF50'};
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        font-weight: bold;
-        z-index: 1001;
-        pointer-events: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        border: 2px solid white;
+        position: absolute !important;
+        left: ${midX - 12}px !important;
+        top: ${midY - 12}px !important;
+        width: 24px !important;
+        height: 24px !important;
+        max-width: 24px !important;
+        max-height: 24px !important;
+        min-width: 24px !important;
+        min-height: 24px !important;
+        background: ${colors[index] || '#4CAF50'} !important;
+        color: white !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-size: 8px !important;
+        font-weight: bold !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
+        line-height: 1 !important;
+        z-index: 1001 !important;
+        pointer-events: none !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.3) !important;
+        border: 2px solid white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-sizing: border-box !important;
+        flex-shrink: 0 !important;
+        flex-grow: 0 !important;
+        overflow: hidden !important;
       `;
       
       // Append to board element (like original .append())

@@ -326,8 +326,8 @@
   margin-left: 250px;
   padding: 1.2rem 0.8rem; /* Reduced by 60% from 3rem and 2rem (3 * 0.4 = 1.2, 2 * 0.4 = 0.8) */
   display: grid;
-  grid-template-columns: 1.5fr 1.5fr 1fr;
-  gap: 0.25rem; /* Reduced by 90% from 2.5rem (2.5 * 0.1 = 0.25) */
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px; /* Set to 10px gutter size for default desktop layout */
   align-items: start;
   background: var(--bg-primary);
   min-height: calc(100vh - 180px);
@@ -336,9 +336,9 @@
 .board-column {
   background: var(--bg-secondary);
   padding: 0;
-  border-radius: 20px;
+  border-radius: 0;
   box-shadow: 0 12px 40px var(--shadow-primary), 0 4px 12px var(--shadow-subtle);
-  border: 1px solid var(--border-secondary);
+  border: none;
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
@@ -347,24 +347,34 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  width: 850px;
-  min-width: 850px;
+  width: 100%;
+  min-width: unset;
 }
 
 .board-section {
-  width: 95%;
+  width: 98%;
+  max-width: 98%;
   aspect-ratio: 1 / 1;
+  height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .chess-board-container {
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
-  width: 95%;
+  width: 98%;
+  max-width: 98%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
 }
 
 .fen-display {
@@ -391,9 +401,9 @@
 .controls-column {
   background: var(--bg-secondary);
   padding: 2rem 1.5rem;
-  border-radius: 20px;
+  border-radius: 0;
   box-shadow: 0 12px 40px var(--shadow-primary), 0 4px 12px var(--shadow-subtle);
-  border: 1px solid var(--border-secondary);
+  border: none;
   backdrop-filter: blur(10px);
   display: flex;
   flex-direction: column;
@@ -406,9 +416,9 @@
 .results-column {
   background: var(--bg-secondary);
   padding: 2rem 1.5rem;
-  border-radius: 20px;
+  border-radius: 0;
   box-shadow: 0 12px 40px var(--shadow-primary), 0 4px 12px var(--shadow-subtle);
-  border: 1px solid var(--border-secondary);
+  border: none;
   backdrop-filter: blur(10px);
   transition: all 0.3s ease;
   position: relative;
@@ -894,19 +904,93 @@
   border-radius: 0;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  width: 90%;
+  width: 98% !important;
+  max-width: 98% !important;
+  height: auto !important;
+  max-height: none !important;
+  min-width: 98% !important;
+  min-height: auto !important;
   margin: 0 auto;
+  aspect-ratio: 1 / 1 !important;
+  box-sizing: border-box;
+  position: relative;
 }
 
-/* Ensure chessground takes the full size */
+/* Ensure chessground takes the full size and is fully responsive */
 .chessground-board .cg-wrap {
   width: 100% !important;
   height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  box-sizing: border-box !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
 }
 
 .chessground-board .cg-board {
   width: 100% !important;
   height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+
+/* Override any inline styles that chessground might set */
+.chessground-board .cg-wrap[style] {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+}
+
+.chessground-board .cg-board[style] {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  min-width: 100% !important;
+  min-height: 100% !important;
+}
+
+/* Force override any programmatically set dimensions */
+.chessground-board * {
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Specifically target elements with inline width/height styles */
+.chessground-board [style*="width"],
+.chessground-board [style*="height"] {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Container query fallback - force responsive behavior */
+.chessground-board {
+  container-type: size;
+  overflow: hidden;
+}
+
+@container (min-width: 0px) {
+  .chessground-board .cg-wrap,
+  .chessground-board .cg-board {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
 }
 
 /* Make the board squares look better - removed transition to allow JS animations */
@@ -1479,7 +1563,7 @@ input:checked + .toggle-slider:before {
 
 /* Number labels on squares */
 .cg-wrap .cg-shapes text {
-  font-size: 18px;
+  font-size: 8px;
   font-weight: bold;
   text-anchor: middle;
   dominant-baseline: central;
@@ -1517,10 +1601,10 @@ input:checked + .toggle-slider:before {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 20px;
+  font-size: 8px;
   font-weight: bold;
   color: #000;
-  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
   pointer-events: none;
   z-index: 10;
 }
@@ -1537,10 +1621,10 @@ input:checked + .toggle-slider:before {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 20px;
+  font-size: 8px;
   font-weight: bold;
   color: #000;
-  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
   pointer-events: none;
   z-index: 10;
 }
@@ -1557,10 +1641,10 @@ input:checked + .toggle-slider:before {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 20px;
+  font-size: 8px;
   font-weight: bold;
   color: #000;
-  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
   pointer-events: none;
   z-index: 10;
 }
@@ -1577,10 +1661,10 @@ input:checked + .toggle-slider:before {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  font-size: 20px;
+  font-size: 8px;
   font-weight: bold;
   color: #000;
-  text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
   pointer-events: none;
   z-index: 10;
 }
