@@ -7,7 +7,7 @@
     gap: 5px !important;
     max-width: 96% !important;
     margin: 0 auto !important;
-    margin-left: calc(250px + 2%) !important;
+    margin-left: calc(220px + 2%) !important;
     margin-right: 2% !important;
     padding: 10px !important;
     align-items: start !important;
@@ -152,6 +152,13 @@
     text-align: center !important;
     flex: 1.2 !important;
     padding: 0 0.25rem !important;
+  }
+
+  /* Best move value styling */
+  .best-move-value {
+    font-size: 1.5rem !important;
+    font-weight: bold !important;
+    color: #22c55e !important;
   }
 }
 
