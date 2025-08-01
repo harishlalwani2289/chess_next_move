@@ -2171,10 +2171,10 @@ progress::-moz-progress-bar {
 /* Game Navigation styling */
 .game-navigation {
   margin-top: 1rem;
-  padding: 1rem;
-  background: var(--game-info-bg);
+  padding: 0;
+  background: transparent;
   border-radius: 8px;
-  border: 1px solid var(--border-secondary);
+  border: none;
   width: 90%; /* 10% less than full width */
   margin-left: auto;
   margin-right: auto;
