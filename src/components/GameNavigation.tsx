@@ -33,7 +33,6 @@ export const GameNavigation: React.FC = () => {
 
   return (
     <div className="game-navigation">
-      <h3>Game Navigation</h3>
       <div className="navigation-buttons">
         <button
           className="btn btn-nav"

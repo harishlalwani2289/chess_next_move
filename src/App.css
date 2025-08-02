@@ -533,12 +533,21 @@
 
 .fen-input-container {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.5rem;
 }
 
+/* Set Position button styling for desktop */
+.fen-input-container .btn-secondary {
+  width: 60%;
+  font-size: 1.05rem; /* 15% increase from 0.9rem */
+  padding: 0.5rem 0.75rem; /* Reduced padding */
+  align-self: center; /* Keep button centered */
+}
+
 .fen-input-field {
-  flex: 1;
+  width: 100%;
   padding: 0.75rem;
   border: 2px solid var(--border-secondary);
   border-radius: 8px;
