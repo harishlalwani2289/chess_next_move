@@ -333,7 +333,7 @@
   margin-left: 250px;
   padding: 1.2rem 0.8rem; /* Reduced by 60% from 3rem and 2rem (3 * 0.4 = 1.2, 2 * 0.4 = 0.8) */
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 35% 35% 30%; /* Board: 35%, Controls: 35%, Results: 30% */
   gap: 10px; /* Set to 10px gutter size for default desktop layout */
   align-items: start;
   background: var(--bg-primary);
