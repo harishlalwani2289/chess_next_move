@@ -77,9 +77,9 @@
 
   .mobile-calculate-button {
     display: flex !important;
-    width: 100% !important; /* Full width of the container */
-    max-width: 100% !important;
-    margin: 0 !important; /* No additional margin since container handles spacing */
+    width: 95% !important; /* 95% width */
+    max-width: 95% !important;
+    margin: 0 !important; /* Zero margin */
     box-sizing: border-box !important;
     font-size: 1.2rem !important;
   }
@@ -156,10 +156,17 @@
 
   /* Best move value styling */
   .best-move-value {
-    font-size: 1.5rem !important;
+    font-size: 1.95rem !important; /* Increased by 30% from 1.5rem (1.5 * 1.3 = 1.95) */
     font-weight: bold !important;
-    color: #22c55e !important;
+    color: #22c55e !important; /* Green color */
   }
+}
+
+/* Best move value styling - applies to all screen sizes */
+.best-move-value {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #22c55e; /* Green color */
 }
 
 :root {
@@ -349,6 +356,11 @@
   overflow: hidden;
   width: 100%;
   min-width: unset;
+}
+
+/* Hide best-move-value from board-column on desktop */
+.board-column .best-move-value {
+  display: none;
 }
 
 .board-section {
@@ -2262,6 +2274,7 @@ progress::-moz-progress-bar {
   width: 90%; /* 10% less than full width */
   margin-left: auto;
   margin-right: auto;
+  margin-bottom: 20px;
 }
 
 .game-navigation h3 {
@@ -3193,8 +3206,8 @@ progress::-moz-progress-bar {
 /* Mobile-specific button positioning */
 .mobile-calculate-button {
   display: none;
-  width: 70%; /* Reduced by 30% from 100% */
-  margin: 1rem auto; /* Added auto for centering */
+  width: 105%; /* Set to 95% width */
+  margin: 0; /* Zero margin */
   padding: 0.5rem; /* Reduced from 1rem */
   background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
   color: white;
@@ -3204,7 +3217,7 @@ progress::-moz-progress-bar {
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(107, 114, 128, 0.25);
-  font-size: 1.4875rem; /* Decreased by 15% from 1.75rem */
+  font-size: 1rem; /* Decreased by 15% from 1.75rem */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3941,9 +3954,9 @@ progress::-moz-progress-bar {
   /* Show mobile calculate button only on mobile */
   .mobile-calculate-button {
     display: flex !important;
-    width: 108%; /* Increased by 20% from 90% (90% * 1.2 = 108%) */
-    max-width: 108%;
-    margin: 0.5rem auto;
+    width: 95%; /* Set to 95% width */
+    max-width: 95%;
+    margin: 0; /* Zero margin */
     padding: 0.525rem; /* Decreased by 30% from 0.75rem (0.75 * 0.7 = 0.525) */
     font-size: 1.56rem; /* Increased by 30% from 1.2rem (1.2 * 1.3 = 1.56) */
     box-sizing: border-box;
