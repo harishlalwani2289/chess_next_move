@@ -231,28 +231,6 @@ export const AnalysisResults: React.FC = () => {
     }, 100);
   };
 
-  const handleTooltipEnter = (index: number) => {
-    if (hoverTimeouts.current[index]) {
-      clearTimeout(hoverTimeouts.current[index]);
-    }
-    setTooltips(prev => ({
-      ...prev,
-      [index]: {
-        ...prev[index],
-        visible: true
-      }
-    }));
-  };
-
-  const handleTooltipLeave = (index: number) => {
-    setTooltips(prev => ({
-      ...prev,
-      [index]: {
-        ...prev[index],
-        visible: false
-      }
-    }));
-  };
 
 // Clear cache and tooltips when results change
 useEffect(() => {
