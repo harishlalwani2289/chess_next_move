@@ -85,9 +85,9 @@ function App() {
           
           <main className="main-content">
             <div className="board-column">
-            <div className="board-section">
+            {/* <div className="board-section"> */}
               <ChessBoard />
-            </div>
+            {/* </div> */}
             <MobileCalculateButton />
             <GameNavigation />
           </div>
