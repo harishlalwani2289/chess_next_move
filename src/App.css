@@ -4202,7 +4202,7 @@ progress::-moz-progress-bar {
   }
   
   .mobile-calculate-button {
-    width: 105.8%; /* Increased by additional 15% from 92% (92% * 1.15 = 105.8%) */
+    width: 105.7%; /* Increased by additional 15% from 92% (92% * 1.15 = 105.8%) */
     font-size: 1.2rem;
   }
   
