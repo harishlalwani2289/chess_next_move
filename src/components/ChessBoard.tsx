@@ -86,6 +86,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     makeMove,
     getCurrentBoard,
     engineOptions,
+    clearAnalysisResults,
   } = useChessStore();
 
   const currentBoard = getCurrentBoard();
@@ -191,11 +192,16 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
               });
             }
           }
+          // Clear analysis results when a move is made
+          clearAnalysisResults();
         },
         select: () => {
           // Clear arrow numbers whenever a square is selected/clicked
           const existingNumbers = boardRef.current?.querySelectorAll('.pv-arrow-number');
           existingNumbers?.forEach(el => el.remove());
+          
+          // Clear analysis results when user clicks on the board
+          clearAnalysisResults();
         },
       },
       animation: {

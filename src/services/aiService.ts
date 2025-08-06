@@ -198,7 +198,7 @@ class AIService {
   }
 
   private buildChessPrompt(request: AIRequest): string {
-    return `Analyze this chess position and explain why the recommended move is good:
+    return `Consider yourself as a chess grand master and analyze this chess position and explain why the recommended move is good. Take your time but provide an explanation that is clear and educational:
 
 Position (FEN): ${request.position}
 Best Move: ${request.bestMove}
