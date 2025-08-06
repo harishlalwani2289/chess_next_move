@@ -8,6 +8,7 @@ import AnalysisResults from './components/AnalysisResults';
 import BoardsManager from './components/BoardsManager';
 import MobileNavigation from './components/MobileNavigation';
 import MobileCalculateButton from './components/MobileCalculateButton';
+import MobileBoardsSelector from './components/MobileBoardsSelector';
 import AuthModal from './components/AuthModal';
 import UserProfile from './components/UserProfile';
 import OAuthCallback from './components/OAuthCallback';
@@ -85,6 +86,7 @@ function App() {
           
           <main className="main-content">
             <div className="board-column">
+            <MobileBoardsSelector />
             {/* <div className="board-section"> */}
               <ChessBoard />
             {/* </div> */}
