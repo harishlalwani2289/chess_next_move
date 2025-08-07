@@ -6,6 +6,7 @@ import GameControls from './components/GameControls';
 import GameNavigation from './components/GameNavigation';
 import AnalysisResults from './components/AnalysisResults';
 import BoardsManager from './components/BoardsManager';
+import BoardNameDisplay from './components/BoardNameDisplay';
 import MobileNavigation from './components/MobileNavigation';
 import MobileCalculateButton from './components/MobileCalculateButton';
 import MobileBoardsSelector from './components/MobileBoardsSelector';
@@ -87,6 +88,7 @@ function App() {
           <main className="main-content">
             <div className="board-column">
             <MobileBoardsSelector />
+            <BoardNameDisplay />
             {/* <div className="board-section"> */}
               <ChessBoard />
             {/* </div> */}

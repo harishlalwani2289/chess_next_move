@@ -21,7 +21,7 @@
     width: 100% !important;
     max-width: 100% !important;
     min-width: auto !important;
-    gap: 5px !important; /* Reduce gutter size inside board-column */
+    /* gap: 5px !important; Reduce gutter size inside board-column */
     border: none !important; /* Remove border */
     border-radius: 0 !important; /* Make pointy border */
   }
@@ -353,7 +353,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
+  gap: .6rem;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -903,6 +903,29 @@
   flex-direction: column;
   align-items: center;
   gap: 1rem;
+}
+
+.board-name-display {
+  display: flex;
+  justify-content: start;
+  align-items: start;
+  /* margin-bottom: 5px; */
+  padding: 0;
+  /* background: var(--bg-secondary); */
+  border-radius: 0;
+  /* box-shadow: 0 2px 8px var(--shadow-primary); */
+  transition: all 0.3s ease;
+}
+
+.current-board-name {
+  /* margin: 10px; */
+  margin-left: 5px;
+  font-size: .9rem;
+  font-weight: 500;
+  /* color: var(--text-primary); */
+  text-align: center;
+  text-shadow: 0 1px 2px var(--text-shadow);
+  transition: all 0.3s ease;
 }
 
 .chess-board {
@@ -3500,7 +3523,24 @@ progress::-moz-progress-bar {
   .chess-board-container {
     width: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
+  }
+  
+  /* Tablet board name display */
+  .board-name-display {
+    width: 40%;
+    margin-bottom: 5px;
+    /* padding: 0.6rem 1rem; */
+    border-radius: 0;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .current-board-name {
+    font-size: .9rem;
+    font-weight: 400;
   }
 
   .chessground-board {
@@ -4144,6 +4184,7 @@ progress::-moz-progress-bar {
     min-width: unset;
     max-width: 100%;
     position: relative; /* Allow positioning of mobile boards selector */
+    gap: 0.3rem; /* Decreased by 50% from 1rem (1rem * 0.5 = 0.5rem) */
   }
   
   .board-section {
@@ -4157,9 +4198,21 @@ progress::-moz-progress-bar {
     max-width: 100%;
     overflow: hidden;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     margin-bottom: 0.5rem;
     box-sizing: border-box;
+  }
+  
+  /* Mobile responsive board name display */
+  .board-name-display {
+    display: none; /* Hide on mobile */
+  }
+  
+  .current-board-name {
+    font-size: 1rem;
+    font-weight: 600;
   }
   
   .chessground-board {
@@ -4432,6 +4485,17 @@ progress::-moz-progress-bar {
     max-height: 90vw !important;
     min-width: 90vw !important;
     min-height: 90vw !important;
+  }
+  
+  /* Extra small mobile board name display */
+  .board-name-display {
+    width: 85%;
+    margin-bottom: 0.6rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  .current-board-name {
+    font-size: 0.9rem;
   }
   
   .mobile-calculate-section {
