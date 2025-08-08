@@ -114,6 +114,10 @@ interface ChessStore {
   pieceSet: PieceSet;
   showCoordinates: boolean;
   
+  // Chessground instance reference
+  chessgroundInstance: any;
+  setChessgroundInstance: (instance: any) => void;
+  
   // Engine settings
   engineOptions: EngineOptions;
   aiSettings: AISettings;
@@ -167,6 +171,9 @@ interface ChessStore {
   // Actions (all operate on current board)
   setGameState: (state: Partial<GameState>) => Promise<void>;
   makeMove: (from: string, to: string, promotion?: string) => boolean;
+  placePiece: (square: string, piece: { role: string; color: string }) => Promise<void>;
+  removePiece: (square: string) => Promise<void>;
+  updateGameStateOnly: (fen: string) => Promise<void>;
   setPosition: (fen: string) => Promise<void>;
   flipBoard: () => Promise<void>;
   resetToStartPosition: () => Promise<void>;
@@ -512,6 +519,9 @@ export const useChessStore = create<ChessStore>((set, get) => {
     pieceSet: persistedState.pieceSet || 'cburnett',
     showCoordinates: persistedState.showCoordinates !== undefined ? persistedState.showCoordinates : true,
     
+    // Chessground instance reference
+    chessgroundInstance: null,
+    
     // Engine settings
     engineOptions: persistedState.engineOptions || initialEngineOptions,
     aiSettings: initialAISettings,
@@ -755,6 +765,137 @@ export const useChessStore = create<ChessStore>((set, get) => {
       
       console.log('Move completely failed, restored original position');
       return false;
+    },
+
+    placePiece: async (square, piece) => {
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { game } = currentBoard;
+      try {
+        console.log('🔄 PLACE PIECE: Starting piece placement:', piece, 'on square:', square);
+        
+        // Convert piece role to chess.js format
+        const pieceSymbol = piece.role === 'knight' ? 'n' : piece.role[0];
+        const pieceColor = piece.color[0] as 'w' | 'b';
+        const chessJsPiece = { 
+          type: pieceSymbol as 'p' | 'r' | 'n' | 'b' | 'q' | 'k', 
+          color: pieceColor 
+        };
+        
+        // Place the piece on the square
+        game.put(chessJsPiece, square as any);
+        
+        const newFen = game.fen();
+        console.log('📝 PLACE PIECE: New FEN after placing piece:', newFen);
+        
+        const updatedGameState = {
+          ...currentBoard.gameState,
+          fen: newFen,
+          turn: game.turn(),
+        };
+        get().updateCurrentBoard({ gameState: updatedGameState });
+        get().addToHistory();
+        
+        // Update chessground to reflect the new position
+        const chessgroundInstance = get().chessgroundInstance;
+        if (chessgroundInstance) {
+          chessgroundInstance.set({ fen: newFen });
+          console.log('♞ PLACE PIECE: Updated chessground with new FEN');
+        }
+        
+        // Directly save to database if authenticated
+        const authStore = useAuthStore.getState();
+        if (authStore.isAuthenticated) {
+          console.log('🔐 PLACE PIECE: User authenticated, saving to database...');
+          await get().saveCurrentBoardToDatabase();
+          console.log('✅ PLACE PIECE: Database save completed');
+        } else {
+          console.log('🔒 PLACE PIECE: User not authenticated, skipping database save');
+        }
+      } catch (error) {
+        console.error('❌ PLACE PIECE: Error placing piece:', error);
+      }
+    },
+    
+    removePiece: async (square) => {
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { game } = currentBoard;
+      try {
+        // Remove the piece from the square
+        const removedPiece = game.remove(square as any);
+        
+        if (removedPiece) {
+          const updatedGameState = {
+            ...currentBoard.gameState,
+            fen: game.fen(),
+            turn: game.turn(),
+          };
+          get().updateCurrentBoard({ gameState: updatedGameState });
+          get().addToHistory();
+          
+          // Directly save to database if authenticated
+          const authStore = useAuthStore.getState();
+          if (authStore.isAuthenticated) {
+            await get().saveCurrentBoardToDatabase();
+          }
+        }
+      } catch (error) {
+        console.error('Error removing piece:', error);
+      }
+    },
+    
+    updateGameStateOnly: async (fen) => {
+      const currentBoard = get().getCurrentBoard();
+      if (!currentBoard) return;
+      
+      const { game } = currentBoard;
+      try {
+        console.log('🔄 UPDATE GAME STATE: Starting game state update with FEN:', fen);
+        
+        // Load the new FEN without adding to history
+        game.load(fen);
+        
+        const newFen = game.fen();
+        console.log('📝 UPDATE GAME STATE: Loaded FEN into chess.js:', newFen);
+        
+        const updatedGameState = {
+          ...currentBoard.gameState,
+          fen: newFen,
+          turn: game.turn(),
+        };
+        
+        // Update the board state without adding to history
+        get().updateCurrentBoard({ gameState: updatedGameState });
+        console.log('📋 UPDATE GAME STATE: Updated board state in store');
+        
+        // Make sure chessground is synchronized (though it should already be)
+        const chessgroundInstance = get().chessgroundInstance;
+        if (chessgroundInstance) {
+          // Get current chessground FEN to check if it's already in sync
+          const currentChessgroundFen = chessgroundInstance.getFen();
+          if (currentChessgroundFen !== newFen) {
+            console.log('♞ UPDATE GAME STATE: Synchronizing chessground with game state FEN');
+            chessgroundInstance.set({ fen: newFen });
+          } else {
+            console.log('✅ UPDATE GAME STATE: Chessground already in sync');
+          }
+        }
+        
+        // Directly save to database if authenticated
+        const authStore = useAuthStore.getState();
+        if (authStore.isAuthenticated) {
+          console.log('🔐 UPDATE GAME STATE: User authenticated, saving to database...');
+          await get().saveCurrentBoardToDatabase();
+          console.log('✅ UPDATE GAME STATE: Database save completed');
+        } else {
+          console.log('🔒 UPDATE GAME STATE: User not authenticated, skipping database save');
+        }
+      } catch (error) {
+        console.error('❌ UPDATE GAME STATE: Error updating game state:', error);
+      }
     },
     
     setPosition: async (fen) => {
@@ -1369,6 +1510,10 @@ export const useChessStore = create<ChessStore>((set, get) => {
         console.error('❌ Failed to save current board to database:', error);
         set({ isSyncing: false });
       }
+    },
+
+    setChessgroundInstance: (instance) => {
+      set({ chessgroundInstance: instance });
     },
 
     markPendingChanges: () => {

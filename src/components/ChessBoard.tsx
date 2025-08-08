@@ -87,6 +87,10 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     getCurrentBoard,
     engineOptions,
     clearAnalysisResults,
+    setChessgroundInstance,
+    placePiece,
+    removePiece,
+    updateGameStateOnly,
   } = useChessStore();
 
   const currentBoard = getCurrentBoard();
@@ -173,6 +177,7 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
       draggable: {
         enabled: true,
         lift: 0.5,
+        deleteOnDropOff: true,
       },
       highlight: {
         lastMove: true,
@@ -202,6 +207,57 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
           
           // Clear analysis results when user clicks on the board
           clearAnalysisResults();
+        },
+        dropNewPiece: (piece: any, key: Key) => {
+          console.log('🎯 DROP NEW PIECE: Dropping new piece:', piece, 'on square:', key);
+          console.log('🚀 DROP NEW PIECE: Calling placePiece to update board and sync with backend...');
+          placePiece(key, piece);
+        },
+        change: () => {
+          // This event fires when the board position changes (including piece removal)
+          if (!chessgroundRef.current) return;
+          
+          // Use a small delay to ensure the chessground state is fully updated
+          setTimeout(() => {
+            if (!chessgroundRef.current) return;
+            
+            const currentFen = chessgroundRef.current.getFen();
+            console.log('🔄 DRAG OPERATION: Board position changed via drag to:', currentFen);
+            
+            // Get the current FEN from the game state
+            const currentGameState = getCurrentBoard()?.gameState;
+            if (currentGameState) {
+              const currentStoreFen = currentGameState.fen.split(' ')[0]; // Just the piece positions
+              const newFen = currentFen.split(' ')[0]; // Just the piece positions
+              
+              console.log('🔍 DRAG OPERATION: Comparing FENs:', {
+                store: currentStoreFen,
+                chessground: newFen,
+                different: currentStoreFen !== newFen
+              });
+              
+              if (currentStoreFen !== newFen) {
+                // Reconstruct full FEN with proper metadata
+                const fenParts = currentGameState.fen.split(' ');
+                const fullFen = [
+                  newFen, // new piece positions
+                  fenParts[1] || 'w', // active color
+                  fenParts[2] || '-', // castling
+                  fenParts[3] || '-', // en passant
+                  fenParts[4] || '0', // halfmove
+                  fenParts[5] || '1'  // fullmove
+                ].join(' ');
+                
+                console.log('📝 DRAG OPERATION: Updating FEN via drag operation:', fullFen);
+                console.log('🚀 DRAG OPERATION: Calling updateGameStateOnly to sync with backend...');
+                updateGameStateOnly(fullFen);
+              } else {
+                console.log('✅ DRAG OPERATION: No FEN change detected, skipping update');
+              }
+            } else {
+              console.log('❌ DRAG OPERATION: No current game state found');
+            }
+          }, 50); // Small delay to ensure chessground has finished updating
         },
       },
       animation: {
@@ -237,6 +293,9 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     
     try {
       chessgroundRef.current = Chessground(boardRef.current, config);
+      
+      // Set the instance in the store so spare pieces can use it
+      setChessgroundInstance(chessgroundRef.current);
       
       // Calculate and set legal moves immediately after creation
       updateBoardMovability();

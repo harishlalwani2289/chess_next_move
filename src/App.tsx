@@ -7,6 +7,7 @@ import GameNavigation from './components/GameNavigation';
 import AnalysisResults from './components/AnalysisResults';
 import BoardsManager from './components/BoardsManager';
 import BoardNameDisplay from './components/BoardNameDisplay';
+import SparePieces from './components/SparePieces';
 import MobileNavigation from './components/MobileNavigation';
 import MobileCalculateButton from './components/MobileCalculateButton';
 import MobileBoardsSelector from './components/MobileBoardsSelector';
@@ -89,9 +90,22 @@ function App() {
             <div className="board-column">
             <MobileBoardsSelector />
             <BoardNameDisplay />
-            {/* <div className="board-section"> */}
+            
+            <div className="board-with-pieces">
+              {/* Spare pieces - component will decide which color to show based on board orientation */}
+              <div className="spare-pieces-top">
+                <SparePieces color="black" position="top" />
+                <SparePieces color="white" position="top" />
+              </div>
+              
               <ChessBoard />
-            {/* </div> */}
+              
+              <div className="spare-pieces-bottom">
+                <SparePieces color="black" position="bottom" />
+                <SparePieces color="white" position="bottom" />
+              </div>
+            </div>
+            
             <MobileCalculateButton />
             <GameNavigation />
           </div>

@@ -74,6 +74,26 @@ class ApiService {
   ): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}${endpoint}`;
     
+    // Log chess board related API calls with detailed information
+    if (endpoint.includes('/chess-boards')) {
+      const method = options.method || 'GET';
+      console.log(`🌐 API CALL: ${method} ${endpoint}`);
+      
+      if (options.body && (method === 'POST' || method === 'PUT')) {
+        try {
+          const bodyData = JSON.parse(options.body as string);
+          if (bodyData.fen) {
+            console.log('📝 API CALL: Sending FEN:', bodyData.fen);
+          }
+          if (bodyData.gameState) {
+            console.log('🎯 API CALL: Sending game state:', bodyData.gameState);
+          }
+        } catch (e) {
+          // Body might not be JSON, that's okay
+        }
+      }
+    }
+    
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
@@ -84,8 +104,18 @@ class ApiService {
     };
 
     try {
+      const startTime = Date.now();
       const response = await fetch(url, config);
       const data = await response.json();
+      const endTime = Date.now();
+      
+      // Log response details for chess board calls
+      if (endpoint.includes('/chess-boards')) {
+        console.log(`✅ API RESPONSE: ${response.status} ${response.statusText} (${endTime - startTime}ms)`);
+        if (data.success && data.data?.chessBoard?.fen) {
+          console.log('📥 API RESPONSE: Received FEN:', data.data.chessBoard.fen);
+        }
+      }
       
       if (!response.ok) {
         throw new Error(data.message || 'API request failed');
@@ -93,7 +123,10 @@ class ApiService {
       
       return data;
     } catch (error) {
-      console.error('API request error:', error);
+      console.error('❌ API ERROR:', error);
+      if (endpoint.includes('/chess-boards')) {
+        console.error('❌ CHESS BOARD API ERROR: Failed to sync with backend');
+      }
       throw error;
     }
   }
