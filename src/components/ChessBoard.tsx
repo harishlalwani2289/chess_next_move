@@ -89,7 +89,6 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
     clearAnalysisResults,
     setChessgroundInstance,
     placePiece,
-    removePiece,
     updateGameStateOnly,
   } = useChessStore();
 
