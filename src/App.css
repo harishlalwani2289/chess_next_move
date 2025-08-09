@@ -944,6 +944,9 @@
   display: flex;
   justify-content: center;
   height: auto;
+  /* Prevent scrolling when dragging spare pieces */
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 /* Spare Pieces Styling */
@@ -958,6 +961,9 @@
   margin: 0;
   transition: all 0.3s ease;
   display: inline-block;
+  /* Prevent scrolling when interacting with spare pieces */
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 .spare-pieces-top {
@@ -975,6 +981,9 @@
   flex-wrap: nowrap;
   align-items: center;
   height: auto;
+  /* Prevent scrolling when dragging spare pieces */
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 .spare-piece {
@@ -993,6 +1002,14 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  /* Prevent scrolling when dragging pieces on mobile */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .spare-piece:hover {
@@ -1006,6 +1023,32 @@
   cursor: grabbing;
   transform: scale(0.95);
   background-color: var(--bg-primary);
+}
+
+/* Enhanced mobile drag feedback */
+.spare-piece.dragging {
+  opacity: 0.7;
+  transform: scale(1.2);
+  border: 2px solid #007bff;
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+  z-index: 9999;
+}
+
+/* Add drag hint/preview for mobile */
+.spare-piece:active,
+.spare-piece.dragging {
+  position: relative;
+}
+
+/* Mobile-specific drag improvements */
+@media (max-width: 768px) {
+  .spare-piece:active,
+  .spare-piece.dragging {
+    transform: scale(1.3);
+    opacity: 0.8;
+    border: 3px solid #007bff;
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
+  }
 }
 
 /* White pieces - using exact chessground cburnett SVGs */
@@ -1194,6 +1237,14 @@
   aspect-ratio: 1 / 1 !important;
   box-sizing: border-box;
   position: relative;
+  /* Enable touch dragging on mobile devices */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Ensure chessground takes the full size and is fully responsive */
@@ -1210,6 +1261,8 @@
   left: 0 !important;
   right: 0 !important;
   bottom: 0 !important;
+  /* Enable touch dragging */
+  touch-action: none;
 }
 
 .chessground-board .cg-board {
@@ -1221,6 +1274,8 @@
   min-height: 100% !important;
   box-sizing: border-box !important;
   position: relative !important;
+  /* Enable touch dragging */
+  touch-action: none;
 }
 
 /* Override any inline styles that chessground might set */
@@ -1276,6 +1331,9 @@ Specifically target elements with inline width/height styles
 /* Make the board squares look better - removed transition to allow JS animations */
 .chessground-board .cg-board square {
   /* transition removed to allow Chessground JS animations to work properly */
+  /* Enable touch dragging for board squares */
+  touch-action: none;
+  -webkit-touch-callout: none;
 }
 
 /* Ensure Chessground piece animations work properly */
@@ -1283,12 +1341,54 @@ Specifically target elements with inline width/height styles
   /* Remove any conflicting transitions on pieces */
   transition: none !important;
   animation: none !important;
+  /* Enable touch dragging for pieces on mobile */
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 /* Support for Chessground's own piece movement animations */
 .chessground-board .cg-board piece.moving {
   transition: none !important;
   z-index: 9 !important;
+}
+
+/* Enhanced drag and drop visual feedback */
+.chessground-board .cg-board square.drag-over {
+  background-color: rgba(0, 123, 255, 0.3) !important;
+  border: 2px solid #007bff !important;
+}
+
+.chessground-board .cg-board square.drop-target {
+  background-color: rgba(40, 167, 69, 0.3) !important;
+  border: 2px solid #28a745 !important;
+}
+
+/* Better piece dragging feedback */
+.chessground-board .cg-board piece.dragging,
+.chessground-board .cg-board piece.ghost {
+  opacity: 0.8 !important;
+  transform: scale(1.1) !important;
+  z-index: 999 !important;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) !important;
+}
+
+/* Mobile-specific enhancements for better visibility */
+@media (max-width: 768px) {
+  .chessground-board .cg-board piece.dragging,
+  .chessground-board .cg-board piece.ghost {
+    transform: scale(1.2) !important;
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.5)) !important;
+  }
+  
+  .chessground-board .cg-board square.drag-over,
+  .chessground-board .cg-board square.drop-target {
+    border-width: 3px !important;
+  }
 }
 
 /* Ensure Chessground container supports animations */
