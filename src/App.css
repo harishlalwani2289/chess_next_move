@@ -2,12 +2,12 @@
 @media (min-width: 1201px) and (max-width: 1600px) {
   .main-content {
     display: grid !important;
-    grid-template-columns: 1.1fr 0.9fr !important;
+    grid-template-columns: 20% 1.1fr 0.9fr !important; /* sidebar | board | controls */
     grid-template-rows: 1fr 1fr !important;
     gap: 5px !important;
     max-width: 96% !important;
     margin: 0 auto !important;
-    margin-left: calc(220px + 2%) !important;
+    margin-left: 2% !important; /* sidebar now inside */
     margin-right: 2% !important;
     padding: 10px !important;
     align-items: start !important;
@@ -15,27 +15,31 @@
     min-height: calc(100vh - 180px) !important;
   }
 
-  .board-column {
+  .boards-sidebar {
     grid-column: 1;
+    grid-row: 1 / 3; /* span both rows */
+  }
+
+  .board-column {
+    grid-column: 2;
     grid-row: 1;
     width: 100% !important;
     max-width: 100% !important;
     min-width: auto !important;
-    /* gap: 5px !important; Reduce gutter size inside board-column */
-    border: none !important; /* Remove border */
-    border-radius: 0 !important; /* Make pointy border */
+    border: none !important;
+    border-radius: 0 !important;
   }
 
   .controls-column {
-    grid-column: 2;
+    grid-column: 3;
     grid-row: 1;
     width: 100% !important;
     max-width: 100% !important;
     height: 100% !important;
     align-self: stretch !important;
     min-height: 100% !important;
-    border: none !important; /* Remove border */
-    border-radius: 0 !important; /* Make pointy border */
+    border: none !important;
+    border-radius: 0 !important;
   }
 
   /* Ensure both columns have equal height - use the taller one */
@@ -49,7 +53,7 @@
   }
 
   .results-column {
-    grid-column: 1 / 3;
+    grid-column: 2 / 4;
     grid-row: 2;
     width: 100% !important;
     max-width: 100% !important;
@@ -310,32 +314,33 @@
 }
 
 .boards-sidebar {
-  position: absolute;
-  left: 1rem;
-  top: 0; /* Remove top positioning to rely on margin */
-  margin-top: 1.2rem; /* Match main-content top padding */
-  height: auto; /* Let height be determined by content like board-column */
-  z-index: 100;
-  background: var(--bg-tertiary); /* Match board-column background */
-  border-radius: 15px; /* Match board-column border-radius */
-  border: none; /* Remove border */
-  box-shadow: 0 8px 25px var(--shadow-primary); /* Match board-column box-shadow */
-  width: 12%;
-  min-width: 12%;
+  /* Now positioned as first grid column instead of absolute */
+  position: static;
+  left: auto;
+  top: auto;
+  margin-top: 0;
+  height: auto;
+  z-index: auto;
+  background: var(--bg-tertiary);
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 8px 25px var(--shadow-primary);
+  width: 100%; /* Fill the grid column */
+  min-width: auto;
   overflow-y: auto;
-  padding: 1.2rem 0.8rem; /* Match main-content padding exactly */
-  transition: background 0.3s ease, box-shadow 0.3s ease; /* Match board-column transition */
+  padding: 1.2rem 0.8rem;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
 .main-content {
   max-width: auto;
   margin: 0 auto;
-  margin-left: calc(12% + 2%); /* Adjusted for sidebar width + 2% margin */
+  margin-left: 2%; /* Remove sidebar offset since it's now inside */
   margin-right: 2%;
-  padding: 1.2rem 0.8rem; /* Reduced by 60% from 3rem and 2rem (3 * 0.4 = 1.2, 2 * 0.4 = 0.8) */
+  padding: 1.2rem 0rem;
   display: grid;
-  grid-template-columns: 35% 35% 30%; /* Board: 35%, Controls: 35%, Results: 30% */
-  gap: 10px; /* Set to 10px gutter size for default desktop layout */
+  grid-template-columns: 16% 32% 31% 21%; /* Sidebar: 12%, Board: 33%, Controls: 33%, Results: 22% */
+  gap: 10px;
   align-items: start;
   background: var(--bg-primary);
   min-height: calc(100vh - 180px);
@@ -588,8 +593,8 @@
   background: transparent;
   border-radius: 0;
   box-shadow: none;
-  width: 12%;
-  min-width: 12%;
+  width: 100%;
+  min-width: 100%;
   border: 2px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
   backdrop-filter: blur(8px);
@@ -1161,31 +1166,149 @@
 
 /* Tablet responsiveness for spare pieces (769px to 1200px) */
 @media (min-width: 769px) and (max-width: 1200px) {
+  /* Layout changes - hide sidebar and create 2-column grid */
+  .main-content {
+    grid-template-columns: 50% 50% !important; /* 2 equal columns: board and controls */
+    grid-template-rows: auto auto !important; /* 2 rows: main content and results */
+  }
+  
+  /* Hide sidebar on tablets - it's moved to menu button */
+  .boards-sidebar {
+    display: none !important;
+  }
+  
+  /* Board column takes first column */
+  .board-column {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  
+  /* Controls column takes second column */
+  .controls-column {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+  
+  /* Results column spans both columns in second row */
+  .results-column {
+    grid-column: 1 / 3 !important;
+    grid-row: 2 !important;
+  }
+
+  /* Existing spare pieces styling - fix overlapping */
   .current-board-name {
     display: block; /* Show board name only on tablets */
   }
   
   .board-with-pieces {
-    gap: 4px;
-    margin: 6px 0;
+    gap: 12px; /* Increased gap to prevent overlap */
+    margin: 10px 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   
   .spare-pieces-container {
-    padding: 6px 8px;
+    margin: 1px 0; /* Add vertical margin */
+    padding: 2px;
+    border-radius: 0px;
+    /* background: var(--bg-secondary); */
+    opacity: 1 !important; /* Override base opacity */
+    /* box-shadow: 0 2px 6px rgba(0,0,0,0.15); */
+    position: relative; /* Ensure proper stacking */
+    z-index: 1; /* Keep above other elements but below modals */
   }
   
   .spare-piece {
-    width: 13%;
-    /* height: 3.5rem; */
+    width: 25% !important; /* Larger than 8% but smaller than 25% */
+    height: 48px !important; /* Reasonable size between 32px and 4rem */
+    min-height: 48px;
+    max-height: 48px;
+    aspect-ratio: 1/1;
+    background-size: 85% 85% !important; /* Proper piece image size */
+    background-color: var(--bg-secondary) !important;
+    opacity: .5;
   }
   
   .spare-pieces-grid {
-    gap: 5px;
+    gap: 6px; /* Balanced gap */
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
   }
   
   .spare-pieces-top,
   .spare-pieces-bottom {
-    width: 95%;
+    width: 100%; /* Good balance between coverage and breathing room */
+    display: flex;
+    justify-content: center;
+    margin: 0px 0; /* Proper vertical spacing */
+  }
+  
+  /* Ensure chessground board has proper spacing */
+  .chessground-board {
+    margin: 8px 0 !important; /* Add margin to separate from spare pieces */
+    position: relative;
+    z-index: 2; /* Keep board above spare pieces */
+  }
+  
+  /* Fix chess board container to prevent overflow */
+  .chess-board-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 99% !important; /* Reduce width further to ensure board stays within column */
+    max-width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 1 / 1 !important;
+    margin: 0 2px !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden; /* Prevent any overflow */
+  }
+  
+  /* Ensure chessground board fits within container */
+  .chessground-board {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    margin: 0 !important;
+  }
+  
+  /* Ensure chessground wrapper and board scale properly */
+  .chessground-board .cg-wrap {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    position: relative !important;
+  }
+  
+  .chessground-board .cg-board {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    position: relative !important;
+  }
+  
+  /* Override any inline styles that might cause overflow */
+  .chessground-board .cg-wrap[style] {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+  }
+  
+  .chessground-board .cg-board[style] {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
   }
 }
 
@@ -1305,7 +1428,7 @@
   max-height: 100% !important;
 }
 
-Specifically target elements with inline width/height styles
+/* Specifically target elements with inline width/height styles */
 .chessground-board [style*="width"],
 .chessground-board [style*="height"] {
   width: 100% !important;
@@ -3616,50 +3739,10 @@ progress::-moz-progress-bar {
 }
 
 
-/* Tablet styles (768px - 1200px) */
+/* Tablet styles (768px - 1200px) - Controls only (layout handled by main tablet media query) */
 @media (max-width: 1200px) and (min-width: 769px) {
-  .main-content {
-    grid-template-columns: 1fr 0.67fr;
-    gap: 5px !important; /* Reduce gutter size to 5px */
-    padding: 2rem 1rem;
-    max-width: 100vw;
-    overflow-x: hidden;
-    box-sizing: border-box;
-  }
-
-  .board-column {
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-    min-width: auto;
-    overflow: hidden;
-    box-sizing: border-box;
-    border: none !important; /* Remove border for tablets */
-    border-radius: 0 !important; /* Make pointy border for tablets */
-    background: transparent; /* Make background transparent for tablets */
-    padding-top: 0; /* Remove top padding for tablets */
-    gap: 4px; /* Reduce gap to 4px for tablets */
-    height: 100% !important; /* Match controls-column height */
-    align-self: stretch !important; /* Stretch to match tallest column */
-    min-height: 100% !important; /* Ensure minimum height matching */
-    display: flex !important; /* Enable flexbox for internal layout */
-    flex-direction: column !important; /* Stack content vertically */
-  }
-
-  .controls-column {
-    width: 100%;
-    max-width: 100%;
-    overflow: hidden;
-    box-sizing: border-box;
-    padding: 1.2rem 0.8rem; /* 20% smaller padding */
-    border: none !important; /* Remove border for tablets */
-    border-radius: 0 !important; /* Make pointy border for tablets */
-    height: 100% !important; /* Match board-column height */
-    align-self: stretch !important; /* Stretch to match tallest column */
-    min-height: 100% !important; /* Ensure minimum height matching */
-    display: flex !important; /* Enable flexbox for internal layout */
-    flex-direction: column !important; /* Stack content vertically */
-  }
+  /* Note: Main layout (grid-template-columns, etc.) is handled by the primary tablet media query above */
+  /* This section only handles controls styling to avoid conflicts */
 
   /* Scale down all elements inside controls column by 20% */
   .controls-column .btn {
@@ -3844,6 +3927,7 @@ progress::-moz-progress-bar {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    margin: 0 auto;
   }
   
   /* Tablet board name display */
@@ -3859,15 +3943,6 @@ progress::-moz-progress-bar {
   .current-board-name {
     font-size: .9rem;
     font-weight: 400;
-  }
-
-  .chessground-board {
-    width: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
-    height: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
-    max-width: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
-    max-height: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
-    min-width: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
-    min-height: 54.08vw !important; /* Increased by 4% from 52vw (52 * 1.04 = 54.08) */
   }
 
   /* Ensure the chessground internal elements scale properly */
@@ -4194,8 +4269,8 @@ progress::-moz-progress-bar {
 /* Medium desktop screens (1200px to 1600px) */
 @media (min-width: 1200px) and (max-width: 1600px) {
   .boards-sidebar {
-    width: 16%;
-    min-width: 12%;
+    width: 100%;
+    min-width: 100%;
   }
 }
 
@@ -4850,6 +4925,29 @@ progress::-moz-progress-bar {
   .move-indicator {
     min-width: 40px;
     font-size: 0.65rem;
+  }
+}
+
+/* Mobile responsive behavior for sidebar inside main-content */
+@media (max-width: 768px) {
+  .main-content {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    margin-left: 2% !important;
+    margin-right: 2% !important;
+  }
+  
+  /* Hide desktop sidebar on mobile - use mobile navigation instead */
+  .boards-sidebar {
+    display: none !important;
+  }
+  
+  .board-column,
+  .controls-column,
+  .results-column {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }
 

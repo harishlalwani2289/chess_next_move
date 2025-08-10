@@ -81,12 +81,12 @@ function App() {
           </div>
         </header>
 
-        <div className="app-layout">
-          <div className="boards-sidebar">
-            <BoardsManager />
-          </div>
-          
+        <div className="app-layout">          
           <main className="main-content">
+            <div className="boards-sidebar">
+              <BoardsManager />
+            </div>
+            
             <div className="board-column">
             <MobileBoardsSelector />
             <BoardNameDisplay />
