@@ -775,6 +775,36 @@ export const useChessStore = create<ChessStore>((set, get) => {
       try {
         console.log('🔄 PLACE PIECE: Starting piece placement:', piece, 'on square:', square);
         
+        // Validation rules
+        const rank = square[1];
+        
+        // 1. Prevent pawns on first or last rank
+        if (piece.role === 'pawn' && (rank === '1' || rank === '8')) {
+          console.warn('❌ PLACE PIECE: Cannot place pawn on edge rank');
+          return;
+        }
+        
+        // 2. Check for king restrictions
+        if (piece.role === 'king') {
+          // Count existing kings of the same color
+          const board = game.board();
+          let kingCount = 0;
+          for (let rank = 0; rank < 8; rank++) {
+            for (let file = 0; file < 8; file++) {
+              const square = board[rank][file];
+              if (square && square.type === 'k' && square.color === piece.color[0]) {
+                kingCount++;
+              }
+            }
+          }
+          
+          // Check if there's already a king of this color
+          if (kingCount >= 1) {
+            console.warn('❌ PLACE PIECE: Cannot place multiple kings of the same color');
+            return;
+          }
+        }
+        
         // Convert piece role to chess.js format
         const pieceSymbol = piece.role === 'knight' ? 'n' : piece.role[0];
         const pieceColor = piece.color[0] as 'w' | 'b';
@@ -824,6 +854,13 @@ export const useChessStore = create<ChessStore>((set, get) => {
       
       const { game } = currentBoard;
       try {
+        // Check if the piece is a king before removing
+        const pieceToRemove = game.get(square as any);
+        if (pieceToRemove && pieceToRemove.type === 'k') {
+          console.warn('❌ REMOVE PIECE: Cannot remove king from board');
+          return;
+        }
+        
         // Remove the piece from the square
         const removedPiece = game.remove(square as any);
         
@@ -835,6 +872,12 @@ export const useChessStore = create<ChessStore>((set, get) => {
           };
           get().updateCurrentBoard({ gameState: updatedGameState });
           get().addToHistory();
+          
+          // Update chessground to reflect the new position
+          const chessgroundInstance = get().chessgroundInstance;
+          if (chessgroundInstance) {
+            chessgroundInstance.set({ fen: game.fen() });
+          }
           
           // Directly save to database if authenticated
           const authStore = useAuthStore.getState();
@@ -968,7 +1011,14 @@ export const useChessStore = create<ChessStore>((set, get) => {
       if (!currentBoard) return;
       
       const { game } = currentBoard;
+      
+      // Clear the board but preserve kings
       game.clear();
+      
+      // Place kings back on their starting positions
+      game.put({ type: 'k', color: 'w' }, 'e1');
+      game.put({ type: 'k', color: 'b' }, 'e8');
+      
       const updatedGameState = {
         ...currentBoard.gameState,
         fen: game.fen(),
@@ -976,6 +1026,12 @@ export const useChessStore = create<ChessStore>((set, get) => {
       };
       get().updateCurrentBoard({ gameState: updatedGameState });
       get().addToHistory();
+
+      // Update chessground to reflect the new position
+      const chessgroundInstance = get().chessgroundInstance;
+      if (chessgroundInstance) {
+        chessgroundInstance.set({ fen: game.fen() });
+      }
 
       // Directly save to database if authenticated
       const authStore = useAuthStore.getState();

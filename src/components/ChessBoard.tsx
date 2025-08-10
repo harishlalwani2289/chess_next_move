@@ -24,6 +24,47 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
   const boardRef = useRef<HTMLDivElement>(null);
   const chessgroundRef = useRef<any>(null);
   
+  // Function to validate board position
+  const validateBoardPosition = (fen: string): boolean => {
+    try {
+      // Parse the FEN to check piece positions
+      const piecePositions = fen.split(' ')[0];
+      const ranks = piecePositions.split('/');
+      
+      // Count kings
+      let whiteKings = 0;
+      let blackKings = 0;
+      
+      // Check each rank
+      for (const rank of ranks) {
+        for (const char of rank) {
+          if (char === 'K') whiteKings++;
+          else if (char === 'k') blackKings++;
+          // Check for pawns on first/last ranks
+          else if (char === 'P' && (ranks.indexOf(rank) === 0 || ranks.indexOf(rank) === 7)) {
+            console.warn('❌ VALIDATION: Pawn on edge rank detected');
+            return false;
+          }
+          else if (char === 'p' && (ranks.indexOf(rank) === 0 || ranks.indexOf(rank) === 7)) {
+            console.warn('❌ VALIDATION: Pawn on edge rank detected');
+            return false;
+          }
+        }
+      }
+      
+      // Must have exactly one king of each color
+      if (whiteKings !== 1 || blackKings !== 1) {
+        console.warn('❌ VALIDATION: Invalid king count - White:', whiteKings, 'Black:', blackKings);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('❌ VALIDATION: Error validating board position:', error);
+      return false;
+    }
+  };
+  
   // Calculate responsive width based on screen size
   const getResponsiveWidth = () => {
     if (width) return width; // Use provided width if specified
@@ -222,6 +263,17 @@ export const ChessBoard: React.FC<ChessBoardProps> = ({ width }) => {
             
             const currentFen = chessgroundRef.current.getFen();
             console.log('🔄 DRAG OPERATION: Board position changed via drag to:', currentFen);
+            
+            // Validate the new position before applying
+            if (!validateBoardPosition(currentFen)) {
+              console.warn('❌ DRAG OPERATION: Invalid board position detected, reverting');
+              // Revert to previous position
+              const currentGameState = getCurrentBoard()?.gameState;
+              if (currentGameState && chessgroundRef.current) {
+                chessgroundRef.current.set({ fen: currentGameState.fen });
+              }
+              return;
+            }
             
             // Get the current FEN from the game state
             const currentGameState = getCurrentBoard()?.gameState;

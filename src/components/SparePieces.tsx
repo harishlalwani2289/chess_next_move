@@ -31,9 +31,8 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
     return null;
   }
 
-  // Define pieces for the specified color
+  // Define pieces for the specified color (excluding kings)
   const pieces: Piece[] = [
-    { role: 'king', color },
     { role: 'queen', color },
     { role: 'rook', color },
     { role: 'bishop', color },

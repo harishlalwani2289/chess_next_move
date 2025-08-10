@@ -1124,16 +1124,18 @@
   
   .spare-pieces-container {
     padding: 4px;
+    width: 120%;
   }
   
   .spare-piece {
-    width: 14%;
+    width: 24%;
     /* height: 42px; */
     /* aspect-ratio: ; */
   }
   
   .spare-pieces-grid {
-    gap: 4px;
+    gap: 14px;
+    width: 100%;
   }
 }
 
