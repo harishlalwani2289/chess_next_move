@@ -2,7 +2,7 @@
 
 A powerful chess analysis tool built with React, TypeScript, and Vite. Features chess board editing, AI-powered move analysis, multiple board management, user authentication, and cloud synchronization.
 
-**Live Demo:** [Production Frontend](https://your-vercel-app.vercel.app)  
+**Live Demo:** [Production Frontend](https://chess-next-move.vercel.app/)  
 **Production Backend:** https://chess-backend-production-cb44.up.railway.app/api
 
 ## ✨ Features
