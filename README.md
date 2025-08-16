@@ -29,30 +29,34 @@ A powerful chess analysis tool built with React, TypeScript, and Vite. Features 
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/harishlalwani2289/chess_next_move.git
    cd chess_next_move
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Set up environment variables**
+
    ```bash
    # Copy the example environment file
    cp .env.example .env
-   
+
    # Edit .env with your configuration
    nano .env
    ```
 
 4. **Configure your .env file**
+
    ```env
    # Backend API URL
    VITE_API_URL=http://localhost:5000/api
-   
+
    # AI API Keys (optional - for AI analysis features)
    VITE_GEMINI_API_KEY=your_gemini_api_key_here
    VITE_OPENAI_API_KEY=your_openai_api_key_here
@@ -61,6 +65,7 @@ A powerful chess analysis tool built with React, TypeScript, and Vite. Features 
    ```
 
 5. **Start the development server**
+
    ```bash
    npm run dev
    ```
@@ -103,21 +108,23 @@ src/
 This frontend requires a backend API. You can:
 
 1. **Use the production backend** (default):
+
    ```env
    VITE_API_URL=https://chess-backend-production-cb44.up.railway.app/api
    ```
 
 2. **Set up local backend**:
+
    ```bash
    # Navigate to backend directory (if you have it)
    cd ../chess-backend
-   
+
    # Install dependencies
    npm install
-   
+
    # Set up environment variables
    cp .env.example .env
-   
+
    # Start backend server
    npm start
    ```
@@ -127,18 +134,21 @@ This frontend requires a backend API. You can:
 ### Basic Usage
 
 1. **Chess Board Editing**
+
    - Drag pieces around the board
    - Use spare pieces to add new pieces
    - Right-click to remove pieces
    - Clear button removes all pieces except kings
 
 2. **Board Management**
+
    - Create new boards with the "+" button
    - Switch between boards using the board selector
    - Rename boards by clicking the edit icon
    - Delete boards (except the last one)
 
 3. **AI Analysis**
+
    - Configure AI API keys in settings
    - Select a move and click "Analyze"
    - Get detailed explanations from AI providers
@@ -151,11 +161,13 @@ This frontend requires a backend API. You can:
 ### Advanced Features
 
 1. **Board Validation**
+
    - Kings cannot be removed or duplicated
    - Pawns cannot be placed on edge ranks (1st/8th)
    - Invalid positions are automatically prevented
 
 2. **Move History**
+
    - Navigate through position history
    - Undo/redo functionality
    - Export positions as FEN
@@ -168,21 +180,25 @@ This frontend requires a backend API. You can:
 ## 🔑 API Keys Setup
 
 ### Gemini API (Google)
+
 1. Go to [Google AI Studio](https://makersuite.google.com/)
 2. Create a new API key
 3. Add to your `.env` file
 
 ### OpenAI API
+
 1. Visit [OpenAI Platform](https://platform.openai.com/)
 2. Create an API key
 3. Add to your `.env` file
 
 ### Claude API (Anthropic)
+
 1. Sign up at [Anthropic Console](https://console.anthropic.com/)
 2. Generate an API key
 3. Add to your `.env` file
 
 ### Groq API
+
 1. Create account at [Groq](https://console.groq.com/)
 2. Get your API key
 3. Add to your `.env` file
@@ -192,10 +208,11 @@ This frontend requires a backend API. You can:
 ### Frontend Deployment (Vercel)
 
 1. **Deploy to Vercel**
+
    ```bash
    # Install Vercel CLI
    npm i -g vercel
-   
+
    # Deploy
    vercel
    ```
@@ -211,16 +228,19 @@ See the [deployment guide](./deployment-guide.md) for complete backend setup ins
 ## 🔧 Development
 
 ### Code Style
+
 - ESLint + TypeScript strict mode
 - Prettier for code formatting
 - Consistent naming conventions
 
 ### State Management
+
 - Zustand for global state
 - Separate stores for chess and auth
 - Persistent storage for offline capability
 
 ### Components
+
 - Functional components with hooks
 - TypeScript for type safety
 - Responsive design with CSS Grid/Flexbox
@@ -228,16 +248,19 @@ See the [deployment guide](./deployment-guide.md) for complete backend setup ins
 ## 🐛 Common Issues
 
 ### "Board not loading"
+
 - Check if backend is running
 - Verify API URL in `.env`
 - Check browser console for errors
 
 ### "Authentication failed"
+
 - Verify backend connection
 - Check if JWT secret is configured
 - Clear browser storage and try again
 
 ### "AI analysis not working"
+
 - Verify API keys are correct
 - Check API key permissions
 - Ensure API keys are not expired
