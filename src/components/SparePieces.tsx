@@ -120,12 +120,69 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
     
     // Set a timeout for 500ms before enabling drag
     const dragTimeout = setTimeout(() => {
-      console.log('🕒 TOUCH HOLD: 500ms elapsed, enabling drag');
+      console.log('🕒 TOUCH HOLD: 500ms elapsed, piece is now ready to drag');
       
-      // Remove hold indicator and add dragging state
+      // Remove hold indicator and mark as drag-ready
       target.classList.remove('touch-hold');
-      target.classList.add('dragging');
+      target.classList.add('drag-ready');
       holdIndicator.remove();
+      
+      // Add a visual indicator that piece is ready to drag
+      const readyIndicator = document.createElement('div');
+      readyIndicator.className = 'drag-ready-indicator';
+      readyIndicator.textContent = '✓ Ready to drag';
+      readyIndicator.style.cssText = `
+        position: fixed;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 200, 0, 0.9);
+        color: white;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 12px;
+        font-weight: bold;
+        z-index: 10000;
+        pointer-events: none;
+        box-shadow: 0 2px 8px rgba(0, 200, 0, 0.3);
+      `;
+      document.body.appendChild(readyIndicator);
+      
+      // Remove the ready indicator after 1 second
+      setTimeout(() => {
+        if (readyIndicator.parentNode) {
+          readyIndicator.remove();
+        }
+      }, 1000);
+      
+      // Mark the piece as drag-enabled
+      target.setAttribute('data-drag-enabled', 'true');
+      
+    }, 500); // 500ms delay
+    
+    // Store timeout ID and touch data to clear it if touch ends early
+    target.setAttribute('data-drag-timeout', dragTimeout.toString());
+    target.setAttribute('data-touch-data', JSON.stringify(touchData));
+  };
+
+  // Handle touch move for mobile devices - start drag if piece is enabled
+  const handleTouchMove = (piece: Piece, event: React.TouchEvent<HTMLDivElement>) => {
+    const target = event.currentTarget;
+    const isDragEnabled = target.getAttribute('data-drag-enabled') === 'true';
+    
+    // Only start dragging if the piece has been held for 0.5 seconds
+    if (isDragEnabled && !target.classList.contains('dragging')) {
+      console.log('🚀 TOUCH MOVE: Starting drag for enabled piece');
+      
+      // Get stored touch data
+      const touchDataStr = target.getAttribute('data-touch-data');
+      if (!touchDataStr) return;
+      
+      const touchData = JSON.parse(touchDataStr);
+      
+      // Add dragging state
+      target.classList.add('dragging');
+      target.classList.remove('drag-ready');
       
       // Add a visual drag indicator
       const dragIndicator = document.createElement('div');
@@ -148,13 +205,16 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
       `;
       document.body.appendChild(dragIndicator);
       
-      // Store reference to remove later
-      target.setAttribute('data-drag-indicator', 'true');
+      // Remove ready indicator if it exists
+      const readyIndicator = document.querySelector('.drag-ready-indicator');
+      if (readyIndicator) {
+        readyIndicator.remove();
+      }
       
       // Use the chessground instance from the store for touch events
       if (chessgroundInstance && chessgroundInstance.dragNewPiece) {
         try {
-          console.log('📱 TOUCH HOLD: Converting touch to mouse event', {
+          console.log('📱 TOUCH MOVE: Converting touch to mouse event', {
             clientX: touchData.clientX,
             clientY: touchData.clientY
           });
@@ -168,27 +228,24 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
             cancelable: true,
           });
           
-          console.log('🚀 TOUCH HOLD: Calling chessground dragNewPiece...');
+          console.log('🚀 TOUCH MOVE: Calling chessground dragNewPiece...');
           chessgroundInstance.dragNewPiece(piece, mouseEvent);
-          console.log('✅ TOUCH HOLD: Successfully initiated drag for mobile');
+          console.log('✅ TOUCH MOVE: Successfully initiated drag for mobile');
         } catch (error) {
-          console.error('❌ TOUCH HOLD: Failed to use Chessground dragNewPiece with touch:', error);
+          console.error('❌ TOUCH MOVE: Failed to use Chessground dragNewPiece with touch:', error);
           // Remove visual feedback if drag failed
           target.classList.remove('dragging');
           const indicator = document.querySelector('.drag-indicator');
           if (indicator) indicator.remove();
         }
       } else {
-        console.warn('⚠️ TOUCH HOLD: No chessground instance or dragNewPiece method available');
+        console.warn('⚠️ TOUCH MOVE: No chessground instance or dragNewPiece method available');
         // Remove visual feedback if no chessground
         target.classList.remove('dragging');
         const indicator = document.querySelector('.drag-indicator');
         if (indicator) indicator.remove();
       }
-    }, 500); // 500ms delay
-    
-    // Store timeout ID to clear it if touch ends early
-    target.setAttribute('data-drag-timeout', dragTimeout.toString());
+    }
   };
 
   // Handle touch end for mobile devices
@@ -202,8 +259,10 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
       target.removeAttribute('data-drag-timeout');
     }
     
-    // Remove visual feedback classes
-    target.classList.remove('dragging', 'touch-hold');
+    // Remove all visual feedback classes and attributes
+    target.classList.remove('dragging', 'touch-hold', 'drag-ready');
+    target.removeAttribute('data-drag-enabled');
+    target.removeAttribute('data-touch-data');
     
     // Remove progress indicator if it exists
     const holdIndicator = target.querySelector('.hold-progress-indicator');
@@ -215,6 +274,12 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
     const indicator = document.querySelector('.drag-indicator');
     if (indicator) {
       indicator.remove();
+    }
+    
+    // Remove ready indicator
+    const readyIndicator = document.querySelector('.drag-ready-indicator');
+    if (readyIndicator) {
+      readyIndicator.remove();
     }
   };
 
@@ -229,8 +294,10 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
       target.removeAttribute('data-drag-timeout');
     }
     
-    // Remove visual feedback classes
-    target.classList.remove('dragging', 'touch-hold');
+    // Remove all visual feedback classes and attributes
+    target.classList.remove('dragging', 'touch-hold', 'drag-ready');
+    target.removeAttribute('data-drag-enabled');
+    target.removeAttribute('data-touch-data');
     
     // Remove progress indicator if it exists
     const holdIndicator = target.querySelector('.hold-progress-indicator');
@@ -242,6 +309,12 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
     const indicator = document.querySelector('.drag-indicator');
     if (indicator) {
       indicator.remove();
+    }
+    
+    // Remove ready indicator
+    const readyIndicator = document.querySelector('.drag-ready-indicator');
+    if (readyIndicator) {
+      readyIndicator.remove();
     }
   };
 
@@ -257,6 +330,7 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
             onDragEnd={handleDragEnd}
             onMouseDown={(e) => handleMouseDown(piece, e)}
             onTouchStart={(e) => handleTouchStart(piece, e)}
+            onTouchMove={(e) => handleTouchMove(piece, e)}
             onTouchEnd={handleTouchEnd}
             onTouchCancel={handleTouchCancel}
             title={`${piece.color} ${piece.role}`}

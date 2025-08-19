@@ -1085,6 +1085,15 @@
   transition: all 0.1s ease;
 }
 
+.spare-piece.drag-ready {
+  position: relative;
+  background-color: rgba(0, 200, 0, 0.1);
+  border: 2px solid rgba(0, 200, 0, 0.5);
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 200, 0, 0.3);
+}
+
 .hold-progress-indicator {
   position: absolute;
   bottom: -4px;
@@ -1103,6 +1112,12 @@
     transform: scale(1.1);
     border: 3px solid rgba(0, 123, 255, 0.5);
     box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  }
+  
+  .spare-piece.drag-ready {
+    transform: scale(1.15);
+    border: 3px solid rgba(0, 200, 0, 0.7);
+    box-shadow: 0 6px 20px rgba(0, 200, 0, 0.4);
   }
   
   .hold-progress-indicator {
