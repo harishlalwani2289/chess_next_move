@@ -80,18 +80,15 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
   const handleTouchStart = (piece: Piece, event: React.TouchEvent<HTMLDivElement>) => {
     console.log('🔥 TOUCH START: Touch event detected for piece:', piece);
     
-    // Prevent default touch behavior
-    event.preventDefault();
-    
     const target = event.currentTarget;
     const touch = event.touches[0];
     
-    // Store touch data for the timeout
+    // Store touch data for the timeout (only serializable data)
     const touchData = {
       clientX: touch.clientX,
       clientY: touch.clientY,
-      piece,
-      target
+      pieceRole: piece.role,
+      pieceColor: piece.color
     };
     
     // Add initial visual feedback to indicate touch is registered
@@ -214,14 +211,23 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
       // Use the chessground instance from the store for touch events
       if (chessgroundInstance && chessgroundInstance.dragNewPiece) {
         try {
+          // Create the piece object from stored data
+          const pieceForDrag = {
+            role: touchData.pieceRole,
+            color: touchData.pieceColor
+          };
+          
           console.log('📱 TOUCH MOVE: Converting touch to mouse event', {
             clientX: touchData.clientX,
-            clientY: touchData.clientY
+            clientY: touchData.clientY,
+            piece: pieceForDrag
           });
           
+          // Use current touch position for the drag start
+          const currentTouch = event.touches[0];
           const mouseEvent = new MouseEvent('mousedown', {
-            clientX: touchData.clientX,
-            clientY: touchData.clientY,
+            clientX: currentTouch.clientX,
+            clientY: currentTouch.clientY,
             button: 0,
             buttons: 1,
             bubbles: true,
@@ -229,7 +235,7 @@ export const SparePieces: React.FC<SparePiecesProps> = ({ color, position }) => 
           });
           
           console.log('🚀 TOUCH MOVE: Calling chessground dragNewPiece...');
-          chessgroundInstance.dragNewPiece(piece, mouseEvent);
+          chessgroundInstance.dragNewPiece(pieceForDrag, mouseEvent);
           console.log('✅ TOUCH MOVE: Successfully initiated drag for mobile');
         } catch (error) {
           console.error('❌ TOUCH MOVE: Failed to use Chessground dragNewPiece with touch:', error);
